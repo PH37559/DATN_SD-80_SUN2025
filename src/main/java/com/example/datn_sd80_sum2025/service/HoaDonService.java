@@ -1,4 +1,11 @@
 package com.example.datn_sd80_sum2025.service;
 
-public class HoaDonService {
+
+import com.example.datn_sd80_sum2025.entity.HoaDon;
+
+import java.util.List;
+
+public interface HoaDonService {
+    List<HoaDon> getAll();
+    HoaDon getById(Integer id);
 }

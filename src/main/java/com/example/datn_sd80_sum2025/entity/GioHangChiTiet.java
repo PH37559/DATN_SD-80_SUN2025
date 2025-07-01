@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table(name = "gio_hang_chi_tiet")
+@IdClass(GioHangChiTietId.class)
 public class GioHangChiTiet {
     @Id
     @ManyToOne
