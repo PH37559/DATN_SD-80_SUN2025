@@ -16,12 +16,15 @@
             background-color: #f9f9f9;
         }
 
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
         .header {
-            background: linear-gradient(to right, #FFA500, #FFD700);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: linear-gradient(to right, #FEB500, #FFD700);
+            padding: 10px 0;
         }
 
         .left-header {
@@ -30,32 +33,34 @@
             gap: 10px;
         }
 
+        .logo img {
+            height: 60px;
+        }
+
         .brand-text {
             font-size: 24px;
             font-weight: bold;
             color: orange;
         }
 
-        .logo img {
-            height: 50px;
-        }
-
         .search-bar {
             flex-grow: 1;
-            margin: 0 30px;
             display: flex;
+            margin: 0 50px;
         }
 
         .search-bar input {
-            width: 100%;
-            padding: 8px;
+            width: 700px;
+            padding: 6px;
+            font-size: 14px;
             border: 1px solid #ccc;
             border-right: none;
             outline: none;
         }
 
         .search-bar button {
-            padding: 8px 16px;
+            padding: 6px 12px;
+            font-size: 14px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -81,6 +86,7 @@
         .cart {
             position: relative;
             font-size: 20px;
+            text-align: center;
         }
 
         .cart span {
@@ -94,25 +100,43 @@
             border-radius: 50%;
         }
 
+        .cart p {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
         /* Menu */
         nav.menu {
+            width: 100%;
             background-color: white;
             border-top: 1px solid #ddd;
             border-bottom: 1px solid #ddd;
+        }
+        .brand {
+            font-weight: bold;
+            font-size: 24px;
+            color: orange;
         }
 
         nav.menu ul {
             list-style: none;
             display: flex;
             align-items: center;
-            padding: 10px 20px;
+            padding: 10px 0;
             gap: 30px;
+            margin: 0;
+        }
+
+        nav.menu ul li {
+            display: flex;
+            align-items: center;
         }
 
         nav.menu ul li a {
             text-decoration: none;
             color: black;
             font-weight: 600;
+            font-size: 16px;
         }
 
         nav.menu ul li a:hover {
@@ -130,66 +154,70 @@
             background: #eee;
             margin-top: 40px;
         }
+
     </style>
 </head>
 <body>
 
 <!-- Header -->
 <div class="header">
-    <!-- BeeBook + Logo -->
-    <div class="left-header">
-        <span class="brand-text">BeeBook</span>
-        <div class="logo">
-            <a href="/"><img src="/logo.png" alt="BeeBook Logo"></a>
-        </div>
-    </div>
+    <div class="container d-flex justify-content-between align-items-center">
 
-    <!-- Thanh tìm kiếm -->
-    <form class="search-bar" th:action="@{/tim-kiem}" method="get">
-        <input type="text" name="keyword" placeholder="Tìm kiếm sách...">
-        <button type="submit">Tìm</button>
-    </form>
-
-    <!-- Đăng nhập / Xin chào + Giỏ hàng -->
-    <div class="actions">
-        <div th:if="${tenDangNhap != null}">
-            Xin chào, <a href="/tai-khoan" th:text="${tenDangNhap}"></a> | <a href="/logout" class="text-danger">Thoát</a>
-        </div>
-        <div th:if="${tenDangNhap == null}">
-            <a href="/dang-ky">Đăng Ký</a> | <a href="/dang-nhap">Đăng Nhập</a>
+        <!-- Logo -->
+        <div class="left-header d-flex align-items-center gap-3">
+            <div class="logo">
+                <a href="/"><img src="/logo.png" alt="BeeBook Logo" style="height: 60px;"></a>
+            </div>
         </div>
 
-        <div class="cart">
-            <a href="/gio-hang">🛒</a>
-            <span>0</span>
+        <!-- Thanh tìm kiếm -->
+        <form class="search-bar d-flex" th:action="@{/tim-kiem}" method="get">
+            <input type="text" name="keyword" placeholder="Tìm kiếm sách...">
+            <button type="submit">Tìm</button>
+        </form>
+
+        <!-- Đăng nhập / Giỏ hàng -->
+        <div class="actions d-flex align-items-center gap-3">
+            <div th:if="${tenDangNhap != null}">
+                Xin chào, <a href="/tai-khoan" th:text="${tenDangNhap}"></a> |
+                <a href="/logout" class="text-danger">Thoát</a>
+            </div>
+            <div th:if="${tenDangNhap == null}">
+                <a href="/dang-ky">Đăng Ký</a> | <a href="/dang-nhap">Đăng Nhập</a>
+            </div>
+
+            <div class="cart text-center">
+                <a href="/gio-hang">🛒</a>
+                <span>0</span>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Menu -->
-
 <nav class="menu">
-    <ul>
-        <li style="margin-right: 80px;">
-            <a href="/" style="font-weight: bold; color: orange; font-size: 20px;">BeeBook</a>
-        </li>
-        <li><a href="/">Trang chủ</a></li>
-        <li><a href="/sach/hien-thi">Sách</a></li>
-        <li><a href="/tin-tuc">Tin tức</a></li>
-        <li><a href="/lien-he">Liên hệ</a></li>
-    </ul>
+    <div class="container">
+        <ul>
+            <span class="brand">BeeBook</span>
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/sach/hien-thi">Sách</a></li>
+            <li><a href="/tin-tuc">Tin tức</a></li>
+            <li><a href="/lien-he">Liên hệ</a></li>
+        </ul>
+    </div>
 </nav>
 
+<div class="container mt-4">
+    <!-- Nội dung chính -->
+    <main th:replace="${content}">
+        <p>Nội dung mặc định</p>
+    </main>
 
-<!-- Nội dung -->
-<main class="container mt-4" th:replace="${content}">
-    <p>Nội dung mặc định</p>
-</main>
-
-<!-- Footer -->
-<footer>
-    &copy; 2025 BeeBook. All rights reserved.
-</footer>
+    <!-- Footer -->
+    <footer>
+        &copy; 2025 BeeBook. All rights reserved.
+    </footer>
+</div>
 
 </body>
 </html>
