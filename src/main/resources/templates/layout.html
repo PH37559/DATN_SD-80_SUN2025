@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi" th:fragment="view(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">BeeBook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .header {
+            background: linear-gradient(to right, #FFA500, #FFD700);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .left-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: orange;
+        }
+
+        .logo img {
+            height: 50px;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            margin: 0 30px;
+            display: flex;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-right: none;
+            outline: none;
+        }
+
+        .search-bar button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .actions a {
+            text-decoration: none;
+            color: black;
+            font-weight: 500;
+        }
+
+        .actions a:hover {
+            text-decoration: underline;
+        }
+
+        .cart {
+            position: relative;
+            font-size: 20px;
+        }
+
+        .cart span {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+
+        /* Menu */
+        nav.menu {
+            background-color: white;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+
+        nav.menu ul {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            gap: 30px;
+        }
+
+        nav.menu ul li a {
+            text-decoration: none;
+            color: black;
+            font-weight: 600;
+        }
+
+        nav.menu ul li a:hover {
+            color: #007bff;
+        }
+
+        main.container {
+            padding: 20px;
+            min-height: 500px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #eee;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <!-- BeeBook + Logo -->
+    <div class="left-header">
+        <span class="brand-text">BeeBook</span>
+        <div class="logo">
+            <a href="/"><img src="/logo.png" alt="BeeBook Logo"></a>
+        </div>
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <form class="search-bar" th:action="@{/tim-kiem}" method="get">
+        <input type="text" name="keyword" placeholder="Tìm kiếm sách...">
+        <button type="submit">Tìm</button>
+    </form>
+
+    <!-- Đăng nhập / Xin chào + Giỏ hàng -->
+    <div class="actions">
+        <div th:if="${tenDangNhap != null}">
+            Xin chào, <a href="/tai-khoan" th:text="${tenDangNhap}"></a> | <a href="/logout" class="text-danger">Thoát</a>
+        </div>
+        <div th:if="${tenDangNhap == null}">
+            <a href="/dang-ky">Đăng Ký</a> | <a href="/dang-nhap">Đăng Nhập</a>
+        </div>
+
+        <div class="cart">
+            <a href="/gio-hang">🛒</a>
+            <span>0</span>
+        </div>
+    </div>
+</div>
+
+<!-- Menu -->
+
+<nav class="menu">
+    <ul>
+        <li style="margin-right: 80px;">
+            <a href="/" style="font-weight: bold; color: orange; font-size: 20px;">BeeBook</a>
+        </li>
+        <li><a href="/sach/hien-thi">Sách</a></li>
+        <li><a href="/tin-tuc">Tin tức</a></li>
+        <li><a href="/lien-he">Liên hệ</a></li>
+    </ul>
+</nav>
+
+
+<!-- Nội dung -->
+<main class="container" th:replace="~{${content}}">
+    <p>Nội dung đang được cập nhật...</p>
+</main>
+
+<!-- Footer -->
+<footer>
+    &copy; 2025 BeeBook. All rights reserved.
+</footer>
+
+</body>
+</html>
