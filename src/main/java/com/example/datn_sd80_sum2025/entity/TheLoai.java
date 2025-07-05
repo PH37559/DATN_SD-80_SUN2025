@@ -23,6 +23,10 @@ public class TheLoai {
     @Column(name = "ten_the_loai", nullable = false)
     private String tenTheLoai;
 
+<<<<<<< HEAD
+=======
+    @Column(name = "mo_ta")
+>>>>>>> ph30389
     private String moTa;
 
     @Column(name = "trang_thai", nullable = false)

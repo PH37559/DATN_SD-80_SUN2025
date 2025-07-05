@@ -23,9 +23,12 @@ public class Nxb {
     @Column(name = "nha_xuat_ban", nullable = false)
     private String nhaXuatBan;
 
+<<<<<<< HEAD
     @Column(nullable = false)
     private String diaChi;
 
+=======
+>>>>>>> ph30389
     @Column(name = "trang_thai", nullable = false)
     private Integer trangThai;
 }

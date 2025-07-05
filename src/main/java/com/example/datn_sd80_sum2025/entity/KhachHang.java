@@ -36,4 +36,9 @@ public class KhachHang {
     private String matKhau;
 
     private Integer trangThai;
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> ph30389
 }
