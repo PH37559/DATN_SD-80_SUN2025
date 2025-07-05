@@ -1,6 +1,7 @@
 package com.example.datn_sd80_sum2025.service.impl;
 
-import com.example.datn_sd80_sum2025.entity.DoanhThu;
+import com.example.datn_sd80_sum2025.dto.DoanhThuDTO;
+
 import com.example.datn_sd80_sum2025.repository.HoaDonRepository;
 import com.example.datn_sd80_sum2025.service.ThongKeService;
 import com.lowagie.text.Paragraph;
@@ -19,7 +20,7 @@ public class ThongKeServiceImpl implements ThongKeService {
     private HoaDonRepository hoaDonRepository;
 
     @Override
-    public List<DoanhThu> thongKeDoanhThu(Integer year, Integer month) {
+    public List<DoanhThuDTO> thongKeDoanhThu(int year, Integer month) {
         return hoaDonRepository.thongKeDoanhThu(year, month);
     }
 

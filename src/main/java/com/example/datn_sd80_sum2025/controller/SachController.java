@@ -44,21 +44,24 @@ public class SachController {
                             @RequestParam(name = "keyword", required = false) String keyword,
                             Model model) {
 
+        int pageSize = 10;
+
         Page<Sach> sachPage;
 
         if (keyword != null && !keyword.isEmpty()) {
-            sachPage = sachService.searchByTenSach(keyword, page);
-            model.addAttribute("keyword", keyword); // giữ giá trị ô tìm kiếm
+            sachPage = sachService.searchByTenSach(keyword, page, pageSize);
+            model.addAttribute("keyword", keyword);
         } else {
-            sachPage = sachService.getAllPaged(page);
+            sachPage = sachService.getAllPaged(page, pageSize);
         }
 
         model.addAttribute("listSach", sachPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", sachPage.getTotalPages());
 
-        return "sach/list";
+        return "sach/list"; // Đường dẫn tới file Thymeleaf
     }
+
 
     // Hiển thị form thêm sách mới
     @GetMapping("/add")

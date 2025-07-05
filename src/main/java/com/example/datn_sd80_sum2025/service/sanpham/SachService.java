@@ -7,22 +7,39 @@ import com.example.datn_sd80_sum2025.repository.NxbRepository;
 import com.example.datn_sd80_sum2025.repository.SachRepository;
 import com.example.datn_sd80_sum2025.repository.TheLoaiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
-
 @Service
 public class SachService {
+
+    private static final int PAGE_SIZE = 10;
+
     @Autowired
     private SachRepository sachRepository;
+
+    // Các repo khác ...
     @Autowired
     private NgonNguRepository ngonNguRepository;
+
     @Autowired
     private NxbRepository nxbRepository;
+
     @Autowired
     private TheLoaiRepository theLoaiRepository;
+
+    // Lấy danh sách tất cả sách theo phân trang
+    public Page<Sach> getAllPaged(int page, int size) {
+        return sachRepository.findAll(PageRequest.of(page, size));
+    }
+
+    // Tìm kiếm sách theo tên, có phân trang
+    public Page<Sach> searchByTenSach(String keyword, int page, int size) {
+        return sachRepository.findByTenSachContainingIgnoreCase(keyword, PageRequest.of(page, size));
+    }
 
     public List<Sach> getAll() {
         return sachRepository.findAll();
@@ -39,20 +56,9 @@ public class SachService {
     public void delete(Integer id) {
         Sach sach = sachRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sách với id: " + id));
-        sach.setTrangThai(0);  // chuyển trạng thái về 0
+        sach.setTrangThai(0);
         sachRepository.save(sach);
-
     }
-    // Lấy danh sách tất cả sách theo trang
-    public Page<Sach> getAllPaged(int page) {
-        return sachRepository.findAll(PageRequest.of(page, PAGE_SIZE));
-    }
-
-    // Tìm kiếm theo tên sách (có phân trang)
-    public Page<Sach> searchByTenSach(String keyword, int page) {
-        return sachRepository.findByTenSachContainingIgnoreCase(keyword, PageRequest.of(page, PAGE_SIZE));
-    }
-    private static final int PAGE_SIZE = 1000;
 
     public void saveFromDTO(SachDTO dto) {
         Sach sach = new Sach();
@@ -65,21 +71,15 @@ public class SachService {
         sach.setTrangThai(dto.getTrangThai());
         sach.setMoTa(dto.getMoTa());
         sach.setHinhAnh(dto.getHinhAnh());
-
-        // findById để gán quan hệ
         sach.setNgonNgu(ngonNguRepository.findById(dto.getNgonNguId()).orElse(null));
         sach.setTheLoai(theLoaiRepository.findById(dto.getTheLoaiId()).orElse(null));
         sach.setNxb(nxbRepository.findById(dto.getNxbId()).orElse(null));
-
         sachRepository.save(sach);
     }
 
     public boolean existsByMaSach(String maSach) {
         if (maSach == null) return false;
-        // Bước 1: loại bỏ khoảng trắng đầu cuối
-        String cleaned = maSach.trim();
-        // Bước 2: xoá toàn bộ khoảng trắng ở giữa và ký tự đặc biệt, chỉ giữ a–z, A–Z, 0–9
-        cleaned = cleaned.replaceAll("[^a-zA-Z0-9]", "");
+        String cleaned = maSach.trim().replaceAll("[^a-zA-Z0-9]", "");
         return sachRepository.existsByMaSach(cleaned);
     }
 

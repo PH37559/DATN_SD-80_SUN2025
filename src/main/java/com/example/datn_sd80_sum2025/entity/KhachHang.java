@@ -36,4 +36,6 @@ public class KhachHang {
     private String matKhau;
 
     private Integer trangThai;
+
+
 }
