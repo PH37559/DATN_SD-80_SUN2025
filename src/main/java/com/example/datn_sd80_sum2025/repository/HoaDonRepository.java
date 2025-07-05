@@ -1,11 +1,5 @@
 package com.example.datn_sd80_sum2025.repository;
 
-<<<<<<< HEAD
-import com.example.datn_sd80_sum2025.entity.HoaDon;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
-=======
 import com.example.datn_sd80_sum2025.dto.DoanhThuDTO;
 import com.example.datn_sd80_sum2025.entity.DoanhThu;
 import com.example.datn_sd80_sum2025.entity.HoaDon;
@@ -26,5 +20,4 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     List<DoanhThuDTO> thongKeDoanhThu(@Param("year") int year, @Param("month") Integer month);
     List<HoaDon> findByTrangThai(Integer trangThai);
 
->>>>>>> ph30389
 }

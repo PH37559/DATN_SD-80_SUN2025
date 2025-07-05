@@ -1,12 +1,8 @@
 package com.example.datn_sd80_sum2025.controller;
-<<<<<<< HEAD
 
-public class TrangChuController {
-=======
-import com.example.datn_sd80_sum2025.entity.GioHangChiTiet;
-import com.example.datn_sd80_sum2025.entity.GioHangChiTietId;
-import com.example.datn_sd80_sum2025.entity.HoaDon;
-import com.example.datn_sd80_sum2025.entity.Sach;
+import com.example.datn_sd80_sum2025.entity.*;
+import com.example.datn_sd80_sum2025.repository.GioHangRepository;
+import com.example.datn_sd80_sum2025.repository.SachRepository;
 import com.example.datn_sd80_sum2025.service.*;
 import com.example.datn_sd80_sum2025.service.sanpham.SachService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,7 +27,11 @@ public class TrangChuController {
     private GioHangChiTietService gioHangChiTietService;
 
     @Autowired
-    private GioHangService gioHangService;
+    private GioHangRepository gioHangRepository;
+
+    @Autowired
+    private SachRepository sachRepository;
+
 
     @Autowired
     private SachService sachService;
@@ -89,9 +89,15 @@ public class TrangChuController {
     @PostMapping("/xoa")
     public String xoaSanPham(@RequestParam Integer idGioHang,
                              @RequestParam Integer idSach) {
-        gioHangChiTietService.delete(new GioHangChiTietId(idGioHang, idSach));
+
+        GioHang gioHang = gioHangRepository.findById(idGioHang).orElseThrow();
+        Sach sach = sachRepository.findById(idSach).orElseThrow();
+
+        gioHangChiTietService.delete(new GioHangChiTietId(gioHang, sach));
+
         return "redirect:/trang-chu/hien-thi";
     }
+
 
     @PostMapping("/don-hang/tao")
     public String taoDonHang(
@@ -128,5 +134,4 @@ public class TrangChuController {
 
 
 
->>>>>>> ph30389
 }

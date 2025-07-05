@@ -2,13 +2,7 @@ package com.example.datn_sd80_sum2025.repository;
 
 import com.example.datn_sd80_sum2025.entity.ChucVu;
 import org.springframework.data.jpa.repository.JpaRepository;
-<<<<<<< HEAD
-
-public interface ChucVuRepository extends JpaRepository<ChucVu, Integer> {
-}
-=======
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -21,4 +15,4 @@ public interface ChucVuRepository extends JpaRepository<ChucVu, Integer> {
     List<ChucVu> getAll();
 
 }
->>>>>>> ph30389
+

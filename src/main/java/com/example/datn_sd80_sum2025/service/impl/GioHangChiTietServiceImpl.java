@@ -51,11 +51,12 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
 
     @Override
     public void themSanPham(Integer idGioHang, Integer idSach, Integer soLuong) {
-        GioHangChiTietId id = new GioHangChiTietId(idGioHang, idSach);
-        Optional<GioHangChiTiet> existing = repository.findById(id);
-
         GioHang gioHang = gioHangRepository.findById(idGioHang).orElseThrow();
         Sach sach = sachRepository.findById(idSach).orElseThrow();
+
+        GioHangChiTietId id = new GioHangChiTietId(gioHang, sach);
+
+        Optional<GioHangChiTiet> existing = repository.findById(id);
 
         if (existing.isPresent()) {
             GioHangChiTiet chiTiet = existing.get();
@@ -63,14 +64,15 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
             repository.save(chiTiet);
         } else {
             GioHangChiTiet chiTiet = new GioHangChiTiet();
-            chiTiet.setId(id);
-            chiTiet.setGioHang(gioHang);
-            chiTiet.setSach(sach);
+            chiTiet.setGioHang(gioHang);  // ✔ Đúng
+            chiTiet.setSach(sach);        // ✔ Đúng
             chiTiet.setSoLuong(soLuong);
             chiTiet.setDonGia(sach.getGiaBan());
+            chiTiet.setTrangThai(0); // hoặc trạng thái mặc định của bạn
             repository.save(chiTiet);
         }
     }
+
 
     @Override
     public void xoaTatCaTrongGio(Integer idGioHang) {

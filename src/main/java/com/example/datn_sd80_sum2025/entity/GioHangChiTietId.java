@@ -1,24 +1,21 @@
 package com.example.datn_sd80_sum2025.entity;
 
-<<<<<<< HEAD
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID; // nếu ID của bạn là UUID, thay đổi nếu cần
 
 public class GioHangChiTietId implements Serializable {
 
-    private UUID gioHang; // hoặc Long nếu ID là Long
-    private UUID sach;
+    private GioHang gioHang;
+    private Sach sach;
 
-    public GioHangChiTietId() {
-    }
+    public GioHangChiTietId() {}
 
-    public GioHangChiTietId(UUID gioHang, UUID sach) {
+    public GioHangChiTietId(GioHang gioHang, Sach sach) {
         this.gioHang = gioHang;
         this.sach = sach;
     }
 
-    // equals() và hashCode() là BẮT BUỘC cho @IdClass
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -33,41 +30,23 @@ public class GioHangChiTietId implements Serializable {
         return Objects.hash(gioHang, sach);
     }
 
-    // getter/setter nếu cần
-    public UUID getGioHang() {
+    // Getter/setter
+    public GioHang getGioHang() {
         return gioHang;
     }
 
-    public void setGioHang(UUID gioHang) {
+    public void setGioHang(GioHang gioHang) {
         this.gioHang = gioHang;
     }
 
-    public UUID getSach() {
+    public Sach getSach() {
         return sach;
     }
 
-    public void setSach(UUID sach) {
+    public void setSach(Sach sach) {
         this.sach = sach;
     }
-=======
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import lombok.*;
-
-import java.io.Serializable;
-
-@Embeddable
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-public class GioHangChiTietId implements Serializable {
-
-    @Column(name = "id_gio_hang")
-    private Integer idGioHang;
-
-    @Column(name = "id_sach")
-    private Integer idSach;
->>>>>>> ph30389
 }
+
+
+
