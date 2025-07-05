@@ -1,0 +1,82 @@
+<div th:fragment="content">
+    <h3 class="mb-4">Danh sách Phiếu Giảm Giá</h3>
+
+    <div class="mb-3 d-flex justify-content-between">
+        <a th:href="@{/pgg/add}" class="btn btn-warning btn-sm">+ Thêm mới</a>
+        <!-- Form tìm kiếm -->
+        <form th:action="@{/pgg/hien-thi}" method="get" class="d-flex">
+            <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm me-2" placeholder="Tìm theo tên phiếu">
+            <button type="submit" class="btn btn-primary btn-sm">Tìm</button>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Mã phiếu</th>
+                <th>Tên phiếu</th>
+                <th>Điều kiện giảm</th>
+                <th>Phần trăm giảm</th>
+                <th>Giảm tối đa</th>
+                <th>Số lượng</th>
+                <th>Ngày bắt đầu</th>
+                <th>Ngày kết thúc</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="pgg : ${listPhieuGiamGia}">
+                <td th:text="${pgg.id}">1</td>
+                <td th:text="${pgg.maPhieu}">MP001</td>
+                <td th:text="${pgg.tenPhieu}">Tên phiếu mẫu</td>
+                <td th:text="${#numbers.formatDecimal(pgg.dieuKienGiam, 0, 'COMMA', 0, 'POINT')} + ' đ'">500,000 đ</td>
+                <td th:text="${pgg.phanTramGia} + ' %'">10 %</td>
+                <td th:text="${#numbers.formatDecimal(pgg.giamToiDa, 0, 'COMMA', 0, 'POINT')} + ' đ'">100,000 đ</td>
+                <td th:text="${pgg.soLuong}">50</td>
+                <td th:text="${pgg.ngayBatDau}">2025-07-01</td>
+                <td th:text="${pgg.ngayKetThuc}">2025-07-31</td>
+                <td>
+                    <span th:text="${pgg.trangThai == 1 ? 'Hoạt động' : 'Ngừng áp dụng'}"
+                          th:class="${pgg.trangThai == 1} ? 'badge bg-success' : 'badge bg-secondary'">Hoạt động</span>
+                </td>
+                <td>
+                    <a th:href="@{/pgg/edit/{id}(id=${pgg.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                    <a th:href="@{/pgg/delete/{id}(id=${pgg.id})}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang (nếu cần, hiện tại để comment) -->
+    <!--
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${listPhieuGiamGia.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/phieu-giam-gia/hien-thi(page=${listPhieuGiamGia.number - 1}, keyword=${keyword != null ? keyword : ''})}">
+                    Previous
+                </a>
+            </li>
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, listPhieuGiamGia.totalPages - 1)}"
+                th:classappend="${i} == ${listPhieuGiamGia.number} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/phieu-giam-gia/hien-thi(page=${i}, keyword=${keyword != null ? keyword : ''})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${listPhieuGiamGia.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/phieu-giam-gia/hien-thi(page=${listPhieuGiamGia.number + 1}, keyword=${keyword != null ? keyword : ''})}">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+    -->
+
+</div>
