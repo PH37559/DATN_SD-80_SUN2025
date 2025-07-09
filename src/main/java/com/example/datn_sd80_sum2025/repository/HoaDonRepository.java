@@ -1,14 +1,14 @@
 package com.example.datn_sd80_sum2025.repository;
 
 import com.example.datn_sd80_sum2025.dto.DoanhThuDTO;
-import com.example.datn_sd80_sum2025.entity.DoanhThu;
 import com.example.datn_sd80_sum2025.entity.HoaDon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+@Repository
 public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     @Query("SELECT new com.example.datn_sd80_sum2025.dto.DoanhThuDTO(" +
             " hd.ngayLap, COUNT(hd), SUM(hd.tongTien)) " +

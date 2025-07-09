@@ -11,16 +11,19 @@ import java.util.List;
 @Service
 public class KhachHangServiceImpl implements KhachHangService {
 
-    @Autowired
-    private KhachHangRepository khachHangRepository;
+        @Autowired
+        private KhachHangRepository khachHangRepository;
 
-    @Override
-    public List<KhachHang> getAll() {
-        return khachHangRepository.findAll();
-    }
+        @Override
+        public List<KhachHang> getAll() {
+            return khachHangRepository.findAll();
+        }
 
-    @Override
-    public KhachHang getById(Integer id) {
-        return khachHangRepository.findById(id).orElse(null);
-    }
+        @Override
+        public KhachHang getById(Integer id) {
+            return khachHangRepository.findById(id).orElse(null);
+        }
+
+
+
 }
