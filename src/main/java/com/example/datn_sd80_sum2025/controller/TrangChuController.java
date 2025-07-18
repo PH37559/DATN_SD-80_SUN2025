@@ -1,11 +1,9 @@
 package com.example.datn_sd80_sum2025.controller;
-<<<<<<< HEAD
 
-public class TrangChuController {
-=======
 import com.example.datn_sd80_sum2025.entity.GioHangChiTiet;
 import com.example.datn_sd80_sum2025.entity.GioHangChiTietId;
 import com.example.datn_sd80_sum2025.entity.HoaDon;
+import com.example.datn_sd80_sum2025.entity.NhanVien;
 import com.example.datn_sd80_sum2025.entity.Sach;
 import com.example.datn_sd80_sum2025.service.*;
 import com.example.datn_sd80_sum2025.service.sanpham.SachService;
@@ -13,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,6 +55,12 @@ public class TrangChuController {
         Page<Sach> sachPage = keyword != null && !keyword.isBlank()
                 ? sachService.searchByTenSach(keyword, page, pageSize)
                 : sachService.getAllPaged(page, pageSize);
+
+        //Hiển thị tên nhân viên lên select nhân viên
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String tenTaiKhoan = auth.getName();
+        NhanVien nhanVien = nhanVienService.findByTenTaiKhoan(tenTaiKhoan);
+        model.addAttribute("nhanVienDangNhap", nhanVien);
 
         model.addAttribute("sanPhamList", sachPage.getContent());
         model.addAttribute("currentPage", page);
@@ -126,7 +132,4 @@ public class TrangChuController {
         return "redirect:/trang-chu/hien-thi?hoaDonId=" + id + "#form-don-hang";
     }
 
-
-
->>>>>>> ph30389
 }

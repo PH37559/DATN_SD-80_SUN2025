@@ -24,9 +24,16 @@ public class GioHang {
     @JoinColumn(name = "id_khach_hang")
     private KhachHang khachHang;
 
+    @Column(name = "ngay_lap")
     private LocalDate ngayLap;
+
+    @Column(name = "ngay_cap_nhat")
     private LocalDate ngayCapNhat;
+
+    @Column(name = "ghi_chu")
     private String ghiChu;
+
+    @Column(name = "trang_thai")
     private Integer trangThai;
 }
 

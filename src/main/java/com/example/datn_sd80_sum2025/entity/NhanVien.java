@@ -23,8 +23,10 @@ public class NhanVien {
     @Column(name = "ho_ten", nullable = false)
     private String hoTen;
 
+    @Column(name = "gioi_tinh")
     private Boolean gioiTinh;
 
+    @Column(name = "dia_chi")
     private String diaChi;
 
     @Column(nullable = false)

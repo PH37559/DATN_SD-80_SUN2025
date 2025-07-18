@@ -15,21 +15,25 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table(name = "dia_chi_chi_tiet")
-
 public class DiaChiChiTiet {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+
+    @EmbeddedId
+    private DiaChiChiTietId id = new DiaChiChiTietId();
 
     @ManyToOne
+    @MapsId("idKhachHang")
     @JoinColumn(name = "id_khach_hang")
     private KhachHang khachHang;
 
     @ManyToOne
+    @MapsId("idDiaChi")
     @JoinColumn(name = "id_dia_chi")
     private DiaChiNhanHang diaChiNhanHang;
 
+    @Column(name = "ghi_chu")
     private String ghiChu;
+
+    @Column(name = "trang_thai")
     private Integer trangThai;
 }
 

@@ -21,11 +21,7 @@ public class NgonNgu {
     private Integer id;
 
     @Column(name = "ngon_ngu", nullable = false)
-<<<<<<< HEAD
-    private String ngonNgu;
-=======
     private String tenNgonNgu;
->>>>>>> ph30389
 
     @Column(name = "trang_thai", nullable = false)
     private Integer trangThai;

@@ -3,20 +3,14 @@ package com.example.datn_sd80_sum2025.service.impl;
 import com.example.datn_sd80_sum2025.entity.HoaDon;
 import com.example.datn_sd80_sum2025.repository.HoaDonRepository;
 import com.example.datn_sd80_sum2025.service.HoaDonService;
-<<<<<<< HEAD
-=======
 import jakarta.transaction.Transactional;
->>>>>>> ph30389
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-<<<<<<< HEAD
-=======
 @Transactional
->>>>>>> ph30389
 public class HoaDonServiceImpl implements HoaDonService {
 
     @Autowired
@@ -31,8 +25,6 @@ public class HoaDonServiceImpl implements HoaDonService {
     public HoaDon getById(Integer id) {
         return hoaDonRepository.findById(id).orElse(null);
     }
-<<<<<<< HEAD
-=======
 
     @Override
     public List<HoaDon> getAllDaThanhToan() {
@@ -53,5 +45,4 @@ public class HoaDonServiceImpl implements HoaDonService {
         hoaDonRepository.save(hoaDon);
     }
 
->>>>>>> ph30389
 }

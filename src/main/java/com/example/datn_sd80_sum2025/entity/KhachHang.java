@@ -22,8 +22,13 @@ public class KhachHang {
     @Column(name = "ho_ten", nullable = false)
     private String hoTen;
 
+    @Column(name = "gioi_tinh")
     private Boolean gioiTinh;
+
+    @Column(name = "ngay_sinh")
     private LocalDate ngaySinh;
+
+    @Column(name = "email")
     private String email;
 
     @Column(nullable = false)
@@ -35,10 +40,7 @@ public class KhachHang {
     @Column(name = "mat_khau")
     private String matKhau;
 
+    @Column(name = "trang_thai")
     private Integer trangThai;
-<<<<<<< HEAD
-=======
 
-
->>>>>>> ph30389
 }

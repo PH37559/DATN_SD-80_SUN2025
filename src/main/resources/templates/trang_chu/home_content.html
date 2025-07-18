@@ -164,15 +164,18 @@
 
             <div class="mb-2">
               <label class="form-label">Tên nhân viên</label>
-              <select class="form-select" name="nhanVienId">
-                <option value="" th:if="${hoaDon == null}" selected disabled>-- Chọn nhân viên --</option>
-                <option th:each="nv : ${listNhanVien}"
-                        th:value="${nv.id}"
-                        th:text="${nv.hoTen}"
-                        th:selected="${hoaDon != null and hoaDon.nhanVien.id == nv.id}">
-                </option>
+              <select class="form-select" name="nhanVienId" disabled>
+                <option th:value="${nhanVienDangNhap.id}" th:text="${nhanVienDangNhap.hoTen}" selected></option>
               </select>
-
+              <input type="hidden" name="nhanVienId" th:value="${nhanVienDangNhap.id}" />
+<!--              <select class="form-select" name="nhanVienId">-->
+<!--                <option value="" th:if="${hoaDon == null}" selected disabled>&#45;&#45; Chọn nhân viên &#45;&#45;</option>-->
+<!--                <option th:each="nv : ${listNhanVien}"-->
+<!--                        th:value="${nv.id}"-->
+<!--                        th:text="${nv.hoTen}"-->
+<!--                        th:selected="${hoaDon != null ? hoaDon.nhanVien.id == nv.id : nhanVienDangNhap?.id == nv.id}">-->
+<!--                </option>-->
+<!--              </select>-->
             </div>
 
             <div class="mb-2">

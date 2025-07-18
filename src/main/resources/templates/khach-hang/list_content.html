@@ -1,0 +1,199 @@
+<div th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <h3 class="mb-4">Danh sách khách hàng</h3>
+
+    <div class="row mb-3 gx-2 align-items-center">
+        <div class="col-md-auto">
+            <a th:href="@{/khach-hang/add}" class="btn btn-warning btn-sm w-100">+ Thêm mới</a>
+        </div>
+        <div class="col">
+            <form th:action="@{/khach-hang/hien-thi}" method="get"
+                  class="row gx-2 align-items-center w-100 justify-content-end">
+
+                <!-- Ô tìm kiếm -->
+                <div class="col-md-4">
+                    <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm"
+                           placeholder="Tìm theo tên, SĐT, email">
+                </div>
+
+                <!-- Ô kích hoạt modal bộ lọc -->
+                <div class="col-md-2">
+                    <input type="text" class="form-control form-control-sm" placeholder="Bộ lọc khác" readonly
+                           data-bs-toggle="offcanvas" data-bs-target="#boLocModal">
+                </div>
+
+                <!-- Nút tìm kiếm -->
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Tìm kiếm</button>
+                </div>
+
+                <!-- Modal Bộ lọc khác -->
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="boLocModal">
+                    <div class="offcanvas-header border-bottom">
+                        <h5 class="offcanvas-title">Bộ lọc</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <!--Giới tính-->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Giới tính</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gioiTinh" value="" id="allGender"
+                                       th:checked="${gioiTinh == null}">
+                                <label class="form-check-label" for="allGender">Tất cả</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gioiTinh" value="true" id="male"
+                                       th:checked="${gioiTinh != null and gioiTinh == true}">
+                                <label class="form-check-label" for="male">Nam</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="gioiTinh" value="false" id="female"
+                                       th:checked="${gioiTinh != null and gioiTinh == false}">
+                                <label class="form-check-label" for="female">Nữ</label>
+                            </div>
+                        </div>
+                        <!-- Trạng thái -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Trạng thái</label>
+                            <select class="form-select form-select-sm" name="trangThai">
+                                <option value="" th:selected="${trangThai == null}">Tất cả</option>
+                                <option value="1" th:selected="${trangThai == 1}">Đang hoạt động</option>
+                                <option value="0" th:selected="${trangThai == 0}">Ngừng hoạt động</option>
+                            </select>
+                        </div>
+                        <!-- Ngày sinh -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày sinh</label>
+                            <input type="date" name="ngaySinhFrom" class="form-control form-control-sm mb-2"
+                                   th:value="${ngaySinhFrom}">
+                            <input type="date" name="ngaySinhTo" class="form-control form-control-sm"
+                                   th:value="${ngaySinhTo}">
+                        </div>
+                        <!-- Địa chỉ -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Địa chỉ</label>
+                            <select class="form-select form-select-sm mb-2" id="city" name="thanhPho">
+                                <option value="" selected>Chọn tỉnh thành</option>
+                            </select>
+                            <select class="form-select form-select-sm" id="district" name="quanHuyen">
+                                <option value="" selected>Chọn quận huyện</option>
+                            </select>
+                        </div>
+                        <!-- Nút -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-primary btn-sm">Lọc</button>
+                            <a href="/khach-hang/hien-thi" class="btn btn-outline-danger btn-sm">Xóa hết bộ lọc</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center" style="font-size: 16px;">
+            <thead class="table-dark">
+            <tr>
+                <th style="white-space: nowrap;">Mã KH</th>
+                <th style="white-space: nowrap;">Họ tên</th>
+                <th style="white-space: nowrap;">Giới tính</th>
+                <th style="white-space: nowrap;">Ngày sinh</th>
+                <th style="white-space: nowrap;">SĐT</th>
+                <th style="white-space: nowrap;">Email</th>
+                <th style="white-space: nowrap;">Trạng thái</th>
+                <th style="white-space: nowrap;">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="kh : ${list}" th:if="${!list.isEmpty()}"
+                th:attr="data-id=${kh.id}" style="cursor: pointer;">
+                <td th:text="${kh.id}" style="white-space: nowrap;"></td>
+                <td th:text="${kh.hoTen}"
+                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"></td>
+                <td th:text="${kh.gioiTinh == true ? 'Nam' : 'Nữ'}"></td>
+                <td th:text="${kh.ngaySinh}"></td>
+                <td th:text="${kh.sdt}"></td>
+                <td th:text="${kh.email}"
+                    style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></td>
+                <td>
+                    <span th:text="${kh.trangThai == 1 ? 'Đang hoạt động' : 'Ngừng hoạt động'}"
+                          th:class="${kh.trangThai == 1} ? 'badge bg-success' : 'badge bg-secondary'"></span>
+                </td>
+                <td style="white-space: nowrap;">
+                    <a th:href="@{/khach-hang/edit/{id}(id=${kh.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                    <a th:href="@{/khach-hang/delete/{id}(id=${kh.id})}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                </td>
+            </tr>
+            <!-- Nếu không có kết quả -->
+            <tr th:if="${list.isEmpty()}">
+                <td colspan="11" class="text-center text-muted">Không tìm thấy kết quả</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang -->
+    <nav aria-label="Page navigation" th:if="${list != null and !list.isEmpty()}">
+        <ul class="pagination justify-content-center">
+
+            <!-- Nút Trước -->
+            <li class="page-item" th:classappend="${currentPage != null and currentPage == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/khach-hang/hien-thi(
+                page=${i},
+                size=${size},
+                keyword=${keyword},
+                gioiTinh=${gioiTinh},
+                trangThai=${trangThai},
+                ngaySinhFrom=${ngaySinhFrom},
+                ngaySinhTo=${ngaySinhTo},
+                thanhPho=${thanhPho},
+                quanHuyen=${quanHuyen}
+                )}">
+                    Trước
+                </a>
+            </li>
+
+            <!-- Các số trang -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, totalPage - 1)}"
+                th:classappend="${currentPage != null and i == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/khach-hang/hien-thi(
+                    page=${i},
+                    size=${size},
+                    keyword=${keyword},
+                    gioiTinh=${gioiTinh},
+                    trangThai=${trangThai},
+                    ngaySinhFrom=${ngaySinhFrom},
+                    ngaySinhTo=${ngaySinhTo},
+                    thanhPho=${thanhPho},
+                    quanHuyen=${quanHuyen}
+                )}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <!-- Nút Tiếp -->
+            <li class="page-item"
+                th:classappend="${currentPage != null and currentPage + 1 >= totalPage} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/khach-hang/hien-thi(
+                    page=${currentPage != null and currentPage + 1 < totalPage ? currentPage + 1 : currentPage},
+                    size=${size},
+                    keyword=${keyword},
+                    gioiTinh=${gioiTinh},
+                    trangThai=${trangThai},
+                    ngaySinhFrom=${ngaySinhFrom},
+                    ngaySinhTo=${ngaySinhTo},
+                    thanhPho=${thanhPho},
+                    quanHuyen=${quanHuyen}
+                )}">
+                    Tiếp
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+</div>

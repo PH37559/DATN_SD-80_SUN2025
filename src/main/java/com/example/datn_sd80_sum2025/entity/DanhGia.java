@@ -28,11 +28,13 @@ public class DanhGia {
     @JoinColumn(name = "id_hoa_don")
     private HoaDon hoaDon;
 
+    @Column(name = "diem")
     private Integer diem;
 
     @Column(name = "binh_luan")
     private String binhLuan;
 
+    @Column(name = "trang_thai")
     private Integer trangThai;
 }
 
