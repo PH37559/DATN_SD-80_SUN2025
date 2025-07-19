@@ -38,15 +38,13 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
     public List<GioHangChiTiet> getByGioHangId(Integer idGioHang) {
         return repository.findByGioHang_Id(idGioHang);
     }
-
-    @Override
-    public void addOrUpdate(GioHangChiTiet gioHangChiTiet) {
-        repository.save(gioHangChiTiet);
-    }
-
     @Override
     public void delete(GioHangChiTietId id) {
         repository.deleteById(id);
+    }
+    @Override
+    public void clearTatCa() {
+        gioHangChiTietRepository.deleteAll();
     }
 
     @Override
@@ -64,29 +62,16 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
             repository.save(chiTiet);
         } else {
             GioHangChiTiet chiTiet = new GioHangChiTiet();
-            chiTiet.setGioHang(gioHang);  // ✔ Đúng
-            chiTiet.setSach(sach);        // ✔ Đúng
+            chiTiet.setGioHang(gioHang);
+            chiTiet.setSach(sach);
             chiTiet.setSoLuong(soLuong);
             chiTiet.setDonGia(sach.getGiaBan());
-            chiTiet.setTrangThai(0); // hoặc trạng thái mặc định của bạn
+            chiTiet.setTrangThai(0);
             repository.save(chiTiet);
         }
     }
 
 
-    @Override
-    public void xoaTatCaTrongGio(Integer idGioHang) {
-        repository.deleteAllByGioHang_Id(idGioHang);
-    }
-    @Override
-    public GioHang findOrCreateDefault() {
-        return gioHangRepository.findFirstByTrangThai(0)
-                .orElseGet(() -> {
-                    GioHang newGioHang = new GioHang();
-                    newGioHang.setTrangThai(0);
-                    return gioHangRepository.save(newGioHang);
-                });
-    }
     @Override
     public BigDecimal tinhTongTienTheoGioHang(Integer idGioHang) {
         List<GioHangChiTiet> list = getByGioHangId(idGioHang);
@@ -99,6 +84,33 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
         List<GioHangChiTiet> list = gioHangChiTietRepository.findByGioHangId(idGioHang);
         gioHangChiTietRepository.deleteAll(list);
     }
+    @Override
+    public void capNhatSoLuong(Integer idGioHang, Integer idSach, Integer soLuongMoi) {
+        GioHang gioHang = gioHangRepository.findById(idGioHang)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giỏ hàng."));
+        Sach sach = sachRepository.findById(idSach)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sách."));
 
+        GioHangChiTietId id = new GioHangChiTietId(gioHang, sach);
+        GioHangChiTiet chiTiet = gioHangChiTietRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm trong giỏ hàng."));
+
+        chiTiet.setSoLuong(soLuongMoi);
+        gioHangChiTietRepository.save(chiTiet);
+    }
+    @Override
+    public int getSoLuongByGioHangIdAndSachId(Integer gioHangId, Integer sachId) {
+        // Lấy composite‑key
+        GioHang gioHang = gioHangRepository.findById(gioHangId).orElse(null);
+        Sach     sach    = sachRepository.findById(sachId).orElse(null);
+
+        if (gioHang == null || sach == null) return 0;
+
+        GioHangChiTietId id = new GioHangChiTietId(gioHang, sach);
+
+        return repository.findById(id)
+                .map(GioHangChiTiet::getSoLuong)
+                .orElse(0);
+    }
 
 }

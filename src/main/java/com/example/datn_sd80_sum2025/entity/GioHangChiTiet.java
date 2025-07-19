@@ -21,17 +21,20 @@ public class GioHangChiTiet {
     @JoinColumn(name = "id_sach")
     private Sach sach;
 
-    @Column(name = "so_luong", nullable = false)
-    private Integer soLuong;
-
     @Column(name = "don_gia", nullable = false)
     private BigDecimal donGia;
 
+    @Column(name = "so_luong", nullable = false)
+    private Integer soLuong = 0;
+
     @Column(name = "trang_thai", nullable = false)
-    private Integer trangThai;
+    private Integer trangThai = 1;
+
+
 
     public BigDecimal getThanhTien() {
         return donGia.multiply(BigDecimal.valueOf(soLuong));
     }
+
 }
 

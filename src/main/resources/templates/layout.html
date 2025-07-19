@@ -12,11 +12,15 @@
             box-sizing: border-box;
         }
 
-        body {
+        html, body {
+            height: 100%;
             font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
-            overflow: hidden;
+        }
+
+        body {
+            overflow-x: hidden;
             position: relative;
+            background-color: #f4f6f9;
         }
 
         .sidebar {
@@ -82,9 +86,9 @@
         }
 
         .content {
-            height: 100vh;
-            overflow-y: auto;
-            background-color: #f4f6f9;
+            min-height: 100vh;
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
         }
 
         .topbar {
@@ -109,7 +113,7 @@
             z-index: 1100;
         }
 
-        .container {
+        .container-fluid {
             padding: 20px;
         }
 
@@ -158,7 +162,7 @@
     </div>
 
     <!-- Main content -->
-    <div class="container mt-4">
+    <div class="container-fluid mt-4">
         <main th:replace="${content}">
             <p>Nội dung mặc định</p>
         </main>
@@ -166,7 +170,6 @@
 
     <!-- Footer -->
     <footer>
-        &copy; 2025 BeeBook
     </footer>
 </div>
 

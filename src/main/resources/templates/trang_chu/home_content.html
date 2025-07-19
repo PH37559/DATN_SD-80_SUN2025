@@ -1,12 +1,12 @@
 <div th:fragment="content">
   <div class="row">
-    <!-- Bên trái 70% -->
-    <div class="col-md-8">
+    <!-- Bên trái 80% -->
+    <div class="col-md-9 pe-3">
       <!-- Danh sách sản phẩm -->
       <div class="card mb-3">
         <div class="card-header fw-bold">Danh sách sản phẩm</div>
         <div class="card-body">
-          <table class="table table-bordered table-hover">
+          <table class="table table-bordered table-hover table-sm">
             <thead class="table-secondary">
             <tr>
               <th>Mã sách</th>
@@ -19,127 +19,213 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="sach : ${sanPhamList}">
+            <tr th:each="sach : ${sanPhamList}" th:classappend="${sach.soLuong == 0} ? 'table-danger'">
               <td th:text="${sach.maSach}"></td>
               <td th:text="${sach.tenSach}"></td>
-              <td th:text="${#numbers.formatDecimal(sach.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+              <td class="text-end" th:text="${#numbers.formatDecimal(sach.giaBan, 0, 'COMMA', 0, 'POINT')} + 'đ'"></td>
               <td th:text="${sach.theLoai != null ? sach.theLoai.tenTheLoai : 'Không có'}"></td>
-              <td th:text="${sach.soLuong}"></td>
-              <td>
-                  <span class="badge"
-                        th:classappend="${sach.trangThai == 1 ? 'bg-success' : 'bg-secondary'}"
-                        th:text="${sach.trangThai == 1 ? 'Hoạt động' : 'Ngừng'}"></span>
+              <td class="text-center" th:text="${sach.soLuong}"></td>
+              <td class="text-center">
+          <span class="badge"
+                th:classappend="${sach.trangThai == 1 ? 'bg-success' : 'bg-secondary'}"
+                th:text="${sach.trangThai == 1 ? 'Hoạt động' : 'Ngừng'}"></span>
               </td>
               <td>
-                <div th:if="${sach.trangThai == 1}">
+                <div th:if="${sach.trangThai == 1 and sach.soLuong > 0}">
                   <form th:action="@{/trang-chu/them-vao-gio}" method="post" class="d-flex align-items-center gap-2">
                     <input type="hidden" name="idGioHang" value="1" />
                     <input type="hidden" name="idSach" th:value="${sach.id}" />
-                    <input type="number" name="soLuong" value="1" min="1" class="form-control form-control-sm w-50" />
+                    <input type="hidden" name="hoaDonId" th:if="${hoaDon != null}" th:value="${hoaDon.id}" />
+                    <input type="number" name="soLuong" value="1" min="1" max="999"
+                           th:attr="max=${sach.soLuong}"
+                           class="form-control form-control-sm w-50" />
                     <button class="btn btn-sm btn-outline-primary" type="submit">
                       <i class="fas fa-cart-plus"></i> Thêm
                     </button>
                   </form>
                 </div>
-                <div th:if="${sach.trangThai != 1}">
-                  <span class="text-muted">Không khả dụng</span>
+                <div th:if="${sach.trangThai != 1 || sach.soLuong == 0}">
+                  <span class="text-muted fst-italic">Không khả dụng</span>
                 </div>
               </td>
             </tr>
             </tbody>
           </table>
+
           <!-- Phân trang -->
           <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
               <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                 <a class="page-link"
-                   th:href="@{/trang-chu(page=${currentPage != null ? currentPage - 1 : 0})}">Trước</a>
-
+                   th:href="@{'/trang-chu/hien-thi'(page=${currentPage > 0 ? currentPage - 1 : 0}, hoaDonId=${hoaDon != null ? hoaDon.id : null})}">
+                  Trước
+                </a>
               </li>
               <li class="page-item"
                   th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
                   th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link" th:href="@{/trang-chu(page=${i})}" th:text="${i + 1}">1</a>
+                <a class="page-link"
+                   th:href="@{'/trang-chu/hien-thi'(page=${i}, hoaDonId=${hoaDon != null ? hoaDon.id : null})}"
+                   th:text="${i + 1}">1</a>
               </li>
               <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
-                <a class="page-link" th:href="@{/trang-chu(page=${currentPage + 1})}">Tiếp</a>
+                <a class="page-link"
+                   th:href="@{'/trang-chu/hien-thi'(page=${currentPage + 1}, hoaDonId=${hoaDon != null ? hoaDon.id : null})}">
+                  Tiếp
+                </a>
               </li>
             </ul>
           </nav>
-
         </div>
       </div>
-
-
       <!-- Giỏ hàng -->
-      <div class="card mb-3">
-        <table class="table table-bordered table-hover">
-          <thead class="table-secondary">
-          <tr>
-            <th>Tên sách</th>
-            <th>Đơn giá</th>
-            <th>Số lượng</th>
-            <th>Thành tiền</th>
-            <th>Hành động</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="item : ${gioHangList}">
-            <td th:text="${item.sach.tenSach}"></td>
-            <td th:text="${#numbers.formatDecimal(item.donGia, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-            <td th:text="${item.soLuong}"></td>
-            <td th:text="${#numbers.formatDecimal(item.donGia * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-            <td>
-              <form th:action="@{/trang-chu/xoa}" method="post">
-                <input type="hidden" name="idGioHang" th:value="${item.gioHang.id}" />
-                <input type="hidden" name="idSach" th:value="${item.sach.id}" />
-                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-              </form>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white fw-semibold">
+          <i class="fas fa-shopping-cart me-1"></i> Giỏ hàng
+        </div>
+        <div class="card-body p-0">
+          <div style="max-height: 270px; overflow-y: auto;">
+            <table class="table table-sm table-hover table-bordered align-middle mb-0">
+              <thead class="table-light sticky-top">
+              <tr class="text-center">
+                <th class="text-start">Tên sách</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+                <th>Hành động</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:if="${#lists.isEmpty(gioHangList)}">
+                <td colspan="5" class="text-center text-muted">Giỏ hàng hiện đang trống.</td>
+              </tr>
+              <tr th:each="item : ${gioHangList}">
+                <td th:text="${item.sach.tenSach}"></td>
+                <td class="text-end" th:text="${#numbers.formatDecimal(item.donGia, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <td class="text-center" th:text="${item.soLuong}"></td>
+                <td class="text-end" th:text="${#numbers.formatDecimal(item.thanhTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <td class="text-center">
+                  <div class="btn-group btn-group-sm">
+                    <form th:action="@{/trang-chu/xoa}" method="post" onsubmit="return confirm('Bạn có chắc muốn xoá?')">
+                      <input type="hidden" name="idSach" th:value="${item.sach.id}" />
+                      <input type="hidden" name="idGioHang" th:if="${hoaDon == null}" value="1" />
+                      <input type="hidden" name="hoaDonId" th:if="${hoaDon != null}" th:value="${hoaDon.id}" />
+                      <button type="submit" class="btn btn-outline-danger">
+                        <a>Xóa</a>
+                      </button>
+                    </form>
+                  </div>
+                  <button type="button"
+                          class="btn btn-outline-warning btn-sua"
+                          th:attr="data-id-sach=${item.sach.id}, data-so-luong=${item.soLuong}">
+                    <a>Sửa</a>
+                  </button>
+                </td>
+              </tr>
+              <!-- Modal sửa số lượng -->
+              <div id="modal-sua"
+                   class="position-fixed top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center"
+                   style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050;">
+                <div class="bg-white p-4 rounded shadow" style="min-width: 320px;">
+                  <form th:action="@{/trang-chu/sua-so-luong}" method="post">
+                    <input type="hidden" name="idSach" id="modal-idSach" />
+                    <input type="hidden" name="idGioHang" th:if="${hoaDon == null}" value="1" />
+                    <input type="hidden" name="hoaDonId" th:if="${hoaDon != null}" th:value="${hoaDon.id}" />
+                    <div class="mb-3">
+                      <label class="form-label">Số lượng mới</label>
+                      <input type="number" name="soLuongMoi" id="modal-soLuongMoi" min="1" class="form-control" required />
+                    </div>
+                    <div class="d-flex justify-content-end gap-2">
+                      <button type="submit" class="btn btn-success btn-sm">Cập nhật</button>
+                      <button type="button" class="btn btn-secondary btn-sm" onclick="dongModal()">Huỷ</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+      <script>
+        function moModal() {
+          const modal = document.getElementById("modal-sua");
+          modal.classList.remove("d-none");
+          modal.classList.add("d-flex");
+          document.getElementById("modal-soLuongMoi").focus();
+        }
+
+        function dongModal() {
+          const modal = document.getElementById("modal-sua");
+          modal.classList.remove("d-flex");
+          modal.classList.add("d-none");
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+          document.querySelectorAll(".btn-sua").forEach(btn => {
+            btn.addEventListener("click", () => {
+              document.getElementById("modal-idSach").value = btn.dataset.idSach;
+              document.getElementById("modal-soLuongMoi").value = btn.dataset.soLuong;
+              moModal();
+            });
+          });
+          document.getElementById("modal-sua").addEventListener("click", e => {
+            if (e.target.id === "modal-sua") dongModal();
+          });
+        });
+      </script>
+
 
       <!-- Đơn hàng chờ -->
       <div class="card mb-3">
-        <table class="table table-bordered table-hover">
-          <thead class="table-secondary">
-          <tr>
-            <th>Mã HĐ</th>
-            <th>Ngày lập</th>
-            <th>Khách hàng</th>
-            <th>Nhân viên</th>
-            <th>Thành tiền</th>
-            <th>PT Thanh toán</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="hd : ${donHangChoList}" >
-          <td th:text="'HD' + ${hd.id}"></td>
-            <td th:text="${hd.ngayLap}"></td>
-            <td th:text="${hd.khachHang != null ? hd.khachHang.hoTen : 'N/A'}"></td>
-            <td th:text="${hd.nhanVien != null ? hd.nhanVien.hoTen : 'N/A'}"></td>
-            <td th:text="${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
-            <td th:text="${hd.phuongThucThanhToan}"></td>
-            <td><span class="badge bg-warning text-dark">Chờ</span></td>
-            <td>
-              <a th:href="@{'/trang-chu/don-hang/chi-tiet/' + ${hd.id}}" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-arrow-right"></i> Chọn
-              </a>
-            </td>
-
-          </tr>
-          </tbody>
-        </table>
-
+        <div class="card-header fw-bold">Đơn hàng chờ</div>
+        <div class="card-body p-2">
+          <table class="table table-bordered table-hover table-sm">
+            <thead class="table-light">
+            <tr>
+              <th>Mã HĐ</th>
+              <th>Ngày lập</th>
+              <th>Khách hàng</th>
+              <th>Nhân viên</th>
+              <th>Thành tiền</th>
+              <th>PT Thanh toán</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(donHangChoList)}">
+              <td colspan="8" class="text-center text-muted">Không có đơn hàng nào đang chờ.</td>
+            </tr>
+            <tr th:each="hd : ${donHangChoList}"
+                th:onclick="'chonDonHang(' + ${hd.id} + ')'"
+                style="cursor: pointer;">
+            <td th:text="'HD' + ${hd.id}"></td>
+              <td th:text="${hd.ngayLap}"></td>
+              <td th:text="${hd.khachHang != null ? hd.khachHang.hoTen : 'N/A'}"></td>
+              <td th:text="${hd.nhanVien != null ? hd.nhanVien.hoTen : 'N/A'}"></td>
+              <td th:text="${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+              <td th:text="${hd.phuongThucThanhToan}"></td>
+              <td><span class="badge bg-warning text-dark">Chờ</span></td>
+              <td>
+                <a th:href="@{'/trang-chu/don-hang/chi-tiet/' + ${hd.id}}" class="btn btn-outline-primary btn-sm">
+                  <i class="fas fa-arrow-right"></i> Chọn
+                </a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+      <script>
+        function chonDonHang(id) {
+          window.location.href = '/trang-chu/don-hang/chi-tiet/' + id;
+        }
+      </script>
 
-    <!-- Bên phải 30% -->
-    <div class="col-md-4">
+    <!-- Bên phải 20% -->
+    <div class="col-md-3">
       <div class="card" id="form-don-hang">
         <div class="card-header text-primary fw-bold">Thông tin đơn hàng</div>
         <div class="card-body">
@@ -148,95 +234,115 @@
               <label class="form-label">Ngày tạo</label>
               <input type="date" class="form-control" name="ngayTao" th:value="${ngayHienTai}" required />
             </div>
-
             <div class="mb-2">
               <label class="form-label">Khách hàng</label>
-              <select class="form-select" name="khachHangId">
-                <option value="" th:if="${hoaDon == null}" selected disabled>-- Chọn khách hàng --</option>
-                <option th:each="kh : ${listKhachHang}"
-                        th:value="${kh.id}"
-                        th:text="${kh.hoTen}"
-                        th:selected="${hoaDon != null and hoaDon.khachHang.id == kh.id}">
-                </option>
+              <select class="form-select" name="khachHangId" required>
+                <option value="" disabled selected>-- Chọn khách hàng --</option>
+                <option th:each="kh : ${listKhachHang}" th:value="${kh.id}" th:text="${kh.hoTen}"></option>
               </select>
-
             </div>
-
             <div class="mb-2">
               <label class="form-label">Tên nhân viên</label>
-              <select class="form-select" name="nhanVienId">
-                <option value="" th:if="${hoaDon == null}" selected disabled>-- Chọn nhân viên --</option>
-                <option th:each="nv : ${listNhanVien}"
-                        th:value="${nv.id}"
-                        th:text="${nv.hoTen}"
-                        th:selected="${hoaDon != null and hoaDon.nhanVien.id == nv.id}">
-                </option>
+              <select class="form-select" name="nhanVienId" required>
+                <option value="" disabled selected>-- Chọn nhân viên --</option>
+                <option th:each="nv : ${listNhanVien}" th:value="${nv.id}" th:text="${nv.hoTen}"></option>
               </select>
-
             </div>
 
             <div class="mb-2">
               <label class="form-label">Tổng tiền</label>
               <input type="text" id="tongTienHienThi" class="form-control"
                      th:value="${hoaDon != null ? #numbers.formatDecimal(hoaDon.tongTien, 0, 'COMMA', 0, 'POINT') : '0'}" readonly />
-
-              <input type="hidden" id="tongTien"
-                     th:value="${hoaDon != null ? hoaDon.tongTien : 0}" />
+              <input type="hidden" id="tongTien" th:value="${hoaDon != null ? hoaDon.tongTien : 0}" />
             </div>
-
             <div class="mb-2">
               <label class="form-label">Tiền khách đưa</label>
-              <input type="number" id="tienKhachDua" name="tienKhachDua" class="form-control"
-                     placeholder="Nhập tiền khách đưa" />
+              <input type="number" id="tienKhachDua" name="tienKhachDua"
+                     class="form-control" placeholder="Nhập tiền khách đưa" min="0" />
             </div>
-
+            <script>
+              const tienInput = document.getElementById("tienKhachDua");
+              tienInput.addEventListener("input", function () {
+                if (this.value < 0) {
+                  this.value = 0;
+                }
+              });
+            </script>
             <div class="mb-2">
               <label class="form-label">Tiền thừa</label>
               <input type="text" id="tienThua" class="form-control" placeholder="Tiền thừa" readonly />
-              <script>
-                function tinhTienThua() {
-                  const tienKhachDua = parseFloat(document.getElementById("tienKhachDua").value) || 0;
-                  const tongTien = parseFloat(document.getElementById("tongTien").value) || 0;
-                  const tienThua = tienKhachDua - tongTien;
-
-                  document.getElementById("tienThua").value = tienThua >= 0 ? tienThua.toLocaleString() : "Không đủ tiền";
-                }
-
-                const inputTienKhach = document.getElementById("tienKhachDua");
-                inputTienKhach.addEventListener("input", tinhTienThua);
-                inputTienKhach.addEventListener("blur", tinhTienThua);
-              </script>
-
             </div>
-
 
             <div class="mb-2">
               <label class="form-label">Hình thức TT</label>
-              <select class="form-select" name="phuongThucTT">
-                <option value="" th:selected="${hoaDon == null}" disabled>-- Chọn phương thức --</option>
-                <option value="TIEN_MAT"
-                        th:selected="${hoaDon?.phuongThucThanhToan == 'TIEN_MAT'}">Tiền mặt</option>
-                <option value="CHUYEN_KHOAN"
-                        th:selected="${hoaDon?.phuongThucThanhToan == 'CHUYEN_KHOAN'}">Chuyển khoản</option>
+              <select class="form-select" name="phuongThucTT" required>
+                <option value="" disabled selected>-- Chọn phương thức --</option>
+                <option value="Tiền mặt">Tiền mặt</option>
+                <option value="Chuyển khoản">Chuyển khoản</option>
               </select>
+            </div>
+            <div class="d-grid gap-2 mt-4">
+              <!-- Tạo đơn hàng -->
+              <form method="post" th:action="@{/trang-chu/don-hang/tao}">
+                <button class="btn btn-dark w-100">
+                  <i class="fas fa-plus-circle me-1"></i> Tạo đơn hàng
+                </button>
+              </form>
 
+              <!-- Hoàn thành -->
+              <div th:if="${hoaDon != null}">
+                <form th:action="@{'/trang-chu/hoa-don/hoan-thanh/' + ${hoaDon.id}}" method="post">
+                  <button class="btn btn-success w-100">
+                    <i class="fas fa-check-circle me-1"></i> Hoàn thành
+                  </button>
+                </form>
+              </div>
+              <div th:if="${hoaDon == null}">
+                <button class="btn btn-success w-100" disabled>
+                  <i class="fas fa-check-circle me-1"></i> Hoàn thành
+                </button>
+              </div>
+
+              <!-- Huỷ -->
+              <div th:if="${hoaDon != null}">
+                <form th:action="@{'/trang-chu/hoa-don/huy/' + ${hoaDon.id}}" method="post">
+                  <button class="btn btn-danger w-100">
+                    <i class="fas fa-times-circle me-1"></i> Huỷ
+                  </button>
+                </form>
+              </div>
+              <div th:if="${hoaDon == null}">
+                <button class="btn btn-danger w-100" disabled>
+                  <i class="fas fa-times-circle me-1"></i> Huỷ
+                </button>
+              </div>
+
+              <a href="/trang-chu/hien-thi" class="btn btn-primary w-100">
+                <i class="fas fa-sync-alt me-1"></i> Reset
+              </a>
             </div>
 
-            <div class="d-flex justify-content-between mt-3">
-              <button class="btn btn-dark" type="submit">Tạo đơn hàng</button>
-              <button class="btn btn-success" type="submit">Thanh toán</button>
-              <button class="btn btn-danger" type="reset">Huỷ</button>
-              <a href="/trang-chu/hien-thi" class="btn btn-primary">resert</a>
-            </div>
           </form>
+          <script>
+            const tienKhachDuaInput = document.getElementById("tienKhachDua");
+            const tienThuaInput = document.getElementById("tienThua");
+            const tongTien = parseFloat(document.getElementById("tongTien").value || 0);
+            tienKhachDuaInput.addEventListener("input", function () {
+              let tienKhachDua = parseFloat(this.value);
+              if (isNaN(tienKhachDua)) {
+                tienThuaInput.value = "";
+                return;
+              }
+              let tienThua = tienKhachDua - tongTien;
+              tienThuaInput.value = tienThua.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0
+              });
+            });
+          </script>
         </div>
       </div>
     </div>
   </div>
-  <script>
-    function chonDonHang(id) {
-
-      window.location.href = '/trang-chu/don-hang/chi-tiet/' + id;
-    }
-  </script>
 </div>

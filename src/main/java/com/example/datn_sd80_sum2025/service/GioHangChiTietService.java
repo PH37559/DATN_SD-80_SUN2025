@@ -10,12 +10,12 @@ import java.util.List;
 public interface GioHangChiTietService {
     List<GioHangChiTiet> getAll();
     List<GioHangChiTiet> getByGioHangId(Integer idGioHang);
-    void addOrUpdate(GioHangChiTiet gioHangChiTiet);
     void delete(GioHangChiTietId id);
     void themSanPham(Integer idGioHang, Integer idSach, Integer soLuong);
-    void xoaTatCaTrongGio(Integer idGioHang);
-    GioHang findOrCreateDefault();
     BigDecimal tinhTongTienTheoGioHang(Integer idGioHang);
     void clearByGioHangId(Integer idGioHang);
+    void clearTatCa();
+    void capNhatSoLuong(Integer idGioHang, Integer idSach, Integer soLuongMoi);
+    int getSoLuongByGioHangIdAndSachId(Integer idGioHang, Integer idSach);
 
 }
