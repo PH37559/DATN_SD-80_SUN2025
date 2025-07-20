@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi" th:fragment="view(title, content)">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi" th:fragment="view(title, content)"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${title}">BeeBook</title>
@@ -138,11 +139,13 @@
         <img src="/logo.png" alt="BeeBook Logo">
     </div>
     <a th:href="@{/trang-chu/hien-thi}"><i class="fas fa-home me-2"></i>Trang Chủ</a>
-    <a href="/sach/hien-thi"><i class="fas fa-book me-2"></i>Sản Phẩm</a>
-    <a href="/hoa-don/hien-thi"><i class="fas fa-receipt me-2"></i>Hóa Đơn</a>
-    <a href="/khach-hang"><i class="fas fa-users me-2"></i>Khách Hàng</a>
-    <a href="/admin/index.html#!/nhan-vien"><i class="fas fa-user-tie me-2"></i>Nhân Viên</a>
-    <a href="/thong-ke/doanh-thu"><i class="fas fa-chart-line me-2"></i>Thống Kê</a>
+    <a href="/sach/hien-thi" class="mb-2"><i class="fas fa-book me-2"></i>Sản Phẩm</a>
+    <a href="/hoa-don/hien-thi" class="mb-2"><i class="fas fa-receipt me-2"></i>Hóa Đơn</a>
+    <a href="/khach-hang/hien-thi" class="mb-2"><i class="fas fa-users me-2"></i>Khách Hàng</a>
+    <sec:authorize access="hasRole('ADMIN')">
+        <a href="/nhan-vien/hien-thi" class="mb-2"><i class="fas fa-user-tie me-2"></i>Nhân Viên</a>
+        <a href="/thong-ke/doanh-thu" class="mb-2"><i class="fas fa-chart-line me-2"></i>Thống Kê</a>
+    </sec:authorize>
 </div>
 
 <!-- Nội dung -->
@@ -156,8 +159,10 @@
             <div class="logo">BeeBook - Quản lý sách tại quầy</div>
         </div>
         <div>
-            <a href="login.html"><span th:text="'Xin chào, ' + ${tenDangNhap}">Xin chào, admin</span> |</a>
-            <a href="/logout" class="text-danger ms-1">Thoát</a>
+            <span th:text="${#authentication != null ? 'Xin chào ' + #authentication.principal.username : 'Xin chào Khách'}"></span> |
+            <form th:action="@{/security/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-link text-danger ms-1 p-0" style="text-decoration: none;">Thoát</button>
+            </form>
         </div>
     </div>
 

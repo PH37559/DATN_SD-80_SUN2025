@@ -23,8 +23,7 @@ public class Nxb {
     @Column(name = "nha_xuat_ban", nullable = false)
     private String nhaXuatBan;
 
-
-    @Column(nullable = false)
+    @Column(name = "dia_chi", nullable = false)
     private String diaChi;
 
 

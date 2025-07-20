@@ -24,7 +24,6 @@ public class TheLoai {
     private String tenTheLoai;
 
     @Column(name = "mo_ta")
-
     private String moTa;
 
     @Column(name = "trang_thai", nullable = false)

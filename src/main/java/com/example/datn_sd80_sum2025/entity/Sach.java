@@ -53,6 +53,7 @@ public class Sach {
     @JoinColumn(name = "id_nxb")
     private Nxb nxb;
 
+    @Column(name = "mo_ta")
     private String moTa;
 
     @Column(name = "trang_thai", nullable = false)

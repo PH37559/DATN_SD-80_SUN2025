@@ -1,0 +1,205 @@
+<div th:fragment="content"
+     xmlns:th="http://www.w3.org/1999/xhtml">
+    <h3 class="mb-4">Danh sách nhân viên</h3>
+
+    <div class="row mb-3 align-items-end">
+        <!-- Cột chứa nút -->
+        <div class="col-auto">
+            <div class="d-flex gap-2">
+                <a th:href="@{/nhan-vien/add}" class="btn btn-warning btn-sm">+ Thêm mới</a>
+                <a th:href="@{/chuc-vu/hien-thi}" class="btn btn-warning btn-sm">Chức vụ</a>
+            </div>
+        </div>
+        <!-- Cột chứa form lọc -->
+        <div class="col">
+            <form th:action="@{/nhan-vien/hien-thi}" method="get">
+                <div class="row g-2 align-items-end">
+                    <!-- Tìm kiếm -->
+                    <div class="col-md-5">
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm"
+                               placeholder="Tìm theo tên, SĐT, email hoặc tên tài khoản">
+                    </div>
+                    <!-- Lọc chức vụ -->
+                    <div class="col-md-3">
+                        <select name="chucVu" class="form-select form-select-sm">
+                            <option value="">-- Tất cả chức vụ --</option>
+                            <option th:each="cv : ${listChucVu}" th:value="${cv.id}" th:text="${cv.tenChucVu}"
+                                    th:selected="${cv.id == chucVu}"></option>
+                        </select>
+                    </div>
+                    <!-- Lọc trạng thái -->
+                    <div class="col-md-3">
+                        <select name="trangThai" class="form-select form-select-sm">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            <option value="1" th:selected="${trangThai == 1}">Đang hoạt động</option>
+                            <option value="0" th:selected="${trangThai == 0}">Đã nghỉ</option>
+                        </select>
+                    </div>
+                    <!-- Nút tìm -->
+                    <div class="col-md-auto">
+                        <button type="submit" class="btn btn-primary btn-sm">Tìm kiếm</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center" style="font-size: 16px;">
+            <thead class="table-dark">
+            <tr>
+                <th style="white-space: nowrap;">Mã NV</th>
+                <th style="white-space: nowrap;">Họ tên</th>
+                <th style="white-space: nowrap;">Giới tính</th>
+                <th style="white-space: nowrap;">SĐT</th>
+                <th style="white-space: nowrap;">Email</th>
+                <th style="white-space: nowrap;">Tài khoản</th>
+                <th style="white-space: nowrap;">Chức vụ</th>
+                <th style="white-space: nowrap;">Trạng thái</th>
+                <th style="white-space: nowrap;">Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="nv : ${list}" th:if="${!list.isEmpty()}"
+                th:attr="data-id=${nv.id}" onclick="showChiTiet(this)" style="cursor: pointer;">
+                <td th:text="${nv.id}" style="white-space: nowrap;"></td>
+                <td th:text="${nv.hoTen}"
+                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"></td>
+                <td th:text="${nv.gioiTinh == true ? 'Nam' : 'Nữ'}"></td>
+                <td th:text="${nv.sdt}"></td>
+                <td th:text="${nv.email}"
+                    style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></td>
+                <td th:text="${nv.tenTaiKhoan}" style="white-space: nowrap;"></td>
+                <td th:text="${nv.chucVu.tenChucVu}"
+                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></td>
+                <td>
+                    <span th:text="${nv.trangThai == 1 ? 'Đang hoạt động' : 'Đã nghỉ'}"
+                          th:class="${nv.trangThai == 1} ? 'badge bg-success' : 'badge bg-secondary'"></span>
+                </td>
+                <td style="white-space: nowrap;">
+                    <a th:href="@{/nhan-vien/edit/{id}(id=${nv.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                    <a th:href="@{/nhan-vien/delete/{id}(id=${nv.id})}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                </td>
+            </tr>
+            <!-- Nếu không có kết quả -->
+            <tr th:if="${list.isEmpty()}">
+                <td colspan="11" class="text-center text-muted">Không tìm thấy kết quả</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang -->
+    <nav aria-label="Page navigation" th:if="${list != null and !list.isEmpty()}">
+        <ul class="pagination justify-content-center">
+
+            <!-- Nút Trước -->
+            <li class="page-item" th:classappend="${currentPage != null and currentPage == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/nhan-vien/hien-thi(
+                        page=${currentPage != null and currentPage > 0 ? currentPage - 1 : 0},
+                        size=${size},
+                        keyword=${keyword},
+                        chucVu=${chucVu},
+                        trangThai=${trangThai})}">
+                    Trước
+                </a>
+            </li>
+
+            <!-- Các số trang -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, totalPage - 1)}"
+                th:classappend="${currentPage != null and i == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/nhan-vien/hien-thi(
+                        page=${i},
+                        size=${size},
+                        keyword=${keyword},
+                        chucVu=${chucVu},
+                        trangThai=${trangThai})}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <!-- Nút Tiếp -->
+            <li class="page-item"
+                th:classappend="${currentPage != null and currentPage + 1 >= totalPage} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/nhan-vien/hien-thi(
+                        page=${currentPage != null and currentPage + 1 < totalPage ? currentPage + 1 : currentPage},
+                        size=${size},
+                        keyword=${keyword},
+                        chucVu=${chucVu},
+                        trangThai=${trangThai})}">
+                    Tiếp
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Chi tiết   -->
+    <div class="modal fade" id="chiTietModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-primary shadow">
+                <div class="modal-header text-white" style="background-color: #ffc107">
+                    <h5 class="modal-title">Thông tin chi tiết nhân viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Họ tên:</label>
+                                <input type="text" id="ctHoTen" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Giới tính:</label>
+                                <input type="text" id="ctGioiTinh" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Địa chỉ:</label>
+                                <input type="text" id="ctDiaChi" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">SĐT:</label>
+                                <input type="text" id="ctSdt" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Email:</label>
+                                <input type="text" id="ctEmail" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Ngày làm việc:</label>
+                                <input type="text" id="ctNgayLamViec" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Tài khoản:</label>
+                                <input type="text" id="ctTenTaiKhoan" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Mật khẩu:</label>
+                                <input type="text" id="ctMatKhau" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Chức vụ:</label>
+                                <input type="text" id="ctChucVu" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Trạng thái:</label>
+                                <input type="text" id="ctTrangThai" class="form-control" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <a id="btnSua" class="btn btn-warning">Sửa</a>
+                    <a id="btnXoa" class="btn btn-danger"
+                       onclick="return confirm('Bạn có chắc muốn xóa nhân viên này?')">Xóa</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

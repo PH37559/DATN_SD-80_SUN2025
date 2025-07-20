@@ -9,6 +9,8 @@ import com.example.datn_sd80_sum2025.service.sanpham.SachService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +60,11 @@ public class TrangChuController {
         Page<Sach> sachPage = keyword != null && !keyword.isBlank()
                 ? sachService.searchByTenSach(keyword, page, pageSize)
                 : sachService.getAllPaged(page, pageSize);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String tenTaiKhoan = auth.getName();
+        NhanVien nhanVien = nhanVienService.findByTenTaiKhoan(tenTaiKhoan);
+        model.addAttribute("nhanVienDangNhap", nhanVien);
 
         model.addAttribute("sanPhamList", sachPage.getContent());
         model.addAttribute("currentPage", page);

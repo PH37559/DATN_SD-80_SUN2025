@@ -44,7 +44,6 @@ public class HoaDon {
     @Column(name = "trang_thai", nullable = false)
     private Integer trangThai;
 
-
     public void setIdKhachHang(Integer id) {
         this.khachHang = new KhachHang();
         this.khachHang.setId(id);

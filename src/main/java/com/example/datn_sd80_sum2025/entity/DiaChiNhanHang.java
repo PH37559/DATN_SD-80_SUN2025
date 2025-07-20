@@ -20,8 +20,13 @@ public class DiaChiNhanHang {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "thanh_pho")
     private String thanhPho;
+
+    @Column(name = "quan_huyen")
     private String quanHuyen;
+
+    @Column(name = "phuong_xa")
     private String phuongXa;
 
     @Column(name = "dia_chi_chi_tiet")
