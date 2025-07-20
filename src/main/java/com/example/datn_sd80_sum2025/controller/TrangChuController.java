@@ -215,5 +215,16 @@ public class TrangChuController {
         }
         return "redirect:/trang-chu/hien-thi";
     }
+    @Controller
+    @RequestMapping("/khach-hang")
+    public class KhachHangController {
+
+        @GetMapping("/them-moi")
+        public String hienThiFormThemMoi(Model model) {
+            model.addAttribute("khachHang", new KhachHang());
+            return "khach-hang/add";
+        }
+
+    }
 
 }

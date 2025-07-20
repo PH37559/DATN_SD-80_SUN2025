@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
 
@@ -97,5 +98,6 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
                WHERE email = :email AND (:id IS NULL OR id <> :id)
             """, nativeQuery = true)
     boolean existsByEmail(@Param("email") String email, @Param("id") Integer id);
+    Optional<KhachHang> findBySdt(String sdt);
 
 }

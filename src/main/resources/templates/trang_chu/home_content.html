@@ -235,18 +235,43 @@
               <input type="date" class="form-control" name="ngayTao" th:value="${ngayHienTai}" required />
             </div>
             <div class="mb-2">
-              <label class="form-label">Khách hàng</label>
-              <select class="form-select" name="khachHangId" required>
-                <option value="" disabled selected>-- Chọn khách hàng --</option>
-                <option th:each="kh : ${listKhachHang}" th:value="${kh.id}" th:text="${kh.hoTen}"></option>
-              </select>
+              <label class="form-label">Số điện thoại khách hàng</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="sdtKhachHang" placeholder="Nhập số điện thoại">
+                <button class="btn btn-outline-secondary" type="button" onclick="timKhachHang()">Tìm</button>
+              </div>
             </div>
             <div class="mb-2">
+              <label class="form-label">Tên khách hàng</label>
+              <input type="text" id="tenKhachHang" class="form-control" readonly>
+              <input type="hidden" id="khachHangId" name="khachHangId">
+            </div>
+            <script>
+              function timKhachHang() {
+                const sdt = document.getElementById("sdtKhachHang").value;
+                fetch(`/api/khach-hang/tim-theo-sdt?sdt=${encodeURIComponent(sdt)}`)
+                        .then(res => {
+                          if (!res.ok) throw new Error("Không tìm thấy");
+                          return res.json();
+                        })
+                        .then(data => {
+                          document.getElementById("tenKhachHang").value = data.hoTen;
+                          document.getElementById("khachHangId").value = data.id;
+                        })
+                        .catch(err => {
+                          if (confirm("Không tìm thấy khách hàng. Bạn có muốn tạo mới không?")) {
+                            window.location.href = "/khach-hang/add";
+                          }
+                        });
+              }
+            </script>
+
+            <div class="mb-2">
               <label class="form-label">Tên nhân viên</label>
-              <select class="form-select" name="nhanVienId" required>
-                <option value="" disabled selected>-- Chọn nhân viên --</option>
-                <option th:each="nv : ${listNhanVien}" th:value="${nv.id}" th:text="${nv.hoTen}"></option>
+              <select class="form-select" name="nhanVienId" disabled>
+                <option th:value="${nhanVienDangNhap.id}" th:text="${nhanVienDangNhap.hoTen}" selected></option>
               </select>
+              <input type="hidden" name="nhanVienId" th:value="${nhanVienDangNhap.id}" />
             </div>
 
             <div class="mb-2">

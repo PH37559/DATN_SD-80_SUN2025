@@ -159,7 +159,7 @@
             <div class="logo">BeeBook - Quản lý sách tại quầy</div>
         </div>
         <div>
-            <span th:text="${#authentication != null ? 'Xin chào ' + #authentication.principal.username : 'Xin chào Khách'}"></span> |
+            <span th:text="${#authentication != null ? 'Xin chào ' + #authentication.principal.username : 'Xin chào Bạn'}"></span> |
             <form th:action="@{/security/logout}" method="post" style="display:inline;">
                 <button type="submit" class="btn btn-link text-danger ms-1 p-0" style="text-decoration: none;">Thoát</button>
             </form>
