@@ -19,5 +19,11 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
             " ORDER BY hd.ngayLap")
     List<DoanhThuDTO> thongKeDoanhThu(@Param("year") int year, @Param("month") Integer month);
     List<HoaDon> findByTrangThai(Integer trangThai);
+    @Query("SELECT hd FROM HoaDon hd " +
+            "JOIN FETCH hd.khachHang " +
+            "JOIN FETCH hd.nhanVien " +
+            "WHERE hd.trangThai = :trangThai")
+    List<HoaDon> findDonHangChoWithKhachHangAndNhanVien(@Param("trangThai") Integer trangThai);
+
 
 }
