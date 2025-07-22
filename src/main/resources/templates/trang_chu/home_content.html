@@ -186,7 +186,6 @@
               <th>Mã HĐ</th>
               <th>Ngày lập</th>
               <th>Khách hàng</th>
-              <th>SDT Khách hàng</th>
               <th>Nhân viên</th>
               <th>Thành tiền</th>
               <th>PT Thanh toán</th>
@@ -203,8 +202,7 @@
                 style="cursor: pointer;">
             <td th:text="'HD' + ${hd.id}"></td>
               <td th:text="${hd.ngayLap}"></td>
-              <td th:text="${hd.khachHang.hoTen}"></td>
-              <td th:text="${hd.khachHang.sdt}"></td>
+              <td th:text="${hd.khachHang != null ? hd.khachHang.hoTen : 'N/A'}"></td>
               <td th:text="${hd.nhanVien != null ? hd.nhanVien.hoTen : 'N/A'}"></td>
               <td th:text="${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
               <td th:text="${hd.phuongThucThanhToan}"></td>
@@ -239,13 +237,13 @@
             <div class="mb-2">
               <label class="form-label">Số điện thoại khách hàng</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="sdtKhachHang" placeholder="Nhập số điện thoại">
+                <input type="text" class="form-control" id="sdtKhachHang" placeholder="Nhập số điện thoại"  th:value="${sdtKhachHang}">
                 <button class="btn btn-outline-secondary" type="button" onclick="timKhachHang()">Tìm</button>
               </div>
             </div>
             <div class="mb-2">
               <label class="form-label">Tên khách hàng</label>
-              <input type="text" id="tenKhachHang" class="form-control" readonly>
+              <input type="text" id="tenKhachHang" class="form-control" readonly th:value="${tenKhachHang}">
               <input type="hidden" id="khachHangId" name="khachHangId">
             </div>
             <script>
@@ -296,16 +294,16 @@
               });
             </script>
             <div class="mb-2">
-              <label class="form-label">Voucher giảm giá</label>
+              <label class="form-label">Mã Voucher</label>
               <div class="input-group">
-                <input type="text" id="maVoucher" class="form-control" placeholder="Nhập mã voucher">
+                <input type="text" id="maVoucher" name="maVoucher" class="form-control" placeholder="Nhập mã voucher">
                 <button class="btn btn-outline-secondary" type="button" onclick="apDungVoucher()">Áp dụng</button>
               </div>
-              <div id="voucherMessage" class="text-danger mt-1" style="font-size: 0.9em;"></div>
             </div>
             <div class="mb-2">
               <label class="form-label">Giảm giá</label>
-              <input type="text" id="giamGia" class="form-control" readonly value="0">
+              <input type="text" id="giamGiaHienThi" class="form-control" value="0 đ" readonly>
+              <input type="hidden" id="giamGia" value="0">
             </div>
 
             <div class="mb-2">
@@ -316,9 +314,9 @@
             <div class="mb-2">
               <label class="form-label">Hình thức TT</label>
               <select class="form-select" name="phuongThucTT" required>
-                <option value="" disabled selected>-- Chọn phương thức --</option>
-                <option value="Tiền mặt">Tiền mặt</option>
-                <option value="Chuyển khoản">Chuyển khoản</option>
+                <option value="" disabled th:selected="${phuongThuc == null}">-- Chọn phương thức --</option>
+                <option value="Tiền mặt" th:selected="${phuongThuc == 'Tiền mặt'}">Tiền mặt</option>
+                <option value="Chuyển khoản" th:selected="${phuongThuc == 'Chuyển khoản'}">Chuyển khoản</option>
               </select>
             </div>
             <div class="d-grid gap-2 mt-4">
@@ -364,51 +362,23 @@
 
           </form>
           <script>
-            function apDungVoucher() {
-              const ma = document.getElementById("maVoucher").value.trim();
-              const tongTien = parseFloat(document.getElementById("tongTien").value || 0);
-              const giamGiaInput = document.getElementById("giamGia");
-              const tongTienHienThi = document.getElementById("tongTienHienThi");
-              const voucherMessage = document.getElementById("voucherMessage");
+            const tienKhachDuaInput = document.getElementById("tienKhachDua");
+            const tienThuaInput = document.getElementById("tienThua");
+            const tongTien = parseFloat(document.getElementById("tongTien").value || 0);
+            const giamGiaInput = document.getElementById("giamGia");
 
-              if (!ma) {
-                voucherMessage.textContent = "Vui lòng nhập mã voucher.";
-                return;
-              }
-
-              fetch(`/api/voucher/ap-dung?ma=${encodeURIComponent(ma)}&tongTien=${tongTien}`)
-                      .then(response => {
-                        if (!response.ok) {
-                          throw new Error("Mã voucher không hợp lệ hoặc không áp dụng được.");
-                        }
-                        return response.json();
-                      })
-                      .then(data => {
-                        const giamGia = data.giaTriGiam || 0;
-                        giamGiaInput.value = giamGia;
-                        voucherMessage.textContent = "";
-
-                        // Cập nhật tổng tiền hiển thị sau giảm
-                        const tongSauGiam = tongTien - giamGia;
-                        tongTienHienThi.value = tongSauGiam.toLocaleString("vi-VN", {
-                          style: "currency",
-                          currency: "VND"
-                        });
-
-                        // Gọi lại hàm cập nhật tiền thừa
-                        capNhatTienThua();
-                      })
-                      .catch(err => {
-                        giamGiaInput.value = "0";
-                        voucherMessage.textContent = err.message;
-                        tongTienHienThi.value = tongTien.toLocaleString("vi-VN", {
-                          style: "currency",
-                          currency: "VND"
-                        });
-
-                        capNhatTienThua();
-                      });
+            function tinhTienThua() {
+              const tienKhachDua = parseFloat(tienKhachDuaInput.value) || 0;
+              const giamGia = parseFloat(giamGiaInput.value) || 0;
+              const tongThanhToan = Math.max(tongTien - giamGia, 0);
+              const tienThua = tienKhachDua - tongThanhToan;
+              tienThuaInput.value = tienThua.toLocaleString("vi-VN", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0
+              });
             }
+            tienKhachDuaInput.addEventListener("input", tinhTienThua);
           </script>
 
         </div>
@@ -416,4 +386,3 @@
     </div>
   </div>
 </div>
-

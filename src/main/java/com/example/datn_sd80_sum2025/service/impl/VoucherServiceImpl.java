@@ -1,21 +1,31 @@
+
 package com.example.datn_sd80_sum2025.service.impl;
-
-
 import com.example.datn_sd80_sum2025.entity.Voucher;
 import com.example.datn_sd80_sum2025.repository.VoucherRepository;
 import com.example.datn_sd80_sum2025.service.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-    @Service
-    public class VoucherServiceImpl implements VoucherService {
+import java.util.List;
 
-        @Autowired
-        private VoucherRepository voucherRepository;
+@Service
+public class VoucherServiceImpl implements VoucherService {
 
-        @Override
-        public Voucher findByMa(String ma) {
-            return voucherRepository.findByMa(ma);
-        }
+    @Autowired
+    private VoucherRepository voucherRepository;
+
+    @Override
+    public Voucher findByMa(String ma) {
+        return voucherRepository.findByMa(ma);
     }
+
+    @Override
+    public Voucher save(Voucher voucher) {
+        return voucherRepository.save(voucher);
+    }
+    @Override
+    public List<Voucher> getAll() {
+        return voucherRepository.findAll();
+    }
+}
 

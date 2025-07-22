@@ -1,0 +1,50 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-header fw-bold">
+            Danh sách Voucher
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-hover table-sm">
+                <thead class="table-secondary">
+                <tr>
+                    <th>#</th>
+                    <th>Mã</th>
+                    <th>Tên</th>
+                    <th>Loại</th>
+                    <th>Giảm (%)</th>
+                    <th>Giảm cố định</th>
+                    <th>ĐK áp dụng</th>
+                    <th>Số lượng</th>
+                    <th>Hiệu lực</th>
+                    <th>Hết hiệu lực</th>
+                    <th>Trạng thái</th>
+                    <th>Hoạt động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="v, i : ${listVoucher}">
+                    <td th:text="${i.count}">1</td>
+                    <td th:text="${v.ma}">VC001</td>
+                    <td th:text="${v.ten}">Khuyến mãi 7/7</td>
+                    <td th:text="${v.getLoaiAsString()}">PERCENT</td>
+                    <td th:text="${v.phanTramGiam} + '%'">10%</td>
+                    <td th:text="${v.soTienGiam}">50000</td>
+                    <td th:text="${v.dieuKien}">100000</td>
+                    <td th:text="${v.soLuong}">100</td>
+                    <td th:text="${#temporals.format(v.ngayBatDau, 'dd/MM/yyyy')}">20/07/2025</td>
+                    <td th:text="${#temporals.format(v.ngayKetThuc, 'dd/MM/yyyy')}">25/07/2025</td>
+                    <td>
+                        <span th:if="${v.conHieuLuc}" class="badge bg-success">Còn</span>
+                        <span th:if="${!v.conHieuLuc}" class="badge bg-secondary">Hết</span>
+                    </td>
+                    <td>
+                        <span th:if="${v.trangThai == 1}" class="badge bg-primary">Đang dùng</span>
+                        <span th:if="${v.trangThai != 1}" class="badge bg-danger">Tắt</span>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

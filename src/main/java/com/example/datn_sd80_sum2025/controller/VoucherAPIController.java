@@ -17,7 +17,7 @@ public class VoucherAPIController {
     @Autowired
     private VoucherService voucherService;
 
-    @GetMapping("/api/voucher/ap-dung")
+    @GetMapping("/api/voucher/kiem-tra")
     public ResponseEntity<Map<String, Object>> apDungVoucher(
             @RequestParam String ma,
             @RequestParam double tongTien) {
@@ -33,34 +33,37 @@ public class VoucherAPIController {
 
         double giam = 0;
 
-        switch (voucher.getLoai()) {
+        switch (voucher.getLoaiAsString()) {
             case "PERCENT":
-                if (tongTien >= voucher.getDieuKien()) {
-                    giam = tongTien * voucher.getGiaTri() / 100;
+                if (tongTien >= voucher.getDieuKien().doubleValue()) {
+                    giam = tongTien * voucher.getGiaTri().doubleValue() / 100;
                 }
                 break;
             case "FIXED":
-                if (tongTien >= voucher.getDieuKien()) {
-                    giam = voucher.getGiaTri();
+                if (tongTien >= voucher.getDieuKien().doubleValue()) {
+                    giam = voucher.getGiaTri().doubleValue();
                 }
                 break;
             case "FREE":
                 giam = tongTien;
                 break;
             case "SPECIAL":
-                // nếu có phân loại khách hàng thì thêm điều kiện ở đây
+                if ("sinh_nhat".equalsIgnoreCase(voucher.getDoiTuongApDung())) {
+                    giam = tongTien * voucher.getGiaTri().doubleValue() / 100;
+                }
                 break;
             default:
-                break;
+                return ResponseEntity.badRequest().body(Map.of("error", "Loại voucher không hợp lệ"));
         }
 
-        if (voucher.getGiamToiDa() != null && giam > voucher.getGiamToiDa()) {
-            giam = voucher.getGiamToiDa();
+        if (voucher.getGiamToiDa() != null && giam > voucher.getGiamToiDa().doubleValue()) {
+            giam = voucher.getGiamToiDa().doubleValue();
         }
 
         Map<String, Object> result = new HashMap<>();
         result.put("giaTriGiam", giam);
-
+        result.put("maVoucher", voucher.getMa());
+        result.put("tenVoucher", voucher.getTen());
         return ResponseEntity.ok(result);
     }
 }

@@ -47,8 +47,12 @@ public class TrangChuController {
 
     @Autowired
     private NhanVienService nhanVienService;
+
     @Autowired
     private HoaDonRepository hoaDonRepository;
+
+    @Autowired
+    private VoucherService voucherService;
 
     @GetMapping("/hien-thi")
     public String hienThiTrangChu(Model model,
@@ -60,12 +64,10 @@ public class TrangChuController {
         Page<Sach> sachPage = keyword != null && !keyword.isBlank()
                 ? sachService.searchByTenSach(keyword, page, pageSize)
                 : sachService.getAllPaged(page, pageSize);
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String tenTaiKhoan = auth.getName();
         NhanVien nhanVien = nhanVienService.findByTenTaiKhoan(tenTaiKhoan);
         model.addAttribute("nhanVienDangNhap", nhanVien);
-
         model.addAttribute("sanPhamList", sachPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", sachPage.getTotalPages());
@@ -74,13 +76,18 @@ public class TrangChuController {
         model.addAttribute("listKhachHang", khachHangService.getAll());
         model.addAttribute("listNhanVien", nhanVienService.getAll());
         model.addAttribute("ngayHienTai", LocalDate.now());
+        model.addAttribute("donHangCho", hoaDonService.getTop5DonHangCho());
 
         if (hoaDonId != null) {
             HoaDon hoaDon = hoaDonService.getById(hoaDonId);
             model.addAttribute("hoaDon", hoaDon);
             List<HoaDonChiTiet> chiTietList = hoaDonChiTietService.getByHoaDonId(hoaDonId);
             model.addAttribute("gioHangList", chiTietList);
-        } else {
+            model.addAttribute("tenKhachHang", hoaDon.getKhachHang().getHoTen());
+            model.addAttribute("sdtKhachHang", hoaDon.getKhachHang().getSdt());
+            model.addAttribute("phuongThuc", hoaDon.getPhuongThucThanhToan());
+            model.addAttribute("thanhTien", hoaDon.getTongTien());
+    } else {
             model.addAttribute("gioHangList", gioHangChiTietService.getAll());
             gioHangChiTietService.clearTatCa();
         }
@@ -215,4 +222,6 @@ public class TrangChuController {
         }
         return "redirect:/trang-chu/hien-thi";
     }
+
 }
+

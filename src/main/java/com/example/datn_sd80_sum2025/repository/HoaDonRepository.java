@@ -2,6 +2,7 @@ package com.example.datn_sd80_sum2025.repository;
 
 import com.example.datn_sd80_sum2025.dto.DoanhThuDTO;
 import com.example.datn_sd80_sum2025.entity.HoaDon;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +25,6 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
             "JOIN FETCH hd.nhanVien " +
             "WHERE hd.trangThai = :trangThai")
     List<HoaDon> findDonHangChoWithKhachHangAndNhanVien(@Param("trangThai") Integer trangThai);
-
-
+    @Query("SELECT h FROM HoaDon h WHERE h.trangThai = 0 ORDER BY h.ngayLap DESC")
+    List<HoaDon> findTop5ByTrangThaiCho(Pageable pageable);
 }
