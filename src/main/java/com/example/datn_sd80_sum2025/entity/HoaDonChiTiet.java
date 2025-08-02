@@ -24,7 +24,9 @@ public class HoaDonChiTiet {
     @JoinColumn(name = "id_hoa_don")
     private HoaDon hoaDon;
 
+    @Column(name = "so_luong")
     private Integer soLuong;
+
 
     @Column(name = "don_gia")
     private BigDecimal donGia;

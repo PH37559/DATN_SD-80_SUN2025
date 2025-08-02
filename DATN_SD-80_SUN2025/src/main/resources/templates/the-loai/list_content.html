@@ -1,0 +1,42 @@
+<div th:fragment="content">
+    <h3 class="mb-4">Danh sách Thể Loại</h3>
+
+    <div class="mb-3 d-flex justify-content-between">
+        <a th:href="@{/the-loai/add}" class="btn btn-warning btn-sm">+ Thêm mới</a>
+        <!-- Form tìm kiếm -->
+        <form th:action="@{/the-loai/hien-thi}" method="get" class="d-flex">
+            <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm me-2" placeholder="Tìm theo tên thể loại">
+            <button type="submit" class="btn btn-primary btn-sm">Tìm</button>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên thể loại</th>
+                <th>Mô tả</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="tl : ${listTheLoai}">
+                <td th:text="${tl.id}">1</td>
+                <td th:text="${tl.tenTheLoai}">Khoa học</td>
+                <td th:text="${tl.moTa}">Sách về khoa học</td>
+                <td>
+                    <span th:text="${tl.trangThai == 1 ? 'Hoạt động' : 'Ngừng áp dụng'}"
+                          th:class="${tl.trangThai == 1} ? 'badge bg-success' : 'badge bg-secondary'">Hoạt động</span>
+                </td>
+                <td>
+                    <a th:href="@{/the-loai/edit/{id}(id=${tl.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                    <a th:href="@{/the-loai/delete/{id}(id=${tl.id})}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

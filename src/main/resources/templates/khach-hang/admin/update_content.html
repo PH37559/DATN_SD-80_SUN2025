@@ -1,0 +1,327 @@
+<div th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <!--Thông tin khách hàng    -->
+    <form id="khachHangForm"
+          th:action="@{/khach-hang/update/{id}(id=${khachHang.id})}"
+          th:object="${khachHang}" method="post">
+        <input type="hidden" name="khachHangConfirmFlag" id="khachHangConfirmFlag" value="false"/>
+        <input type="hidden" th:field="*{id}"/>
+        <div class="card shadow-sm rounded-3">
+            <div class="card-header bg-warning text-white">
+                <h4 class="mb-0">Thông tin khách hàng</h4>
+            </div>
+            <div class="card-body">
+                <a th:href="@{/khach-hang/hien-thi}" class="btn btn-secondary btn-sm mb-3">
+                    ← Quay lại danh sách
+                </a>
+                <!-- Input -->
+                <div class="card-body row g-4">
+                    <!--Họ tên-->
+                    <div class="col-md-6">
+                        <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{hoTen}" class="form-control" placeholder="Nhập họ tên">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('hoTen')} ? ${#fields.errors('hoTen')[0]} : ''"></span>
+                    </div>
+                    <!--Giới tính-->
+                    <div class="col-md-6">
+                        <label class="form-label d-block">Giới tính <span class="text-danger">*</span></label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" th:field="*{gioiTinh}" th:value="true"
+                                   id="nam">
+                            <label class="form-check-label" for="nam">Nam</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" th:field="*{gioiTinh}" th:value="false"
+                                   id="nu">
+                            <label class="form-check-label" for="nu">Nữ</label>
+                        </div>
+                        <span class="text-danger small d-block w-100" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('gioiTinh')} ? ${#fields.errors('gioiTinh')[0]} : ''"></span>
+                    </div>
+                    <!--Ngày sinh-->
+                    <div class="col-md-4">
+                        <label class="form-label">Ngày sinh <span class="text-danger">*</span></label>
+                        <input type="date" th:field="*{ngaySinh}" class="form-control">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('ngaySinh')} ? ${#fields.errors('ngaySinh')[0]} : ''"></span>
+                    </div>
+                    <!--Email-->
+                    <div class="col-md-4">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{email}" class="form-control" placeholder="Nhập email">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : ''"></span>
+                    </div>
+                    <!--Số điện thoại-->
+                    <div class="col-md-4">
+                        <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{sdt}" class="form-control" placeholder="Nhập số điện thoại">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('sdt')} ? ${#fields.errors('sdt')[0]} : ''"></span>
+                    </div>
+                    <!--Tên tài khoản-->
+                    <div class="col-md-4">
+                        <label class="form-label">Tên tài khoản <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{tenTaiKhoan}" class="form-control" placeholder="Nhập tên tài khoản">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('tenTaiKhoan')} ? ${#fields.errors('tenTaiKhoan')[0]} : ''"></span>
+                    </div>
+                    <!--Mật khẩu-->
+                    <div class="col-md-4">
+                        <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" th:field="*{matKhau}" class="form-control" id="matKhauInput"
+                                   placeholder="Nhập mật khẩu"/>
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()"
+                                    tabindex="-1">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('matKhau')} ? ${#fields.errors('matKhau')[0]} : ''"></span>
+                    </div>
+                    <!--Trạng thái-->
+                    <div class="col-md-4">
+                        <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{trangThai}">
+                            <option value="" disabled>-- Chọn trạng thái --</option>
+                            <option value="1">Đang hoạt động</option>
+                            <option value="0">Ngừng hoạt động</option>
+                        </select>
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('trangThai')} ? ${#fields.errors('trangThai')[0]} : ''"></span>
+                    </div>
+                </div>
+            </div>
+            <!-- Nút-->
+            <div class="text-end m-3">
+                <button class="btn btn-primary">
+                    <i class="bi bi-save"></i> <span>Cập nhật</span>
+                </button>
+                <a th:href="@{/khach-hang/hien-thi}" class="btn btn-outline-secondary ms-2">Hủy</a>
+            </div>
+            <!-- Modal xác nhận -->
+            <div class="modal fade" id="khachHangConfirmModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content border-warning">
+                        <div class="modal-header bg-warning text-white">
+                            <h5 class="modal-title">Xác nhận</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Bạn có chắc muốn cập nhật khách hàng?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-primary" id="btnKhachHangConfirmOK">OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal kết quả -->
+            <div class="modal fade" id="khachHangResultModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content border-success">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">Kết quả</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    th:onclick="|location.href='/khach-hang/edit/${khachHang.id}'|">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p th:text="${khachHangResultMessage}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- Địa chỉ nhận hàng   -->
+    <form id="diaChiForm" th:action="@{${actionDiaChiUrl}}" th:object="${diaChi}" method="post">
+        <input type="hidden" name="diaChiConfirmFlag" id="diaChiConfirmFlag" value="false"/>
+        <div class="card shadow-sm rounded-3 mt-3">
+            <div class="card-header bg-warning text-white">
+                <h4 class="mb-0">Thông tin địa chỉ</h4>
+            </div>
+            <div class="card-body">
+                <!-- Danh sách địa chỉ -->
+                <div class="text-end mb-2">
+                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#modalDanhSachDiaChi">
+                        <i class="bi bi-list-ul"></i> Danh sách địa chỉ
+                    </button>
+                </div>
+                <!-- Modal danh sách địa chỉ -->
+                <div class="modal fade" id="modalDanhSachDiaChi" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content border-secondary">
+                            <div class="modal-header bg-secondary text-white">
+                                <h5 class="modal-title">Danh sách địa chỉ</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div th:each="item, iterStat : ${listDiaChi}">
+                                    <div class="border-bottom py-2 d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p class="mb-1"
+                                               th:text="${item.diaChiNhanHang.diaChiChiTiet}"></p>
+                                            <p class="mb-1"
+                                               th:text="${item.diaChiNhanHang.phuongXa} + ', ' +
+                                     ${item.diaChiNhanHang.quanHuyen} + ', ' +
+                                     ${item.diaChiNhanHang.thanhPho}">
+                                            </p>
+                                            <span class="text-muted fst-italic"
+                                                  th:if="${iterStat.index == 0}">Địa chỉ mặc định</span>
+                                        </div>
+                                        <div class="text-end ms-3">
+                                            <a class="btn btn-sm btn-outline-secondary"
+                                               th:href="@{'/khach-hang/edit/' + ${item.khachHang.id} + '/edit-dia-chi/' + ${item.diaChiNhanHang.id}}">
+                                                <i class="bi bi-pencil"></i> Chỉnh sửa
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <a th:href="@{'/khach-hang/edit/' + ${khachHang.id} + '/add-dia-chi'}"
+                                       class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-plus-circle"></i> Thêm địa chỉ
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Input -->
+                <div class="card-body row g-4">
+                    <!--Họ tên-->
+                    <div class="col-md-6">
+                        <label class="form-label">Họ tên người nhận <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{hoTen}" class="form-control" placeholder="Nhập họ tên người nhận">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('hoTen')} ? ${#fields.errors('hoTen')[0]} : ''"></span>
+                    </div>
+                    <!--Số điện thoại-->
+                    <div class="col-md-4">
+                        <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{sdt}" class="form-control" placeholder="Nhập số điện thoại">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('sdt')} ? ${#fields.errors('sdt')[0]} : ''"></span>
+                    </div>
+                    <!--Tỉnh/Thành phố-->
+                    <div class="col-md-4">
+                        <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{thanhPho}" id="city"
+                                th:attr="data-selected=${diaChi.thanhPho}">
+                            <option value="">Chọn tỉnh/thành phố</option>
+                        </select>
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('thanhPho')} ? ${#fields.errors('thanhPho')[0]} : ''"></span>
+                    </div>
+                    <!--Quận/Huyện-->
+                    <div class="col-md-4">
+                        <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{quanHuyen}" id="district"
+                                th:attr="data-selected=${diaChi.quanHuyen}">
+                            <option value="">Chọn quận/huyện</option>
+                        </select>
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('quanHuyen')} ? ${#fields.errors('quanHuyen')[0]} : ''"></span>
+                    </div>
+                    <!--Phường/Xã-->
+                    <div class="col-md-4">
+                        <label class="form-label">Phường/Xã <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{phuongXa}" id="ward"
+                                th:attr="data-selected=${diaChi.phuongXa}">
+                            <option value="">Chọn phường/xã</option>
+                        </select>
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('phuongXa')} ? ${#fields.errors('phuongXa')[0]} : ''"></span>
+                    </div>
+                    <!--Địa chỉ chi tiết-->
+                    <div class="col-md-6">
+                        <label class="form-label">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                        <input type="text" th:field="*{diaChiChiTiet}" class="form-control"
+                               placeholder="Số nhà, tên đường...">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('diaChiChiTiet')} ? ${#fields.errors('diaChiChiTiet')[0]} : ''"></span>
+                    </div>
+                    <!--Trạng thái-->
+                    <div class="col-md-6">
+                        <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                        <select class="form-select" th:field="*{trangThaiDCCT}">
+                            <option value="" disabled>-- Chọn trạng thái --</option>
+                            <option value="1">Đang sử dụng</option>
+                            <option value="0">Ngừng sử dụng</option>
+                        </select>
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('trangThaiDCCT')} ? ${#fields.errors('trangThaiDCCT')[0]} : ''"></span>
+                    </div>
+                    <!--Ghi chú-->
+                    <div class="col-md-12">
+                        <label class="form-label">Ghi chú</label>
+                        <input type="text" th:field="*{ghiChu}" class="form-control" placeholder="Ghi chú thêm">
+                        <span class="text-danger small d-block" style="min-height: 1.5rem"
+                              th:text="${#fields.hasErrors('ghiChu')} ? ${#fields.errors('ghiChu')[0]} : ''"></span>
+                    </div>
+                </div>
+            </div>
+            <!-- Nút-->
+            <div class="text-end m-3">
+                <button type="submit" class="btn btn-warning"
+                        th:if="${isUpdate == false}"
+                        th:formaction="@{${actionDiaChiUrl}}">
+                    <i class="bi bi-plus-circle"></i> Thêm
+                </button>
+                <a class="btn btn-outline-secondary ms-2"
+                   th:if="${isUpdate == false}"
+                   th:href="@{'/khach-hang/edit/' + ${khachHang.id} + '/edit-dia-chi/' + ${listDiaChi[0].diaChiNhanHang.id}}">Hủy
+                </a>
+                <button type="submit" class="btn btn-primary"
+                        th:if="${isUpdate == true}"
+                        th:formaction="@{${actionDiaChiUrl}}">
+                    <i class="bi bi-save"></i> Cập nhật
+                </button>
+                <button type="submit" class="btn btn-danger"
+                        th:if="${isUpdate == true}"
+                        th:formaction="@{'/khach-hang/edit/' + ${khachHang.id} + '/xoa-dia-chi/' + ${diaChi.id}}"
+                        onclick="return confirm('Bạn có chắc muốn xoá địa chỉ này?')">
+                    <i class="bi bi-trash"></i> Xoá
+                </button>
+            </div>
+            <!-- Modal xác nhận -->
+            <div class="modal fade" id="diaChiConfirmModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content border-warning">
+                        <div class="modal-header bg-warning text-white">
+                            <h5 class="modal-title">Xác nhận</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p th:text="${isUpdate} ? 'Bạn có chắc muốn cập nhật địa chỉ?' : 'Bạn có chắc muốn thêm địa chỉ?'"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="button" class="btn btn-primary">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal kết quả -->
+            <div class="modal fade" id="diaChiResultModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content border-success">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">Kết quả</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p th:text="${diaChiResultMessage}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+

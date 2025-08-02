@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class SachService {
 
@@ -82,5 +84,33 @@ public class SachService {
         String cleaned = maSach.trim().replaceAll("[^a-zA-Z0-9]", "");
         return sachRepository.existsByMaSach(cleaned);
     }
+    public boolean capNhatSoLuongSauKhiThem(int idSach, int soLuongThem) {
+        Optional<Sach> optional = sachRepository.findById(idSach);
+        if (optional.isEmpty()) return false;
 
+        Sach sach = optional.get();
+        if (sach.getSoLuong() < soLuongThem) {
+            return false;
+        }
+        sach.setSoLuong(sach.getSoLuong() - soLuongThem);
+        if (sach.getSoLuong() == 0) {
+            sach.setTrangThai(0);
+        }
+
+        sachRepository.save(sach);
+        return true;
+    }
+    public void congSoLuongSauKhiXoa(int idSach, int soLuongXoa) {
+        Optional<Sach> optional = sachRepository.findById(idSach);
+        if (optional.isEmpty()) return;
+        Sach sach = optional.get();
+        sach.setSoLuong(sach.getSoLuong() + soLuongXoa);
+
+        if (sach.getTrangThai() == 0 && sach.getSoLuong() > 0) {
+            sach.setTrangThai(1);
+        }
+
+        sachRepository.save(sach);
+    }
 }
+

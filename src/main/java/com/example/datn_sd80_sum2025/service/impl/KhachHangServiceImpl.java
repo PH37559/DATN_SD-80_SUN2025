@@ -21,13 +21,13 @@ import java.util.List;
 @Service
 public class KhachHangServiceImpl implements KhachHangService {
 
-    @Autowired
-    private KhachHangRepository khachHangRepository;
+        @Autowired
+        private KhachHangRepository khachHangRepository;
 
-    @Override
-    public List<KhachHang> getAll() {
-        return khachHangRepository.findAll();
-    }
+        @Override
+        public List<KhachHang> getAll() {
+            return khachHangRepository.findAll();
+        }
 
     @Override
     public KhachHang getById(Integer id) {
@@ -109,5 +109,13 @@ public class KhachHangServiceImpl implements KhachHangService {
         return khachHangRepository.existsByEmail(email, id);
     }
 
+    @Override
+    public boolean existsByTenTaiKhoan(String tenTaiKhoan, Integer id) {
+        return khachHangRepository.existsByEmail(tenTaiKhoan, id);
+    }
 
+    @Override
+    public KhachHang getKhachHangBySdtOrEmailOrTenTaiKhoan(String keyword, String matKhau) {
+        return khachHangRepository.findByKeywordAndPassword(keyword, matKhau).orElse(null);
+    }
 }

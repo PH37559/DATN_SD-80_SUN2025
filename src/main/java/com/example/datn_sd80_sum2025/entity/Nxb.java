@@ -26,6 +26,7 @@ public class Nxb {
     @Column(name = "dia_chi", nullable = false)
     private String diaChi;
 
+
     @Column(name = "trang_thai", nullable = false)
     private Integer trangThai;
 }

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
 
@@ -97,5 +98,22 @@ public interface KhachHangRepository extends JpaRepository<KhachHang, Integer> {
                WHERE email = :email AND (:id IS NULL OR id <> :id)
             """, nativeQuery = true)
     boolean existsByEmail(@Param("email") String email, @Param("id") Integer id);
+
+    @Query(value = """
+               SELECT CASE WHEN COUNT(*) > 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
+               FROM khach_hang
+               WHERE ten_tai_khoan = :tenTaiKhoan AND (:id IS NULL OR id <> :id)
+            """, nativeQuery = true)
+    boolean existsByTenTaiKhoan(@Param("tenTaiKhoan") String email, @Param("id") Integer id);
+
+    Optional<KhachHang> findBySdt(String sdt);
+
+    @Query(value = """
+                SELECT * FROM khach_hang kh
+                WHERE (kh.sdt = :keyword OR kh.email = :keyword OR kh.ten_tai_khoan = :keyword)
+                AND kh.mat_khau = :matKhau
+            """, nativeQuery = true)
+    Optional<KhachHang> findByKeywordAndPassword(@Param("keyword") String keyword,
+                                                 @Param("matKhau") String matKhau);
 
 }

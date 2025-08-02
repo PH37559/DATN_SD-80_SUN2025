@@ -48,13 +48,13 @@ public class KhachHangUpdate {
     @Pattern(regexp = "^(0\\d{9})$", message = "Số điện thoại không hợp lệ")
     private String sdt;
 
-//    @NotEmpty(message = "Tên tài khoản không được để trống")
-//    @Size(max = 50, message = "Tài khoản tối đa 50 ký tự")
-//    private String tenTaiKhoan;
-//
-//    @NotEmpty(message = "Mật khẩu không được để trống")
-//    @Size(max = 50, message = "Mật khẩu tối đa 50 ký tự")
-//    private String matKhau;
+    @NotEmpty(message = "Tên tài khoản không được để trống")
+    @Size(max = 50, message = "Tài khoản tối đa 50 ký tự")
+    private String tenTaiKhoan;
+
+    @NotEmpty(message = "Mật khẩu không được để trống")
+    @Size(max = 50, message = "Mật khẩu tối đa 50 ký tự")
+    private String matKhau;
 
     @NotNull(message = "Trạng thái không được để trống")
     private Integer trangThai;

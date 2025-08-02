@@ -1,5 +1,6 @@
 package com.example.datn_sd80_sum2025.service.impl;
 
+import com.example.datn_sd80_sum2025.dto.request.GioHangChiTietDTO;
 import com.example.datn_sd80_sum2025.entity.GioHangChiTiet;
 import com.example.datn_sd80_sum2025.entity.GioHangChiTietId;
 import com.example.datn_sd80_sum2025.entity.GioHang;
@@ -8,7 +9,9 @@ import com.example.datn_sd80_sum2025.repository.GioHangChiTietRepository;
 import com.example.datn_sd80_sum2025.repository.GioHangRepository;
 import com.example.datn_sd80_sum2025.repository.SachRepository;
 import com.example.datn_sd80_sum2025.service.GioHangChiTietService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,12 +39,7 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
 
     @Override
     public List<GioHangChiTiet> getByGioHangId(Integer idGioHang) {
-        return repository.findByGioHang_Id(idGioHang);
-    }
-
-    @Override
-    public void addOrUpdate(GioHangChiTiet gioHangChiTiet) {
-        repository.save(gioHangChiTiet);
+        return repository.findByGioHangId(idGioHang);
     }
 
     @Override
@@ -50,12 +48,18 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
     }
 
     @Override
-    public void themSanPham(Integer idGioHang, Integer idSach, Integer soLuong) {
-        GioHangChiTietId id = new GioHangChiTietId(idGioHang, idSach);
-        Optional<GioHangChiTiet> existing = repository.findById(id);
+    public void clearTatCa() {
+        gioHangChiTietRepository.deleteAll();
+    }
 
+    @Override
+    public void themSanPham(Integer idGioHang, Integer idSach, Integer soLuong) {
         GioHang gioHang = gioHangRepository.findById(idGioHang).orElseThrow();
         Sach sach = sachRepository.findById(idSach).orElseThrow();
+
+        GioHangChiTietId id = new GioHangChiTietId(gioHang, sach);
+
+        Optional<GioHangChiTiet> existing = repository.findById(id);
 
         if (existing.isPresent()) {
             GioHangChiTiet chiTiet = existing.get();
@@ -63,28 +67,16 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
             repository.save(chiTiet);
         } else {
             GioHangChiTiet chiTiet = new GioHangChiTiet();
-            chiTiet.setId(id);
             chiTiet.setGioHang(gioHang);
             chiTiet.setSach(sach);
             chiTiet.setSoLuong(soLuong);
             chiTiet.setDonGia(sach.getGiaBan());
+            chiTiet.setTrangThai(0);
             repository.save(chiTiet);
         }
     }
 
-    @Override
-    public void xoaTatCaTrongGio(Integer idGioHang) {
-        repository.deleteAllByGioHang_Id(idGioHang);
-    }
-    @Override
-    public GioHang findOrCreateDefault() {
-        return gioHangRepository.findFirstByTrangThai(0)
-                .orElseGet(() -> {
-                    GioHang newGioHang = new GioHang();
-                    newGioHang.setTrangThai(0);
-                    return gioHangRepository.save(newGioHang);
-                });
-    }
+
     @Override
     public BigDecimal tinhTongTienTheoGioHang(Integer idGioHang) {
         List<GioHangChiTiet> list = getByGioHangId(idGioHang);
@@ -92,11 +84,69 @@ public class GioHangChiTietServiceImpl implements GioHangChiTietService {
                 .map(item -> item.getDonGia().multiply(BigDecimal.valueOf(item.getSoLuong())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
     @Override
     public void clearByGioHangId(Integer idGioHang) {
         List<GioHangChiTiet> list = gioHangChiTietRepository.findByGioHangId(idGioHang);
         gioHangChiTietRepository.deleteAll(list);
     }
 
+    @Override
+    public void capNhatSoLuong(Integer idGioHang, Integer idSach, Integer soLuongMoi) {
+        GioHang gioHang = gioHangRepository.findById(idGioHang)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giỏ hàng."));
+        Sach sach = sachRepository.findById(idSach)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sách."));
+
+        GioHangChiTietId id = new GioHangChiTietId(gioHang, sach);
+        GioHangChiTiet chiTiet = gioHangChiTietRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm trong giỏ hàng."));
+
+        chiTiet.setSoLuong(soLuongMoi);
+        gioHangChiTietRepository.save(chiTiet);
+    }
+
+    @Override
+    public int getSoLuongByGioHangIdAndSachId(Integer gioHangId, Integer sachId) {
+        // Lấy composite‑key
+        GioHang gioHang = gioHangRepository.findById(gioHangId).orElse(null);
+        Sach sach = sachRepository.findById(sachId).orElse(null);
+
+        if (gioHang == null || sach == null) return 0;
+
+        GioHangChiTietId id = new GioHangChiTietId(gioHang, sach);
+
+        return repository.findById(id)
+                .map(GioHangChiTiet::getSoLuong)
+                .orElse(0);
+    }
+
+    @Override
+    public void clearByIdCartAndIdBook(Integer idGioHang, Integer idSach) {
+        GioHangChiTiet ghct = gioHangChiTietRepository.findByIdCardAndIdBook(idGioHang, idSach).orElse(null);
+        gioHangChiTietRepository.delete(ghct);
+    }
+
+    @Override
+    public GioHangChiTiet getByIdCartAndIdBook(Integer idGioHang, Integer idSach){
+        return gioHangChiTietRepository.findByIdCardAndIdBook(idGioHang, idSach).orElse(null);
+    }
+
+    @Override
+    public void store(GioHangChiTietDTO gioHangChiTiet) {
+        GioHangChiTiet ghct = new GioHangChiTiet();
+        BeanUtils.copyProperties(gioHangChiTiet, ghct);
+        gioHangChiTietRepository.save(ghct);
+    }
+
+    @Override
+    public void deleteAll(List<GioHangChiTiet> gioHangChiTietList) {
+        gioHangChiTietRepository.deleteAll(gioHangChiTietList);
+    }
+
+    @Override
+    public int countItemsInCart(Integer idGioHang){
+        return gioHangChiTietRepository.countBooksByIdCart(idGioHang);
+    }
 
 }

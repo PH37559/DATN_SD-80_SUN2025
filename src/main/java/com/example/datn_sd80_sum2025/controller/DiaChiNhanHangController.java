@@ -153,6 +153,6 @@ public class DiaChiNhanHangController {
         model.addAttribute("listDiaChi", list);
         model.addAttribute("isUpdate", isUpdate);
         model.addAttribute("actionDiaChiUrl", actionUrl);
-        return "khach-hang/update";
+        return "khach-hang/admin/update";
     }
 }

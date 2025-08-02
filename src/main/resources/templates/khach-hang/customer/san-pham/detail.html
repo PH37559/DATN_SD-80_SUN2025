@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/khach-hang/customer/index :: dynamic(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${sach.tenSach}">Chi tiết sản phẩm</title>
+</head>
+<body>
+<main th:object="${sach}" class="container mt-4">
+    <div class="row g-4">
+        <div class="col-md-5">
+            <div class="border rounded p-3 bg-white d-flex flex-column align-items-center">
+                <img th:src="@{'/images/' + *{hinhAnh}}"
+                     class="img-fluid mb-4"
+                     style="object-fit: contain; max-height: 450px; width: 100%;"
+                     alt="Ảnh sản phẩm">
+            </div>
+        </div>
+
+        <div class="col-md-7 d-flex flex-column justify-content-between">
+            <div class="bg-white p-4 border rounded mb-3">
+                <h2 class="fw-bold mb-3" th:text="*{tenSach}">Tên Sách</h2>
+
+                <div class="mb-2">
+                    <span>Nhà xuất bản:</span>
+                    <strong th:text="*{nxb.nhaXuatBan}"></strong>
+                </div>
+                <div class="mb-2">
+                    <span>Tác giả:</span>
+                    <strong th:text="*{tacGia}"></strong>
+                </div>
+                <div class="mb-3">
+                    <span>Trạng thái:</span>
+                    <strong th:text="*{soLuong > 0 ? 'Còn hàng' : 'Hết hàng'}"
+                            th:classappend="*{soLuong > 0 ? 'text-success' : 'text-danger'}">
+                    </strong>
+                </div>
+                <div class="mb-3">
+                    <span class="text-danger fs-3 fw-bold"
+                          th:text="*{#numbers.formatDecimal(giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                    </span>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 border rounded mb-3">
+                <table class="table table-sm table-borderless mb-3">
+                    <tbody>
+                    <tr>
+                        <th>Vận chuyển</th>
+                        <td>
+                            <div class="mb-3">
+                                <p class="mb-1">
+                                    Giao hàng đến <strong class="text-primary" id="diaChiThayDoi">Phường Bến Nghé, Quận
+                                    1, HCM</strong>
+                                    <a href="#" class="text-decoration-none" data-bs-toggle="modal"
+                                       data-bs-target="#modalThayDoiDiaChi">Thay đổi</a>
+                                </p>
+                                <p class="mb-0 text-success">
+                                    <i class="bi bi-truck me-1"></i> Giao hàng tiêu chuẩn - Dự kiến giao Thứ tư - 30/07
+                                </p>
+                            </div>
+                        </td>
+                        <!-- Modal thay đổi địa chỉ -->
+                        <div class="modal fade" id="modalThayDoiDiaChi" tabindex="-1"
+                             aria-labelledby="modalThayDoiDiaChiLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalThayDoiDiaChiLabel">Thay đổi địa chỉ giao
+                                            hàng</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Đóng"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="formThayDoiDiaChi">
+                                            <div class="mb-3">
+                                                <label for="city" class="form-label">Tỉnh/Thành phố</label>
+                                                <select id="city" class="form-select">
+                                                    <option value="">-- Chọn Tỉnh/Thành --</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="district" class="form-label">Quận/Huyện</label>
+                                                <select id="district" class="form-select">
+                                                    <option value="">-- Chọn Quận/Huyện --</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="ward" class="form-label">Phường/Xã</label>
+                                                <select id="ward" class="form-select">
+                                                    <option value="">-- Chọn Phường/Xã --</option>
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-save-address"
+                                                onclick="luuDiaChi()">Lưu
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </tr>
+                    <tr>
+                        <th>Số lượng</th>
+                        <td>
+                            <div style="display: inline-flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; padding: 5px 10px;">
+                                <button class="btn-minus" style="border: none; background: none; font-size: 20px;">−
+                                </button>
+                                <input id="quantity" value="1" min="1"
+                                       style="width: 40px; text-align: center; border: none; outline: none;">
+                                <button class="btn-plus" style="border: none; background: none; font-size: 20px;">+
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="d-flex w-100 gap-3 mt-3">
+                    <a href="javascript:void(0)"
+                       th:attr="data-id=${sach.id}"
+                       class="btn btn-outline-danger btn-lg w-50 btn-add-to-cart">
+                        <i class="bi bi-cart-plus-fill me-2"></i> Thêm vào giỏ
+                    </a>
+                    <!-- Toast thông báo -->
+                    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+                        <div id="toastSuccess" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                            <div class="d-flex">
+                                <div class="toast-body" id="toastBody">Đã thêm vào giỏ hàng!</div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <a th:href="@{/home/gio-hang}" class="btn btn-danger btn-lg w-50"
+                       style="color: white; font-weight: 600;">
+                        Mua ngay
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 border rounded" mt-3>
+                <h5 class="fw-bold mb-3">Thông tin chi tiết</h5>
+                <table class="table table-sm custom-border-bottom table-custom-spacing mb-2">
+                    <tbody>
+                    <tr>
+                        <th style="width: 150px;">Tác giả</th>
+                        <td th:text="*{tacGia}"></td>
+                    </tr>
+                    <tr>
+                        <th>Nhà xuất bản</th>
+                        <td th:text="*{nxb.nhaXuatBan}"></td>
+                    </tr>
+                    <tr>
+                        <th>Năm xuất bản</th>
+                        <td th:text="*{namXuatBan}"></td>
+                    </tr>
+                    <tr>
+                        <th>Thể loại</th>
+                        <td th:text="*{theLoai.tenTheLoai}"></td>
+                    </tr>
+                    <tr>
+                        <th>Ngôn ngữ</th>
+                        <td th:text="*{ngonNgu.tenNgonNgu}"></td>
+                    </tr>
+                    <tr>
+                        <th>Số lượng</th>
+                        <td th:text="*{soLuong} + ' quyển'"></td>
+                    </tr>
+                    <tr>
+                        <th>Mô tả</th>
+                        <td th:text="*{moTa}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            // Handle tăng/giảm số lượng
+            document.querySelector(".btn-minus")?.addEventListener("click", function () {
+                const input = document.getElementById('quantity');
+                const value = parseInt(input.value);
+                if (value > 1) {
+                    input.value = value - 1;
+                    document.getElementById('soLuongInput').value = input.value;
+                }
+            });
+
+            document.querySelector(".btn-plus")?.addEventListener("click", function () {
+                const input = document.getElementById('quantity');
+                input.value = parseInt(input.value) + 1;
+                document.getElementById('soLuongInput').value = input.value;
+            });
+
+            //Thêm sản phẩm vào giỏ
+            document.querySelector(".btn-add-to-cart")?.addEventListener("click", function () {
+                const idSach = this.getAttribute("data-id");
+                const soLuong = document.getElementById("quantity").value;
+
+                const params = new URLSearchParams({ idSach: idSach, soLuong: soLuong });
+
+                fetch(`/cart/add?${params}`, {method: 'POST'})
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            showToast("Đã thêm vào giỏ hàng!");
+                            setTimeout(() => location.reload(), 1000);
+                            updateCartCount(data.cartItemCount);
+                        } else {
+                            showToast(data.message || "Thêm vào giỏ thất bại");
+                        }
+                    })
+                    .catch(() => {
+                        showToast("Lỗi hệ thống khi thêm giỏ hàng");
+                    });
+            });
+
+            //Hàm show toast
+            function showToast(message) {
+                const toastBody = document.getElementById("toastBody");
+                toastBody.textContent = message;
+
+                const toastElement = document.getElementById("toastSuccess");
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            }
+
+            //Hàm cập nhật lại số lượng sản phẩm trong giỏ
+            function updateCartCount(count) {
+                const cartCountEl = document.getElementById("cartItemCount");
+                if (cartCountEl) {
+                    cartCountEl.textContent = count;
+                }
+            }
+
+            // Thay đổi địa chỉ
+            const citySelect = document.getElementById("city");
+            const districtSelect = document.getElementById("district");
+            const wardSelect = document.getElementById("ward");
+            let allData = [];
+
+            axios.get("https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json")
+                .then(res => {
+                    allData = res.data;
+                    renderCities();
+                });
+
+            function renderCities() {
+                citySelect.length = 1;
+                allData.forEach(city => {
+                    const cleanedName = cleanName(city.Name);
+                    citySelect.options[citySelect.options.length] = new Option(cleanedName, cleanedName);
+                });
+            }
+
+            function renderDistricts(cityName) {
+                const city = allData.find(c => cleanName(c.Name) === cityName);
+                districtSelect.length = 1;
+                wardSelect.length = 1;
+                if (!city) return;
+
+                city.Districts.forEach(dist => {
+                    const cleanedDist = cleanName(dist.Name);
+                    districtSelect.options[districtSelect.options.length] = new Option(cleanedDist, cleanedDist);
+                });
+            }
+
+            function renderWards(cityName, districtName) {
+                const city = allData.find(c => cleanName(c.Name) === cityName);
+                if (!city) return;
+                const district = city.Districts.find(d => cleanName(d.Name) === districtName);
+                wardSelect.length = 1;
+                if (!district) return;
+
+                district.Wards.forEach(ward => {
+                    const cleanedWard = cleanName(ward.Name);
+                    wardSelect.options[wardSelect.options.length] = new Option(cleanedWard, cleanedWard);
+                });
+            }
+
+            function cleanName(name) {
+                return name.replace(/^(Tỉnh|Thành phố|Quận|Huyện|Thị xã|Phường|Xã|Thị trấn)\s*/i, '').trim();
+            }
+
+            citySelect.addEventListener("change", () => {
+                const city = citySelect.value;
+                renderDistricts(city);
+            });
+
+            districtSelect.addEventListener("change", () => {
+                const city = citySelect.value;
+                const district = districtSelect.value;
+                renderWards(city, district);
+            });
+
+            // Lưu địa chỉ
+            document.querySelector(".btn-save-address")?.addEventListener("click", function () {
+                const tinh = citySelect.value;
+                const quan = districtSelect.value;
+                const phuong = wardSelect.value;
+
+                if (!tinh || !quan || !phuong) {
+                    alert("Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã");
+                    return;
+                }
+
+                const diaChi = `Phường ${phuong}, Quận ${quan}, ${tinh}`;
+                const diaChiHtml = document.getElementById("diaChiThayDoi");
+                if (diaChiHtml) {
+                    diaChiHtml.textContent = diaChi;
+                }
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalThayDoiDiaChi'));
+                modal.hide();
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

@@ -23,6 +23,15 @@ import java.time.LocalDate;
 @ToString
 public class DiaChiNhanHangCreate {
 
+    @NotEmpty(message = "Họ tên không được để trống")
+    @Pattern(regexp = "^[a-zA-Z\\p{L}\\s]+$", message = "Tên không hợp lệ")
+    @Size(max = 100, message = "Họ tên tối đa 50 ký tự")
+    private String hoTen;
+
+    @NotEmpty(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^(0\\d{9})$", message = "Số điện thoại không hợp lệ")
+    private String sdt;
+
     @NotEmpty(message = "Vui lòng chọn thành phố")
     private String thanhPho;
 
@@ -37,6 +46,6 @@ public class DiaChiNhanHangCreate {
 
     private String ghiChu;
 
-    @NotNull(message = "Trạng thái không được để trống")
+//    @NotNull(message = "Trạng thái không được để trống")
     private Integer trangThaiDCCT;
 }

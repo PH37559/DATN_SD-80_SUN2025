@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@Transactional
+
 public class HoaDonServiceImpl implements HoaDonService {
 
     @Autowired
@@ -43,6 +43,11 @@ public class HoaDonServiceImpl implements HoaDonService {
     @Override
     public void add(HoaDon hoaDon) {
         hoaDonRepository.save(hoaDon);
+    }
+
+    @Override
+    public List<HoaDon> getByIdKH(Integer idKH) {
+        return hoaDonRepository.getByIdKhachHang(idKH);
     }
 
 }

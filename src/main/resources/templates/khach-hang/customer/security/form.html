@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/khach-hang/customer/index :: dynamic(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập / Đăng ký</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<main class="container my-5" style="max-width: 1400px;">
+    <div class="bg-white rounded shadow-sm p-4">
+
+        <!-- Tabs -->
+        <div class="d-flex justify-content-around mb-4 border-bottom">
+            <div id="loginTab"
+                 class="pb-2 fw-bold"
+                 style="cursor:pointer; border-bottom: 3px solid red;"
+                 onclick="switchTab('login')">
+                Đăng nhập
+            </div>
+            <div id="registerTab"
+                 class="pb-2 fw-bold text-muted"
+                 style="cursor:pointer;"
+                 onclick="switchTab('register')">
+                Đăng ký
+            </div>
+        </div>
+
+        <!-- Form Đăng nhập -->
+        <div id="loginForm"
+             th:insert="~{/khach-hang/customer/security/login :: #loginForm}">
+        </div>
+
+        <!-- Form Đăng ký -->
+        <div id="registerForm" style="display: none;"
+             th:with="khachHang=${khachHang}"
+             th:replace="~{/khach-hang/customer/security/register :: #registerForm}">
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+
+            if (tab === 'login') {
+                loginTab.style.borderBottom = "3px solid red";
+                loginTab.classList.remove("text-muted");
+                registerTab.style.borderBottom = "none";
+                registerTab.classList.add("text-muted");
+
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                registerTab.style.borderBottom = "3px solid red";
+                registerTab.classList.remove("text-muted");
+                loginTab.style.borderBottom = "none";
+                loginTab.classList.add("text-muted");
+
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+        }
+
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+</main>
+</body>
+</html>

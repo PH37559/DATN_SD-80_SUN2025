@@ -23,6 +23,7 @@ public class NgonNgu {
     @Column(name = "ngon_ngu", nullable = false)
     private String tenNgonNgu;
 
+
     @Column(name = "trang_thai", nullable = false)
     private Integer trangThai;
 }

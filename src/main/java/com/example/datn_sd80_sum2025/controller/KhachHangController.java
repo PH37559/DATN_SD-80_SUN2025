@@ -93,7 +93,7 @@ public class KhachHangController {
         model.addAttribute("thanhPho", thanhPho);
         model.addAttribute("quanHuyen", quanHuyen);
 
-        return "khach-hang/list";
+        return "khach-hang/admin/list";
     }
 
     @GetMapping("/add")
@@ -103,7 +103,7 @@ public class KhachHangController {
         model.addAttribute("errors", new HashMap<String, String>());
         model.addAttribute("isUpdate", false);
         model.addAttribute("actionUrl", "/khach-hang/store");
-        return "khach-hang/add";
+        return "khach-hang/admin/add";
     }
 
     @PostMapping("/store")
@@ -120,19 +120,21 @@ public class KhachHangController {
         if (khachHangService.existsByEmail(khachHang.getEmail(), null)) {
             khErrors.rejectValue("email", "email", "Email đã tồn tại");
         }
-
+        if (khachHangService.existsByTenTaiKhoan(khachHang.getTenTaiKhoan(), null)) {
+            khErrors.rejectValue("tenTaiKhoan", "tenTaiKhoan", "Tên tài khoản đã tồn tại");
+        }
         if (khErrors.hasErrors()) {
             model.addAttribute("isUpdate", false);
-            return "khach-hang/add";
+            return "khach-hang/admin/add";
         }
 
         if (khErrors.hasErrors() || dcErrors.hasErrors()) {
-            return "khach-hang/add";
+            return "khach-hang/admin/add";
         }
 
         if (!confirmFlag) {
             model.addAttribute("showConfirmModal", true);
-            return "khach-hang/add";
+            return "khach-hang/admin/add";
         }
 
         try {
@@ -146,7 +148,7 @@ public class KhachHangController {
             System.out.print(e.getMessage());
             model.addAttribute("showResultModal", true);
             model.addAttribute("resultMessage", "Thêm khách hàng thất bại!");
-            return "khach-hang/add";
+            return "khach-hang/admin/add";
         }
     }
 
@@ -160,7 +162,7 @@ public class KhachHangController {
         renderForm(idKH, model);
         model.addAttribute("khachHang", khachHang);
         model.addAttribute("isUpdate", null);
-        return "khach-hang/update";
+        return "khach-hang/admin/update";
     }
 
     @PostMapping("/update/{id}")
@@ -175,6 +177,9 @@ public class KhachHangController {
         }
         if (khachHangService.existsByEmail(khachHang.getEmail(), id)) {
             result.rejectValue("email", "email", "Email đã tồn tại");
+        }
+        if (khachHangService.existsByTenTaiKhoan(khachHang.getTenTaiKhoan(), id)) {
+            result.rejectValue("tenTaiKhoan", "tenTaiKhoan", "Tên tài khoản đã tồn tại");
         }
 
         if (result.hasErrors()) {
@@ -195,7 +200,7 @@ public class KhachHangController {
             renderForm(id, model);
             model.addAttribute("showKhachHangResultModal", true);
             model.addAttribute("khachHangResultMessage", "Cập nhật khách hàng thất bại!");
-            return "khach-hang/update";
+            return "khach-hang/admin/update";
         }
     }
 
@@ -221,11 +226,6 @@ public class KhachHangController {
         }
     }
 
-    private String cleanPrefix(String value) {
-        return value == null ? null :
-                value.replaceAll("(?i)^Thành phố |^Tỉnh |^Quận |^Huyện |^Thị xã |^Phường |^Xã ", "").trim();
-    }
-
     private String renderForm(Integer id, Model model) {
         List<DiaChiChiTiet> listDiaChi = diaChiChiTietService.getDCCTByKHId(id);
 
@@ -241,7 +241,7 @@ public class KhachHangController {
         model.addAttribute("diaChi", diaChi);
         model.addAttribute("listDiaChi", listDiaChi);
         model.addAttribute("errors", new HashMap<String, String>());
-        return "khach-hang/update";
+        return "khach-hang/admin/update";
     }
 
 }

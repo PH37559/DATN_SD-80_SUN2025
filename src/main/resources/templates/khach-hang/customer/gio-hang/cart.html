@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/khach-hang/customer/index :: dynamic(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<main class="my-4">
+    <div class="mx-auto" style="max-width: 1560px;">
+        <h4 class="fw-bold mb-4">GIỎ HÀNG (<span th:text="${cartItemCount}">0</span> sản phẩm)</h4>
+
+        <!-- Khi giỏ hàng trống -->
+        <div class="row cart-empty text-center border rounded p-3 bg-white" style="padding: 40px 0"
+             th:if="${#lists.isEmpty(listGHCT)}">
+            <div class="col-12 text-center">
+                <img src="/images/empty-cart.jpg" alt="Giỏ hàng trống" style="max-width: 120px; margin-bottom: 20px">
+                <p>Chưa có sản phẩm trong giỏ hàng của bạn.</p>
+                <a href="/home/sach" class="btn btn-warning">MUA SẮM NGAY</a>
+            </div>
+        </div>
+
+        <!-- Khi có sản phẩm -->
+        <div class="row" th:unless="${#lists.isEmpty(listGHCT)}">
+            <input type="hidden" id="idGioHang" th:value="${gioHang.id}"/>
+            <div class="col-md-8 border rounded p-3 bg-white d-flex flex-column">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="checkAll">
+                    <label class="form-check-label fw-bold" for="checkAll">Chọn tất cả (<span
+                            th:text="${listGHCT.size()}"></span> sản phẩm)</label>
+                </div>
+            </div>
+            <div class="col-md-8 border rounded p-3 bg-white d-flex flex-column mt-3">
+                <div th:each="item, iterStat : ${listGHCT}" class="card p-3 mb-3"
+                     th:classappend="${!iterStat.last} ? 'border-bottom' : ''" style="border: none">
+                    <div class="d-flex align-items-center">
+                        <input class="form-check-input me-3" type="checkbox" name="chonSach">
+                        <input type="hidden" name="idSach" th:value="${item.sach.id}"/>
+                        <img th:src="@{'/images/' + ${item.sach.hinhAnh}}" width="100" alt="Sách" class="me-3">
+
+                        <div class="flex-grow-1">
+                            <div class="fw-bold" th:text="${item.sach.tenSach}">Tên sách</div>
+                            <div>
+                            <span class="text-danger fw-bold"
+                                  th:text="${#numbers.formatDecimal(item.donGia, 0, 'POINT', 0, 'COMMA')} + ' đ'"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mx-3"
+                             style="border: 1px solid #ccc; border-radius: 6px; padding: 5px 10px;">
+                            <button class="btn-minus" type="button" th:attr="data-id=${item.sach.id}"
+                                    style="border: none; background: none; font-size: 20px;">-
+                            </button>
+                            <input type="text" class="mx-2 quantity-input" th:attr="data-id=${item.sach.id}"
+                                   th:value="${item.soLuong}"
+                                   style="width: 40px; text-align: center; border: none; outline: none;">
+                            <button class="btn-plus" type="button" th:attr="data-id=${item.sach.id}"
+                                    style="border: none; background: none; font-size: 20px;">+
+                            </button>
+                        </div>
+
+                        <button class="btn-delete text-danger" th:attr="data-id=${item.sach.id}"
+                                style="border: none; background: none;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <!-- Toast thông báo -->
+                    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+                        <div id="toastSuccess" class="toast align-items-center text-white bg-success border-0"
+                             role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body" id="toastBody">
+                                    Thông báo
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                        data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tổng tiền, thanh toán -->
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <div class="mb-3">
+                        <h6>Thành tiền</h6>
+                        <h4 class="text-danger fw-bold" id="tongTien"
+                            th:text="${#numbers.formatDecimal(tongTien, 0, 'POINT', 0, 'COMMA')} + ' đ'">0 đ</h4>
+                    </div>
+
+                    <form id="formCheckout" action="/home/checkout" method="get">
+<!--                        <div th:each="item:${listGHCT}">-->
+                            <input type="hidden" id="selectedIdsInput" name="selectedIds" value="">
+<!--                        </div>-->
+                        <button type="submit" class="btn btn-danger w-100" id="btnThanhToan" disabled
+                                th:disabled="${#lists.isEmpty(listGHCT)}">THANH TOÁN
+                        </button>
+                    </form>
+                    <p class="text-muted mt-2 small">(Giảm giá trên web chỉ áp dụng cho bán lẻ)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const idGioHang = document.getElementById("idGioHang")?.value || 0;
+
+            // Tăng giảm số lượng
+            document.querySelectorAll('.btn-minus').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const input = document.querySelector(`.quantity-input[data-id='${id}']`);
+                    const value = parseInt(input.value);
+                    if (value > 1) {
+                        updateQuantity(id, value - 1);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.btn-plus').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const input = document.querySelector(`.quantity-input[data-id='${id}']`);
+                    const value = parseInt(input.value);
+                    updateQuantity(id, value + 1);
+                });
+            });
+
+            // Xoá sản phẩm
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    if (confirm('Bạn có chắc chắn muốn xoá sản phẩm này khỏi giỏ hàng?')) {
+                        const params = new URLSearchParams({idGioHang: idGioHang, idSach: id});
+                        fetch(`/cart/delete?${params}`, {method: 'POST'})
+                            .then(res => res.json())
+                            .then(data => {
+                                showToast(data.message);
+                                setTimeout(() => location.reload(), 1000);
+                                updateCartCount(data.cartItemCount);
+                            }).catch(err => alert('Xoá thất bại'));
+                    }
+                });
+            });
+
+            // Hàm cập nhật số lượng
+            function updateQuantity(id, newQty) {
+                const params = new URLSearchParams({idGioHang: idGioHang, idSach: id, soLuong: newQty});
+                fetch(`/cart/update?${params}`, {method: 'POST'})
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            location.reload();
+                            updateCartCount(data.cartItemCount);
+                        } else {
+                            showToast(data.message);
+                        }
+                    }).catch(err => showToast('Cập nhật thất bại'));
+            }
+
+            //Hàm show thông báo
+            function showToast(message) {
+                const toastEl = document.getElementById('toastSuccess');
+                const toastBody = document.getElementById('toastBody');
+                toastBody.textContent = message;
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
+
+            //Hàm cập nhật số lượng
+            function updateCartCount(count) {
+                const cartCountEl = document.getElementById("cartItemCount");
+                if (cartCountEl) {
+                    cartCountEl.textContent = count;
+                }
+            }
+
+            // Checkbox chọn sách
+            const checkAll = document.getElementById("checkAll");
+            const checkboxes = document.querySelectorAll("input[name='chonSach']");
+            const tongTienEl = document.getElementById("tongTien");
+            const btnThanhToan = document.getElementById("btnThanhToan");
+            const selectedIdsInput = document.getElementById("selectedIdsInput");
+
+            const formatCurrency = (amount) =>
+                new Intl.NumberFormat('vi-VN').format(amount) + " đ";
+
+            const updateTongTienAndButton = () => {
+                let tong = 0;
+                let selectedIds = [];
+
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        const card = cb.closest(".card");
+                        const id = card.querySelector("input[name='idSach']").value;
+                        const soLuong = parseInt(card.querySelector(".quantity-input").value || 0);
+                        const donGiaText = card.querySelector(".text-danger").innerText || "0";
+                        const donGia = parseInt(donGiaText.replace(/[^\d]/g, '') || 0);
+                        tong += donGia * soLuong;
+                        selectedIds.push(id);
+                    }
+                });
+
+                selectedIdsInput.value = selectedIds.join(',');
+                tongTienEl.innerText = selectedIds.length ? formatCurrency(tong) : "0 đ";
+
+                btnThanhToan.disabled = selectedIds.length === 0;
+                btnThanhToan.classList.toggle("btn-danger", selectedIds.length > 0);
+                btnThanhToan.classList.toggle("btn-secondary", selectedIds.length === 0);
+            };
+
+            checkAll?.addEventListener("change", () => {
+                checkboxes.forEach(cb => cb.checked = checkAll.checked);
+                updateTongTienAndButton();
+            });
+
+            checkboxes.forEach(cb => cb.addEventListener("change", updateTongTienAndButton));
+
+            // Kiểm tra khi submit form
+            function validateThanhToan() {
+                return selectedIdsInput.value.trim() !== "";
+            }
+
+            // Khởi tạo khi trang load
+            updateTongTienAndButton();
+        });
+    </script>
+</main>
+</body>
+</html>

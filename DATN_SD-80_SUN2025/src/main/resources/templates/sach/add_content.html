@@ -1,0 +1,103 @@
+<!-- templates/sach/add_content.html -->
+<div th:fragment="content">
+    <div class="card shadow-sm rounded-3">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">Sách</h4>
+        </div>
+        <div class="card-body">
+
+            <a th:href="@{/sach/hien-thi}" class="btn btn-secondary btn-sm mb-3">
+                ← Quay lại danh sách
+            </a>
+
+            <form th:action="@{/sach/save}" th:object="${sach}" method="post" class="row g-4">
+                <input type="hidden" th:field="*{id}">
+
+                <div class="col-md-4">
+                    <label class="form-label">Mã sách <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{maSach}" class="form-control" placeholder="Nhập mã sách">
+                    <div class="text-danger small" th:text="${errors['maSach']}"></div>
+                </div>
+
+                <div class="col-md-8">
+                    <label class="form-label">Tên sách <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{tenSach}" class="form-control" placeholder="Nhập tên sách">
+                    <div class="text-danger small" th:text="${errors['tenSach']}"></div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Năm xuất bản</label>
+                    <input type="number" th:field="*{namXuatBan}" class="form-control">
+                    <div class="text-danger small" th:text="${errors['namXuatBan']}"></div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Giá bán</label>
+                    <input type="number" step="0.01" th:field="*{giaBan}" class="form-control">
+                    <div class="text-danger small" th:text="${errors['giaBan']}"></div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Số lượng</label>
+                    <input type="number" th:field="*{soLuong}" class="form-control">
+                    <div class="text-danger small" th:text="${errors['soLuong']}"></div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Tác giả</label>
+                    <input type="text" th:field="*{tacGia}" class="form-control">
+                    <div class="text-danger small" th:text="${errors['tacGia']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Ngôn ngữ</label>
+                    <select th:field="*{ngonNgu.id}" class="form-select">
+                        <option value=""> Chọn ngôn ngữ </option>
+                        <option th:each="nn : ${listNgonNgu}" th:value="${nn.id}" th:text="${nn.tenNgonNgu}"></option>
+                    </select>
+                    <div class="text-danger small" th:text="${errors['ngonNgu']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Thể loại</label>
+                    <select th:field="*{theLoai.id}" class="form-select">
+                        <option value=""> Chọn thể loại </option>
+                        <option th:each="tl : ${listTheLoai}" th:value="${tl.id}" th:text="${tl.tenTheLoai}"></option>
+                    </select>
+                    <div class="text-danger small" th:text="${errors['theLoai']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Nhà xuất bản</label>
+                    <select th:field="*{nxb.id}" class="form-select">
+                        <option value=""> Chọn NXB </option>
+                        <option th:each="nxbItem : ${listNxb}" th:value="${nxbItem.id}" th:text="${nxbItem.nhaXuatBan}"></option>
+                    </select>
+                    <div class="text-danger small" th:text="${errors['nxb']}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Mô tả</label>
+                    <textarea th:field="*{moTa}" class="form-control" rows="2" placeholder="Mô tả ngắn gọn..."></textarea>
+                    <div class="text-danger small" th:text="${errors['moTa']}"></div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select th:field="*{trangThai}" class="form-select">
+                        <option value="1">Hoạt động</option>
+                        <option value="0">Ngừng bán</option>
+                    </select>
+                    <div class="text-danger small" th:text="${errors['trangThai']}"></div>
+                </div>
+
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <a th:href="@{/sach/hien-thi}" class="btn btn-outline-secondary ms-2">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

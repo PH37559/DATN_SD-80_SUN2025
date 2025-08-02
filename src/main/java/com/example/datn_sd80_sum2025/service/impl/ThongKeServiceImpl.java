@@ -1,14 +1,19 @@
 package com.example.datn_sd80_sum2025.service.impl;
 
+import com.example.datn_sd80_sum2025.service.ThongKeService;
+
+
 import com.example.datn_sd80_sum2025.dto.DoanhThuDTO;
 
 import com.example.datn_sd80_sum2025.repository.HoaDonRepository;
-import com.example.datn_sd80_sum2025.service.ThongKeService;
-import com.lowagie.text.Paragraph;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.lowagie.text.Document;
-import com.lowagie.text.pdf.PdfWriter;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import com.itextpdf.text.Document;
 
 import java.io.FileOutputStream;
 import java.util.List;
@@ -27,7 +32,7 @@ public class ThongKeServiceImpl implements ThongKeService {
 
     @Override
     public void exportDoanhThuPDF(Integer year, Integer month) {
-        // TODO: xuất file PDF (tạm thời export mẫu)
+
         try {
             Document document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream("DoanhThu.pdf"));

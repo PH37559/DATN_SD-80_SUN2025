@@ -1,0 +1,22 @@
+<div id="loginForm" xmlns:th="http://www.thymeleaf.org">
+    <form th:action="@{/home/login}" method="post">
+        <div class="mb-3">
+            <label for="loginKeyword" class="form-label">Tên tài khoản/SĐT/Email</label>
+            <input type="text" class="form-control" id="loginKeyword" name="keyword"
+                   placeholder="Nhập thông tin đăng nhập">
+        </div>
+        <div class="mb-3">
+            <label for="loginPassword" class="form-label">Mật khẩu</label>
+            <div class="input-group">
+                <input type="password" class="form-control" id="loginPassword" name="matKhau"
+                       placeholder="Nhập mật khẩu">
+                <button class="btn btn-outline-secondary" type="button"
+                        onclick="togglePassword('loginPassword')">Hiện
+                </button>
+            </div>
+            <div th:if="${error}" class="text-danger mt-3" th:text="${error}"></div>
+            <div class="text-end mt-3"><a href="#" class="text-danger">Quên mật khẩu?</a></div>
+        </div>
+        <button type="submit" class="btn btn-danger w-100" style="width: 250px">Đăng nhập</button>
+    </form>
+</div>
