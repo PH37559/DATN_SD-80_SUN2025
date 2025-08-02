@@ -1,0 +1,5 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi"
+      th:with="noiDung=~{trang_chu/home_content :: content}">
+<body th:replace="~{layout :: view('Trang chủ', ${noiDung})}"></body>
+</html>

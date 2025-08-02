@@ -1,0 +1,99 @@
+<!-- templates/sach/list_content.html -->
+<div th:fragment="content">
+    <h3 class="mb-4">Danh sách Sách</h3>
+
+    <div class="mb-3 d-flex justify-content-between">
+        <div> <a th:href="@{/sach/add}" class="btn btn-warning btn-sm">+ Thêm mới</a>
+            <a th:href="@{/ngon-ngu/hien-thi}" class="btn btn-warning btn-sm">Ngôn ngữ</a>
+            <a th:href="@{/nxb/hien-thi}" class="btn btn-warning btn-sm">Nhà Xuất Bản</a>
+            <a th:href="@{/the-loai/hien-thi}" class="btn btn-warning btn-sm">Thể Loại</a>
+            <a th:href="@{/pgg/hien-thi}" class="btn btn-warning btn-sm">Phiếu giảm giá</a></div>
+        <!-- Form tìm kiếm (nếu có) -->
+        <form th:action="@{/sach/hien-thi}" method="get" class="d-flex">
+            <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm me-2" placeholder="Tìm theo tên sách">
+            <button type="submit" class="btn btn-primary btn-sm">Tìm</button>
+        </form>
+    </div>
+
+    <!-- Bảng dữ liệu -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>ISBN</th>
+                <th>Mã sách</th>
+                <th>Tên sách</th>
+                <th>Năm xuất bản</th>
+                <th>Giá bán</th>
+                <th>Số lượng</th>
+                <th>Tác giả</th>
+                <th>Ngôn ngữ</th>
+                <th>Thể loại</th>
+                <th>NXB</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="sach : ${listSach}">
+                <td th:text="${sach.id}">1</td>
+                <td th:text="${sach.isbn}">8935325011894</td>
+                <td th:text="${sach.maSach}">MS01</td>
+                <td th:text="${sach.tenSach}">Tên sách mẫu</td>
+<!--                <td>-->
+<!--                    <img th:if="${sach.hinhAnh != null}"-->
+<!--                         th:src="@{'/uploads/' + ${sach.hinhAnh}}" width="100">-->
+
+
+<!--                </td>-->
+
+                <td th:text="${sach.namXuatBan}">2025</td>
+                <td th:text="${#numbers.formatDecimal(sach.giaBan, 0, 'COMMA', 2, 'POINT')} + ' đ'">200,000 đ</td>
+                <td th:text="${sach.soLuong}">10</td>
+                <td th:text="${sach.tacGia}">Tác giả A</td>
+                <td th:text="${sach.ngonNgu != null ? sach.ngonNgu.tenNgonNgu : ''}">Tiếng Việt</td>
+                <td th:text="${sach.theLoai != null ? sach.theLoai.tenTheLoai : ''}">Tiểu thuyết</td>
+                <td th:text="${sach.nxb != null ? sach.nxb.nhaXuatBan : ''}">NXB ABC</td>
+                <td>
+                        <span th:text="${sach.trangThai == 1 ? 'Hoạt động' : 'Ngừng bán'}"
+                              th:class="${sach.trangThai == 1} ? 'badge bg-success' : 'badge bg-secondary'">Hoạt động</span>
+                </td>
+                <td>
+                    <a th:href="@{/sach/edit/{id}(id=${sach.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                    <a th:href="@{/sach/delete/{id}(id=${sach.id})}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang-->
+    <!--
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${listSach.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/sach/hien-thi(page=${listSach.number - 1}, keyword=${keyword != null ? keyword : ''})}">
+                    Previous
+                </a>
+            </li>
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, listSach.totalPages - 1)}"
+                th:classappend="${i} == ${listSach.number} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/sach/hien-thi(page=${i}, keyword=${keyword != null ? keyword : ''})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${listSach.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/sach/hien-thi(page=${listSach.number + 1}, keyword=${keyword != null ? keyword : ''})}">
+                    Next
+                </a>
+            </li>
+        </ul>
+    </nav>
+    -->
+
+</div>

@@ -1,0 +1,99 @@
+<div th:fragment="content">
+    <div class="card shadow-sm rounded-3">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">Phiếu giảm giá</h4>
+        </div>
+        <div class="card-body">
+
+            <a th:href="@{/pgg/hien-thi}" class="btn btn-secondary btn-sm mb-3">
+                ← Quay lại danh sách
+            </a>
+
+            <form th:action="@{/pgg/save}" th:object="${pgg}" method="post" class="row g-4">
+                <input type="hidden" th:field="*{id}">
+
+                <div class="col-md-4">
+                    <label class="form-label">Mã phiếu <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{maPhieu}" class="form-control" placeholder="Nhập mã phiếu" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['maPhieu'] != null}"
+                         th:text="${errors['maPhieu']}"></div>
+                </div>
+
+                <div class="col-md-8">
+                    <label class="form-label">Tên phiếu <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{tenPhieu}" class="form-control" placeholder="Nhập tên phiếu">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['tenPhieu'] != null}"
+                         th:text="${errors['tenPhieu']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Điều kiện giảm (VNĐ) <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{dieuKienGiam}" class="form-control">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['dieuKienGiam'] != null}"
+                         th:text="${errors['dieuKienGiam']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Phần trăm giảm (%) <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{phanTramGia}" class="form-control">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['phanTramGia'] != null}"
+                         th:text="${errors['phanTramGia']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Giảm tối đa (VNĐ) <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{giamToiDa}" class="form-control">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['giamToiDa'] != null}"
+                         th:text="${errors['giamToiDa']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Số lượng <span class="text-danger">*</span></label>
+                    <input type="number" th:field="*{soLuong}" class="form-control">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['soLuong'] != null}"
+                         th:text="${errors['soLuong']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                    <input type="date" th:field="*{ngayBatDau}" class="form-control">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['ngayBatDau'] != null}"
+                         th:text="${errors['ngayBatDau']}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                    <input type="date" th:field="*{ngayKetThuc}" class="form-control">
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['ngayKetThuc'] != null}"
+                         th:text="${errors['ngayKetThuc']}"></div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                    <select th:field="*{trangThai}" class="form-select">
+                        <option value="1">Hoạt động</option>
+                        <option value="0">Ngừng áp dụng</option>
+                    </select>
+                    <div class="text-danger small"
+                         th:if="${errors != null and errors['trangThai'] != null}"
+                         th:text="${errors['trangThai']}"></div>
+                </div>
+
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <a th:href="@{/pgg/hien-thi}" class="btn btn-outline-secondary ms-2">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

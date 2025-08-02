@@ -1,0 +1,29 @@
+<!-- templates/thongke/tonkho_content.html -->
+<div th:fragment="content">
+    <h3 class="mb-4">Thống kê Tồn kho</h3>
+
+    <div>
+        <a th:href="@{/thong-ke/topsanpham}" class="btn btn-warning btn-sm">Top sản phẩm</a>
+        <a th:href="@{/the-loai/hien-thi}" class="btn btn-warning btn-sm">Thể Loại</a>
+        <a th:href="@{/pgg/hien-thi}" class="btn btn-warning btn-sm">Phiếu giảm giá</a>
+    </div>
+
+    <table class="table table-bordered text-center mt-3">
+        <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Mã Sách</th>
+            <th>Tên sách</th>
+            <th>Số lượng tồn</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="dto, stat : ${listTonKho}">
+            <td th:text="${stat.index + 1}">1</td>
+            <td th:text="${dto.maSach}">Mã Sách</td>
+            <td th:text="${dto.tenSach}">Tên Sách</td>
+            <td th:text="${dto.soLuongTon}">100</td>
+        </tr>
+        </tbody>
+    </table>
+</div>

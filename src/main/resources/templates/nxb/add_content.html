@@ -1,0 +1,39 @@
+<div th:fragment="content">
+    <div class="card shadow-sm rounded-3">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">Nhà Xuất Bản</h4>
+        </div>
+        <div class="card-body">
+
+            <a th:href="@{/nxb/list}" class="btn btn-secondary btn-sm mb-3">
+                ← Quay lại danh sách
+            </a>
+
+            <form th:action="@{/nxb/save}" th:object="${nxb}" method="post" class="row g-4">
+                <input type="hidden" th:field="*{id}">
+
+                <div class="col-md-8">
+                    <label class="form-label">Tên nhà xuất bản <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{nhaXuatBan}" class="form-control" placeholder="Nhập tên nhà xuất bản">
+                    <div class="text-danger small" th:if="${#fields.hasErrors('nhaXuatBan')}" th:errors="*{nhaXuatBan}"></div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                    <select th:field="*{trangThai}" class="form-select">
+                        <option value="1">Hoạt động</option>
+                        <option value="0">Ngừng áp dụng</option>
+                    </select>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('trangThai')}" th:errors="*{trangThai}"></div>
+                </div>
+
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <a th:href="@{/nxb/list}" class="btn btn-outline-secondary ms-2">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

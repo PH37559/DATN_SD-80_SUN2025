@@ -1,0 +1,36 @@
+<div th:fragment="content">
+    <h3 class="mb-4">Thống kê doanh thu theo sản phẩm</h3>
+
+    <form class="row g-3 mb-3" method="get" th:action="@{/thong-ke/san-pham}">
+        <div class="col-auto">
+            <input type="number" name="year" th:value="${year}" class="form-control form-control-sm" placeholder="Năm">
+        </div>
+        <div class="col-auto">
+            <input type="number" name="month" th:value="${month}" class="form-control form-control-sm" placeholder="Tháng (tuỳ chọn)">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary btn-sm">Xem thống kê</button>
+        </div>
+    </form>
+
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Mã sách</th>
+            <th>Tên sách</th>
+            <th>Số lượng bán</th>
+            <th>Doanh thu</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="dto, stat : ${list}">
+            <td th:text="${stat.index + 1}">1</td>
+            <td th:text="${dto.maSach}">S001</td>
+            <td th:text="${dto.tenSach}">Lập trình Java</td>
+            <td th:text="${dto.soLuongBan}">10</td>
+            <td th:text="${#numbers.formatDecimal(dto.doanhThu, 0, 'COMMA', 2, 'POINT')} + ' đ'">100,000 đ</td>
+        </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,37 @@
+<div th:fragment="content">
+    <h3 class="mb-4">Danh sách hóa đơn</h3>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Khách hàng</th>
+            <th>Ngày lập</th>
+            <th>Tổng tiền</th>
+            <th>Phương thức TT</th>
+            <th>Trạng thái</th>
+            <th>Chi tiết</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="hd : ${listHoaDon}">
+            <td th:text="${hd.id}">1</td>
+            <td th:text="${hd.khachHang.hoTen}">Nguyễn Văn A</td>
+            <td th:text="${hd.ngayLap}">2025-06-30</td>
+            <td th:text="${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 2, 'POINT')} + ' đ'">200,000 đ</td>
+            <td th:text="${hd.phuongThucThanhToan}">Tiền mặt</td>
+            <td>
+                <span th:switch="${hd.trangThai}">
+                    <span th:case="0" class="badge text-bg-warning">Chờ</span>
+                    <span th:case="1" class="badge text-bg-success">Hoàn thành</span>
+                    <span th:case="2" class="badge text-bg-danger">Huỷ</span>
+                    <span th:case="*">Không xác định</span>
+                </span>
+            </td>
+            <td>
+                <a th:href="@{/hoa-don/detail/{id}(id=${hd.id})}" class="btn btn-primary btn-sm">Xem</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

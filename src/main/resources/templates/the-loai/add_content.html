@@ -1,0 +1,45 @@
+<div th:fragment="content">
+    <div class="card shadow-sm rounded-3">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">Thể Loại</h4>
+        </div>
+        <div class="card-body">
+
+            <a th:href="@{/the-loai/hien-thi}" class="btn btn-secondary btn-sm mb-3">
+                ← Quay lại danh sách
+            </a>
+
+            <form th:action="@{/the-loai/save}" th:object="${theLoai}" method="post" class="row g-4">
+                <input type="hidden" th:field="*{id}">
+
+                <div class="col-md-6">
+                    <label class="form-label">Tên thể loại <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{tenTheLoai}" class="form-control" placeholder="Nhập tên thể loại">
+                    <div class="text-danger small" th:if="${#fields.hasErrors('tenTheLoai')}" th:errors="*{tenTheLoai}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                    <select th:field="*{trangThai}" class="form-select">
+                        <option value="1">Hoạt động</option>
+                        <option value="0">Ngừng áp dụng</option>
+                    </select>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('trangThai')}" th:errors="*{trangThai}"></div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Mô tả</label>
+                    <textarea th:field="*{moTa}" class="form-control" rows="3" placeholder="Nhập mô tả (nếu có)"></textarea>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('moTa')}" th:errors="*{moTa}"></div>
+                </div>
+
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <a th:href="@{/the-loai/hien-thi}" class="btn btn-outline-secondary ms-2">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
