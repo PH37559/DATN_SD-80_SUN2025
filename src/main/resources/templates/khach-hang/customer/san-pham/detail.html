@@ -122,8 +122,10 @@
                 <div class="d-flex w-100 gap-3 mt-3">
                     <a href="javascript:void(0)"
                        th:attr="data-id=${sach.id}"
-                       class="btn btn-outline-danger btn-lg w-50 btn-add-to-cart">
-                        <i class="bi bi-cart-plus-fill me-2"></i> Thêm vào giỏ
+                       class="btn btn-outline-danger w-25 btn-add-to-cart"
+                       style="height: 50px; font-size: 1rem; font-weight: 600;">
+                        <i class="bi bi-cart-plus-fill me-2"></i>
+                        <span>Thêm vào giỏ</span>
                     </a>
                     <!-- Toast thông báo -->
                     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
@@ -134,10 +136,15 @@
                             </div>
                         </div>
                     </div>
-                    <a th:href="@{/home/gio-hang}" class="btn btn-danger btn-lg w-50"
-                       style="color: white; font-weight: 600;">
-                        Mua ngay
-                    </a>
+                    <form id="formMuaNgay" th:action="@{/home/checkout}" method="get">
+                        <input type="hidden" name="selectedIds" th:value="${sach.id}">
+                        <input type="hidden" name="quantities" id="hiddenQuantityInput" value="1">
+                        <button type="submit" form="formMuaNgay"
+                                class="btn btn-danger w-100"
+                                style="height: 50px; font-size: 1rem; font-weight: 600; color: white;">
+                            Mua ngay
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -196,6 +203,11 @@
                 const input = document.getElementById('quantity');
                 input.value = parseInt(input.value) + 1;
                 document.getElementById('soLuongInput').value = input.value;
+            });
+
+            document.querySelector("form#formMuaNgay").addEventListener("submit", function () {
+                const soLuong = document.getElementById("quantity").value;
+                document.getElementById("hiddenQuantityInput").value = soLuong;
             });
 
             //Thêm sản phẩm vào giỏ

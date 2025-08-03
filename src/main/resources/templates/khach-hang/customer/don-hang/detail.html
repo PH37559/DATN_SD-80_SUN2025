@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/khach-hang/customer/index :: dynamic(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách đơn hàng</title>
+</head>
+<body>
+<main class="container mt-4">
+    <div class="mx-auto" style="max-width: 1560px; padding: 20px">
+        <div th:object="${hoaDon}">
+            <div class="bg-white rounded shadow-sm p-3 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>Mã đơn hàng <strong th:text="*{id}"></strong></h5>
+                        <span th:switch="*{trangThai}">
+                            <span th:case="0" class="badge bg-warning text-dark">Chờ xác nhận</span>
+                            <span th:case="1" class="badge bg-success">Hoàn thành</span>
+                            <span th:case="2" class="badge bg-info text-dark">Đang giao</span>
+                            <span th:case="3" class="badge bg-danger">Bị hủy</span>
+                        </span>
+                    </div>
+                    <div>
+                        <small>Ngày mua: <b th:text="*{#temporals.format(ngayLap, 'dd/MM/yyyy')}"></b></small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-3" th:object="${hoaDon}">
+                    <!-- Đơn hàng mới -->
+                    <div class="flex-fill text-center"
+                         th:classappend="*{trangThai == 3} ? 'text-danger fw-bold' :  'text-primary fw-bold'">
+                        <i class="bi bi-clipboard-check fs-4"
+                           th:classappend="*{trangThai == 3} ? 'text-danger' : ''"></i><br>
+                        <span th:classappend="*{trangThai == 3} ? 'text-danger' : ''">Đơn hàng mới</span>
+                    </div>
+
+                    <!-- Chờ xác nhận -->
+                    <div class="flex-fill text-center"
+                         th:classappend="*{trangThai == 3} ? 'text-danger fw-bold' : 'text-primary fw-bold'">
+                        <i class="bi bi-box fs-4"
+                           th:classappend="*{trangThai == 3} ? 'text-danger' : ''"></i><br>
+                        <span th:classappend="*{trangThai == 3} ? 'text-danger' : ''">Chờ xác nhận</span>
+                    </div>
+
+                    <!-- Đang giao -->
+                    <div class="flex-fill text-center"
+                         th:if="*{trangThai != 3}"
+                         th:classappend="*{trangThai == 2 || trangThai == 1} ? 'text-primary fw-bold' : 'text-primary fw-bold'">
+                        <i class="bi bi-truck fs-4"></i><br>
+                        <span>Đang giao</span>
+                    </div>
+
+                    <!-- Hoàn thành -->
+                    <div class="flex-fill text-center"
+                         th:if="*{trangThai != 3}"
+                         th:classappend="*{trangThai == 1} ? 'text-primary fw-bold' : ''">
+                        <i class="bi bi-check-circle fs-4"></i><br>
+                        <span>Hoàn thành</span>
+                    </div>
+
+                    <!-- Bị hủy -->
+                    <div class="flex-fill text-center text-danger fw-bold"
+                         th:if="*{trangThai == 3}">
+                        <i class="bi bi-x-circle fs-4"></i><br>
+                        <span>Bị hủy</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded shadow-sm p-3 mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card p-3 h-100 border shadow-sm">
+                            <h6>Thông tin người nhận</h6>
+                            <p th:text="*{diaChiNhanHang.hoTen}"></p>
+                            <p>SĐT: <span th:text="*{diaChiNhanHang.sdt}"></span></p>
+                            <p><i class="bi bi-geo-alt"></i>
+                                <span th:text="*{diaChiNhanHang.diaChiChiTiet} + ', ' +
+                            *{diaChiNhanHang.phuongXa} + ', '
+                            + *{diaChiNhanHang.quanHuyen} + ', '
+                            + *{diaChiNhanHang.thanhPho}"></span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-3 h-100 border shadow-sm">
+                            <h6>Phương thức thanh toán</h6>
+                            <p th:text="*{phuongThucThanhToan}"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-3 h-100 border shadow-sm">
+                            <h6>Tổng tiền</h6>
+                            <p>Tạm tính: <b
+                                    th:text="*{#numbers.formatDecimal(thanhTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></b>
+                            </p>
+                            <p>Phí vận chuyển: <b
+                                    th:text="*{#numbers.formatDecimal(phiShip, 0, 'COMMA', 0, 'POINT')} + ' đ'"></b>
+                            </p>
+                            <p class="text-danger">Tổng: <b
+                                    th:text="*{#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></b>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <form th:if="*{trangThai == 0}"
+                              th:id="'cancelForm-' + *{id}"
+                              th:action="@{'/home/orders/cancel/' + *{id}}" method="post" style="display:inline;">
+
+                            <!-- Nút mở modal xác nhận -->
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    th:attr="data-bs-target='#confirmCancelModal-' + *{id}" data-bs-toggle="modal">
+                                Hủy đơn
+                            </button>
+
+                            <!-- Modal xác nhận -->
+                            <div class="modal fade" th:id="'confirmCancelModal-' + *{id}" tabindex="-1"
+                                 aria-labelledby="cancelModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy đơn</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Bạn có chắc chắn muốn hủy đơn hàng này không?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                                            <button type="button" class="btn btn-danger"
+                                                    th:attr="onclick='document.getElementById(\'cancelForm-' + *{id} + '\').submit()'">
+                                                Có
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn btn-danger btn-sm"
+                                th:onclick="'location.href=\'/checkout/' + *{id} + '\''">
+                            Mua lại
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card bg-white rounded shadow-sm p-3 mb-4">
+            <h6>Sản phẩm</h6>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="hdct : ${listHDCT}">
+                    <td>
+                        <img th:src="@{'/images/' + ${hdct.sach.hinhAnh}}" width="50" class="me-2">
+                        <span th:text="${hdct.sach.tenSach}"></span>
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(hdct.sach.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                    <td th:text="${hdct.soLuong}"></td>
+                    <td th:text="${#numbers.formatDecimal(hdct.soLuong * hdct.sach.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -52,18 +52,24 @@ public class GioHangController {
     @GetMapping
     public String showCart(Model model, HttpSession session) {
         GioHang gioHang = createOrGetCart(session);
+
         List<GioHangChiTiet> listGHCT = gioHangChiTietService.getByGioHangId(gioHang.getId());
-        int tongSach = gioHangChiTietService.countItemsInCart(gioHang.getId());
-//        BigDecimal tongTien = gioHangChiTietService.tinhTongTienTheoGioHang(gioHang.getId());
+        int tongSach = 0;
+
+        if (listGHCT != null && !listGHCT.isEmpty()) {
+            tongSach = gioHangChiTietService.countItemsInCart(gioHang.getId());
+        } else {
+            listGHCT = new ArrayList<>();
+        }
 
         session.setAttribute("listGHCT", listGHCT);
         model.addAttribute("gioHang", gioHang);
         model.addAttribute("listGHCT", listGHCT);
         model.addAttribute("cartItemCount", tongSach);
-        model.addAttribute("tongTien", 0);
 
         return "khach-hang/customer/gio-hang/cart";
     }
+
 
     @PostMapping("/add")
     @ResponseBody

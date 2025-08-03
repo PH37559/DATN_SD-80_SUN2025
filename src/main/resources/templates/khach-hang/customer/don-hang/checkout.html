@@ -93,7 +93,7 @@
                         <label class="form-check-label" for="zalopay">Ví ZaloPay</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="Tiền mặt">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="Tiền mặt" checked>
                         <label class="form-check-label" for="cod">Thanh toán khi nhận hàng</label>
                     </div>
                 </div>
@@ -209,7 +209,7 @@
             document.getElementById('thanhTienHidden').value = thanhTien;
             document.getElementById('phiShipHidden').value = phiShip;
             document.getElementById('tongTienHidden').value = thanhTien;
-            document.getElementById('phuongThucHidden').value = document.getElementsByName("paymentMethod");
+            document.getElementById('phuongThucHidden').value = document.querySelector('input[name="paymentMethod"]:checked');
 
             // Cập nhật dòng giao hàng tiêu chuẩn
             const giaoHangLabel = document.querySelector(".form-check-label strong");
@@ -224,6 +224,18 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
+            const citySelect = document.getElementById("city");
+            const selectedCity = citySelect.getAttribute("data-selected");
+
+            if (selectedCity) {
+                for (let option of citySelect.options) {
+                    if (option.value.trim().toLowerCase() === selectedCity.trim().toLowerCase()) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            }
+
             updateThongTinDonHang();
             document.getElementById("city")?.addEventListener("change", updateThongTinDonHang);
             console.log(document.getElementById("city"))

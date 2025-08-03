@@ -27,4 +27,13 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
             WHERE id_khach_hang = :idKH
             """, nativeQuery = true)
     List<HoaDon> getByIdKhachHang (@Param("idKH") Integer idKH);
+
+    @Query(value = """
+            SELECT * FROM hoa_don
+            WHERE id_khach_hang = :idKH AND trang_thai = :trangThai
+            """, nativeQuery = true)
+    List<HoaDon> getByIdKhachHangAndTrangThai(@Param("idKH") Integer idKH,
+                                              @Param("trangThai") Integer trangThai);
+
+
 }

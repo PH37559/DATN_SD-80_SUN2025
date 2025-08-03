@@ -179,27 +179,81 @@ public class MainController {
 
     @GetMapping("/orders")
     public String showOrder(
+            @RequestParam(value = "status", required = false) Integer trangThai,
             Model model,
             HttpSession session
     ) {
         KhachHang kh = (KhachHang) session.getAttribute("khachHang");
-        System.out.print("KH"+kh.getId());
-        List<HoaDon> listHD = hoaDonService.getByIdKH(kh.getId());
-        model.addAttribute("listHD", listHD);
+        List<HoaDon> listHD;
+        int soDon = 0;
 
+        if (trangThai == null) {
+            listHD = hoaDonService.getByIdKH(kh.getId());
+            soDon = listHD.size();
+        } else {
+            listHD = hoaDonService.getByIdKHAndTrangThai(kh.getId(), trangThai);
+        }
         Map<Integer, List<HoaDonChiTiet>> chiTietMap = new HashMap<>();
+        Map<Integer, String> sachIdsMap = new HashMap<>();
+
         for (HoaDon hd : listHD) {
             List<HoaDonChiTiet> chiTietList = hoaDonChiTietService.getByHoaDonId(hd.getId());
             chiTietMap.put(hd.getId(), chiTietList);
+
+            String ids = chiTietList.stream()
+                    .map(ct -> String.valueOf(ct.getSach().getId()))
+                    .collect(Collectors.joining(","));
+            sachIdsMap.put(hd.getId(), ids);
         }
+
+        model.addAttribute("listHD", listHD);
         model.addAttribute("chiTietMap", chiTietMap);
+        model.addAttribute("sachIdsMap", sachIdsMap);
+        model.addAttribute("currentStatus", trangThai);
+
+        model.addAttribute("countAll", soDon);
+        model.addAttribute("countStatus0", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 0));
+        model.addAttribute("countStatus1", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 1));
+        model.addAttribute("countStatus2", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 2));
+        model.addAttribute("countStatus3", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 3));
 
         return "khach-hang/customer/don-hang/list";
+    }
+
+    @GetMapping("/orders/detail/{id}")
+    public String showOrderDetail(
+            @PathVariable Integer id,
+            Model model
+    ){
+        HoaDon hd = hoaDonService.getById(id);
+        List<HoaDonChiTiet> listHDCT = hoaDonChiTietService.getByHoaDonId(id);
+        System.out.print("HDCT: "+ listHDCT.get(0).getHoaDon().getDiaChiNhanHang().getHoTen());
+        model.addAttribute("hoaDon", hd);
+        model.addAttribute("listHDCT", listHDCT);
+        return "khach-hang/customer/don-hang/detail";
+    }
+
+    @PostMapping("/orders/cancel/{id}")
+    public String cancelOrder(@PathVariable Integer id) {
+        HoaDon hd = hoaDonService.getById(id);
+        hd.setTrangThai(3);
+        hoaDonService.save(hd);
+
+        List<HoaDonChiTiet> chiTietList = hoaDonChiTietService.getByHoaDonId(id);
+
+        for (HoaDonChiTiet hdct : chiTietList) {
+            Sach sach = hdct.getSach();
+            Integer soLuongMua = hdct.getSoLuong();
+            sach.setSoLuong(sach.getSoLuong() + soLuongMua);
+            sachService.save(sach);
+        }
+        return "redirect:/home/orders";
     }
 
     @GetMapping("/checkout")
     public String showCheckOutPage(
             @RequestParam(name = "selectedIds", required = false) String idsStr,
+            @RequestParam(name = "quantities", required = false) String quantitiesStr,
             Model model,
             HttpSession session) {
 
@@ -211,13 +265,32 @@ public class MainController {
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
 
+        List<Integer> quantities = (quantitiesStr != null && !quantitiesStr.isEmpty())
+                ? Arrays.stream(quantitiesStr.split(",")).map(Integer::parseInt).collect(Collectors.toList())
+                : new ArrayList<>();
+
         KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
         if (khachHang != null) {
             GioHang gioHang = gioHangService.getByIdKhachHang(khachHang.getId());
-            List<GioHangChiTiet> listGHCT = gioHangChiTietService.getByGioHangId(gioHang.getId())
-                    .stream()
-                    .filter(item -> selectedIds.contains(item.getSach().getId()))
-                    .collect(Collectors.toList());
+            List<GioHangChiTiet> listGHCT = new ArrayList<>();
+
+            if (!quantities.isEmpty() && quantities.size() == selectedIds.size()) {
+                for (int i = 0; i < selectedIds.size(); i++) {
+                    Sach sach = sachService.getById(selectedIds.get(i));
+                    if (sach == null) continue;
+
+                    GioHangChiTiet temp = new GioHangChiTiet();
+                    temp.setSach(sach);
+                    temp.setSoLuong(quantities.get(i));
+                    temp.setDonGia(sach.getGiaBan());
+                    listGHCT.add(temp);
+                }
+            }else {
+                listGHCT = gioHangChiTietService.getByGioHangId(gioHang.getId())
+                        .stream()
+                        .filter(item -> selectedIds.contains(item.getSach().getId()))
+                        .collect(Collectors.toList());
+            }
 
             session.setAttribute("selectedGHCT", listGHCT);
 
@@ -269,10 +342,6 @@ public class MainController {
         }
 
         //Tạo hóa đơn
-        System.out.print("hoa don:" + hoaDon.getPhuongThucThanhToan());
-        System.out.print("hoa don:" + hoaDon.getPhiShip());
-        System.out.print("hoa don:" + hoaDon.getThanhTien());
-        System.out.print("hoa don:" + hoaDon.getTongTien());
         hoaDon.setKhachHang(kh);
         hoaDon.setNgayLap(LocalDate.now());
         hoaDon.setDiaChiNhanHang(dcct.getDiaChiNhanHang());
@@ -303,7 +372,7 @@ public class MainController {
         // Xóa khỏi session
         session.removeAttribute("selectedGHCT");
 
-        return "/khach-hang/customer/san-pham/list";
+        return "redirect:/home/orders";
     }
 
 

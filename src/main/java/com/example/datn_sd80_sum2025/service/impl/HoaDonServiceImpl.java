@@ -50,4 +50,19 @@ public class HoaDonServiceImpl implements HoaDonService {
         return hoaDonRepository.getByIdKhachHang(idKH);
     }
 
+    @Override
+    public List<HoaDon> getByIdKHAndTrangThai(Integer idKH, Integer trangThai){
+        return hoaDonRepository.getByIdKhachHangAndTrangThai(idKH, trangThai);
+    }
+
+    @Override
+    public int countByIdKHAndTrangThai(Integer idKH, Integer trangThai){
+        int count = 0;
+        List<HoaDon> list = getByIdKHAndTrangThai(idKH, trangThai);
+        if(list != null || !list.isEmpty()){
+            count = list.size();
+        }
+        return count;
+    }
+
 }

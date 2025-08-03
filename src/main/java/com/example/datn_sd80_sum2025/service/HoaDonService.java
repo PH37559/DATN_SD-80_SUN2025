@@ -20,4 +20,8 @@ public interface HoaDonService {
 
     List<HoaDon> getByIdKH(Integer idKH);
 
+    List<HoaDon> getByIdKHAndTrangThai(Integer idKH, Integer trangThai);
+
+    int countByIdKHAndTrangThai(Integer idKH, Integer trangThai);
+
 }
