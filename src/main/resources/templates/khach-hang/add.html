@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Khách hàng</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+
+<div th:replace="layout :: view('Khách hàng', ~{khach-hang/add_content :: content})"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script th:inline="javascript">
+    // Chọn địa chỉ
+    const citySelect = document.getElementById("city");
+    const districtSelect = document.getElementById("district");
+    const wardSelect = document.getElementById("ward");
+
+    let allData = [];
+
+    axios.get("https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json")
+        .then(res => {
+            allData = res.data;
+            renderCities();
+
+            const selectedCity = citySelect.getAttribute("data-selected");
+            const selectedDistrict = districtSelect.getAttribute("data-selected");
+            const selectedWard = wardSelect.getAttribute("data-selected");
+
+            if (selectedCity) {
+                citySelect.value = selectedCity;
+                renderDistricts(selectedCity);
+                if (selectedDistrict) {
+                    districtSelect.value = selectedDistrict;
+                    renderWards(selectedCity, selectedDistrict);
+                    if (selectedWard) {
+                        wardSelect.value = selectedWard;
+                    }
+                }
+            }
+        });
+
+    function renderCities() {
+        citySelect.length = 1;
+        allData.forEach(city => {
+            const cleanedName = cleanName(city.Name);
+            citySelect.options[citySelect.options.length] = new Option(cleanedName, cleanedName);
+        });
+    }
+
+    function renderDistricts(cityName) {
+        const city = allData.find(c => cleanName(c.Name) === cityName);
+        districtSelect.length = 1;
+        wardSelect.length = 1;
+        if (!city) return;
+
+        city.Districts.forEach(dist => {
+            const cleanedDist = cleanName(dist.Name);
+            districtSelect.options[districtSelect.options.length] = new Option(cleanedDist, cleanedDist);
+        });
+    }
+
+    function renderWards(cityName, districtName) {
+        const city = allData.find(c => cleanName(c.Name) === cityName);
+        if (!city) return;
+        const district = city.Districts.find(d => cleanName(d.Name) === districtName);
+        wardSelect.length = 1;
+        if (!district) return;
+
+        district.Wards.forEach(ward => {
+            const cleanedWard = cleanName(ward.Name);
+            wardSelect.options[wardSelect.options.length] = new Option(cleanedWard, cleanedWard);
+        });
+    }
+
+    function cleanName(name) {
+        return name.replace(/^(Tỉnh|Thành phố|Quận|Huyện|Thị xã|Phường|Xã|Thị trấn)\s*/i, '').trim();
+    }
+
+    citySelect.addEventListener("change", () => {
+        const city = citySelect.value;
+        renderDistricts(city);
+    });
+
+    districtSelect.addEventListener("change", () => {
+        const city = citySelect.value;
+        const district = districtSelect.value;
+        renderWards(city, district);
+    });
+
+    //    xử lý modal
+    function submitConfirmed() {
+        document.getElementById("confirmFlag").value = "true";
+        document.getElementById("khachHangForm").submit();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let showConfirm = /*[[${showConfirmModal}]]*/ false;
+        let showResult = /*[[${showResultModal}]]*/ false;
+
+        if (showConfirm === true) {
+            let confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            confirmModal.show();
+        }
+
+        if (showResult === true) {
+            let resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+            resultModal.show();
+        }
+    });
+</script>
+</body>
+</html>

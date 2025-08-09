@@ -1,0 +1,37 @@
+body {
+    margin: 0;
+}
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background: linear-gradient(to right, #FEB500, #FFD700);
+    position: fixed;
+    transition: all 0.3s;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+.sidebar .nav-link {
+    white-space: nowrap;
+}
+
+.content {
+    margin-left: 250px;
+    transition: all 0.3s;
+    padding: 20px;
+}
+
+.collapsed ~ .content {
+    margin-left: 80px;
+}
+
+.toggle-btn {
+    cursor: pointer;
+}
+.sidebar.collapsed .label-text, .sidebar.collapsed .menu-text, .sidebar.collapsed .collapse {
+    display: none !important;
+}

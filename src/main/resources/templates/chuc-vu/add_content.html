@@ -1,0 +1,85 @@
+<div th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="card shadow-sm rounded-3">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">Chức vụ</h4>
+        </div>
+        <div class="card-body">
+            <a th:href="@{/chuc-vu/hien-thi}" class="btn btn-secondary btn-sm mb-3">
+                ← Quay lại danh sách
+            </a>
+
+            <form th:action="@{${actionUrl}}"
+                  th:object="${chucVu}"
+                  method="post" class="row g-4"
+                  id="chucVuForm">
+                <input type="hidden" th:if="${isUpdate}" th:field="*{id}"/>
+                <input type="hidden" name="confirmFlag" id="confirmFlag" value="false"/>
+
+                <!-- Tên chức vụ -->
+                <div class="col-md-6">
+                    <label class="form-label">Tên chức vụ <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{tenChucVu}" class="form-control"
+                           placeholder="Tên chức vụ đăng nhập">
+                    <span class="text-danger small d-block" style="min-height: 1.5rem"
+                          th:text="${#fields.hasErrors('tenChucVu')} ? ${#fields.errors('tenChucVu')[0]} : ''"></span>
+                </div>
+
+                <!-- Trạng thái -->
+                <div class="col-md-6">
+                    <label class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                    <select class="form-select" th:field="*{trangThai}">
+                        <option value="" disabled>-- Chọn trạng thái --</option>
+                        <option value="1">Đang hoạt động</option>
+                        <option value="0">Đã nghỉ</option>
+                    </select>
+                    <span class="text-danger small d-block" style="min-height: 1.5rem"
+                          th:text="${#fields.hasErrors('trangThai')} ? ${#fields.errors('trangThai')[0]} : ''"></span>
+                </div>
+
+                <!-- Nút -->
+                <div class="col-12 text-end">
+                    <button class="btn btn-primary">
+                        <i class="bi bi-save"></i>
+                        <span th:text="${isUpdate} ? 'Cập nhật' : 'Lưu'">Lưu</span>
+                    </button>
+                    <a th:href="@{/chuc-vu/hien-thi}" class="btn btn-outline-secondary ms-2">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Modal xác nhận -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-warning">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title">Xác nhận</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p th:text="${isUpdate} ? 'Bạn có chắc muốn cập nhật chức vụ?' : 'Bạn có chắc muốn thêm chức vụ?'"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="submitConfirmed()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal kết quả -->
+    <div class="modal fade" id="resultModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-success">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Thông báo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            onclick="location.href='/chuc-vu/hien-thi'"></button>
+                </div>
+                <div class="modal-body">
+                    <p th:text="${resultMessage}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
