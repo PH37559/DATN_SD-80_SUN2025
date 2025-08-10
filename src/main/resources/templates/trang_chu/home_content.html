@@ -200,7 +200,7 @@
             <tr th:each="hd : ${donHangChoList}"
                 th:onclick="'chonDonHang(' + ${hd.id} + ')'"
                 style="cursor: pointer;">
-            <td th:text="'HD' + ${hd.id}"></td>
+              <td th:text="'HD' + ${hd.id}"></td>
               <td th:text="${hd.ngayLap}"></td>
               <td th:text="${hd.khachHang != null ? hd.khachHang.hoTen : 'N/A'}"></td>
               <td th:text="${hd.nhanVien != null ? hd.nhanVien.hoTen : 'N/A'}"></td>
@@ -218,11 +218,11 @@
         </div>
       </div>
     </div>
-      <script>
-        function chonDonHang(id) {
-          window.location.href = '/trang-chu/don-hang/chi-tiet/' + id;
-        }
-      </script>
+    <script>
+      function chonDonHang(id) {
+        window.location.href = '/trang-chu/don-hang/chi-tiet/' + id;
+      }
+    </script>
 
     <!-- Bên phải 20% -->
     <div class="col-md-3">

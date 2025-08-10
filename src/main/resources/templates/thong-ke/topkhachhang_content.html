@@ -1,13 +1,15 @@
-<!-- templates/thongke/topsanpham_content.html -->
+<!-- templates/thongke/topkhachhang_content.html -->
 <div th:fragment="content">
-    <h3 class="mb-4">Thống kê Top Sản phẩm bán chạy</h3>
+    <h3 class="mb-4">Top Khách Hàng</h3>
 
     <div class="mb-4">
         <a th:href="@{/thong-ke/doanh-thu}" class="btn btn-warning btn-sm">Doanh thu</a>
         <a th:href="@{/thong-ke/top-san-pham}" class="btn btn-warning btn-sm">Top sản phẩm</a>
         <a th:href="@{/thong-ke/top-khach-hang}" class="btn btn-warning btn-sm">Top khách hàng</a>
+
     </div>
-    <form class="row g-3 mb-3" method="get" th:action="@{/thong-ke/top-san-pham}">
+
+    <form class="row g-3 mb-3" method="get" th:action="@{/thong-ke/top-khach-hang}">
         <div class="col-auto">
             <input type="number" name="year" th:value="${year}" class="form-control form-control-sm" placeholder="Năm">
         </div>
@@ -19,8 +21,8 @@
         </div>
         <div class="col-auto">
             <a th:href="${month != null} ?
-              @{/thong-ke/top-san-pham/export(year=${year}, month=${month})} :
-              @{/thong-ke/top-san-pham/export(year=${year})}"
+              @{/thong-ke/top-khach-hang/export(year=${year}, month=${month})} :
+              @{/thong-ke/top-khach-hang/export(year=${year})}"
                class="btn btn-success btn-sm">
                 Xuất PDF
             </a>
@@ -28,21 +30,24 @@
 
         </div>
     </form>
+
     <table class="table table-bordered text-center">
         <thead class="table-dark">
         <tr>
             <th>#</th>
-            <th>Tên sách</th>
-            <th>Số lượng bán</th>
-            <th>Doanh thu</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Tổng đơn hàng</th>
+            <th>Tổng chi tiêu</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="dto, stat : ${topSanPham}">
+        <tr th:each="kh, stat : ${topKhachHang}">
             <td th:text="${stat.index + 1}">1</td>
-            <td th:text="${dto.tenSach}">Lập trình Java</td>
-            <td th:text="${dto.tongSoLuong}">50</td>
-            <td th:text="${#numbers.formatDecimal(dto.tongDoanhThu, 0, 'COMMA', 2, 'POINT')} + ' đ'">500,000 đ</td>
+            <td th:text="${kh.hoTen}">Nguyễn Văn A</td>
+            <td th:text="${kh.email}">a@gmail.com</td>
+            <td th:text="${kh.soLuongHoaDon}">12</td>
+            <td th:text="${#numbers.formatDecimal(kh.tongTien, 0, 'COMMA', 2, 'POINT')} + ' đ'">1,000,000 đ</td>
         </tr>
         </tbody>
     </table>

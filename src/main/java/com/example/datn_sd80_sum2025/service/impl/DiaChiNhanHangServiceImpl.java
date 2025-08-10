@@ -45,18 +45,27 @@ public class DiaChiNhanHangServiceImpl implements DiaChiNhanHangService {
                 dcnh.getThanhPho(),
                 dcnh.getQuanHuyen(),
                 dcnh.getPhuongXa(),
-                dcnh.getDiaChiChiTiet()
-        ).orElseGet(() -> {
+                dcnh.getDiaChiChiTiet()).orElse(null);
+        DiaChiChiTiet chiTiet = new DiaChiChiTiet();
+
+        if(diaChi != null) {
+            if (diaChiChiTietRepository.findByIdKHAndIdDCNH(idKH, diaChi.getId()) != null) {
+                return diaChiChiTietRepository.findByIdKHAndIdDCNH(idKH, diaChi.getId()).get();
+            }else{
+                chiTiet.setKhachHang(khachHangRepository.findById(idKH).orElseThrow());
+                chiTiet.setDiaChiNhanHang(diaChi);
+                chiTiet.setTrangThai(dcnh.getTrangThaiDCCT());
+                chiTiet.setGhiChu(dcnh.getGhiChu());
+            }
+        }else {
             DiaChiNhanHang newDC = new DiaChiNhanHang();
             BeanUtils.copyProperties(dcnh, newDC);
-            return diaChiNhanHangRepository.save(newDC);
-        });
-
-        DiaChiChiTiet chiTiet = new DiaChiChiTiet();
-        chiTiet.setKhachHang(khachHangRepository.findById(idKH).orElseThrow());
-        chiTiet.setDiaChiNhanHang(diaChi);
-        chiTiet.setTrangThai(dcnh.getTrangThaiDCCT());
-        chiTiet.setGhiChu(dcnh.getGhiChu());
+            diaChi = diaChiNhanHangRepository.save(newDC);
+            chiTiet.setKhachHang(khachHangRepository.findById(idKH).orElseThrow());
+            chiTiet.setDiaChiNhanHang(diaChi);
+            chiTiet.setTrangThai(dcnh.getTrangThaiDCCT());
+            chiTiet.setGhiChu(dcnh.getGhiChu());
+        }
         return diaChiChiTietRepository.save(chiTiet);
     }
 
@@ -75,6 +84,11 @@ public class DiaChiNhanHangServiceImpl implements DiaChiNhanHangService {
         chiTiet.setTrangThai(dcnh.getTrangThaiDCCT());
         chiTiet.setGhiChu(dcnh.getGhiChu());
         diaChiChiTietRepository.save(chiTiet);
+    }
+
+    @Override
+    public List<DiaChiNhanHang> getByIdKhachHang(Integer idKhachHang) {
+        return diaChiNhanHangRepository.findByKhachHangId(idKhachHang);
     }
 
 

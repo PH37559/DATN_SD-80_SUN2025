@@ -10,9 +10,15 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+
 public class TopSanPhamDTO {
     private String tenSach;
-    private int soLuongBan;
+    private Long tongSoLuong;
     private BigDecimal tongDoanhThu;
+
+    public TopSanPhamDTO(String tenSach, Long tongSoLuong, BigDecimal tongDoanhThu) {
+        this.tenSach = tenSach;
+        this.tongSoLuong = tongSoLuong;
+        this.tongDoanhThu = tongDoanhThu;
+    }
 }

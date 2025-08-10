@@ -38,5 +38,8 @@ public interface KhachHangService {
 
     boolean existsByEmail(String email, Integer id);
 
+    boolean existsByTenTaiKhoan(String tenTaiKhoan, Integer id);
+
+    KhachHang getKhachHangBySdtOrEmailOrTenTaiKhoan(String keyword, String matKhau);
 
 }

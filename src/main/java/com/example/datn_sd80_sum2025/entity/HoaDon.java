@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
@@ -39,8 +38,18 @@ public class HoaDon {
     @Column(name = "phuong_thuc_thanh_toan", nullable = false)
     private String phuongThucThanhToan;
 
+    @Column(name = "thanh_tien")
+    private BigDecimal thanhTien;
+
+    @Column(name = "phi_ship")
+    private BigDecimal phiShip;
+
     @Column(name = "tong_tien", nullable = false)
     private BigDecimal tongTien;
+
+    @ManyToOne
+    @JoinColumn(name = "id_dia_chi")
+    private DiaChiNhanHang diaChiNhanHang;
 
     @Column(name = "trang_thai", nullable = false)
     private Integer trangThai;
@@ -54,8 +63,5 @@ public class HoaDon {
         this.nhanVien = new NhanVien();
         this.nhanVien.setId(id);
     }
-    @OneToMany(mappedBy = "hoaDon")
-    private List<HoaDonChiTiet> chiTietHoaDons;
 
 }
-

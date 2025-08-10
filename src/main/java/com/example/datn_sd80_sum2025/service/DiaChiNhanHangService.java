@@ -20,4 +20,5 @@ public interface DiaChiNhanHangService {
 
     void update(Integer idKH, Integer idDC, DiaChiNhanHangUpdate dcnh);
 
+    List<DiaChiNhanHang> getByIdKhachHang (Integer idKhachHang);
 }

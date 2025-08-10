@@ -44,7 +44,7 @@ public class SachController {
                             @RequestParam(name = "keyword", required = false) String keyword,
                             Model model) {
 
-        int pageSize = 10;
+        int pageSize = 100;
 
         Page<Sach> sachPage;
 

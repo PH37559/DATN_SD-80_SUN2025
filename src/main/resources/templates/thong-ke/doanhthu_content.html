@@ -1,42 +1,49 @@
 <!-- templates/thongke/doanhthu_content.html -->
 <div th:fragment="content">
     <h3 class="mb-4">Thống kê Doanh thu</h3>
-    <div>
-        <a th:href="@{/thong-ke/tonkho}" class="btn btn-warning btn-sm">Top sản phẩm</a>
-        <a th:href="@{/the-loai/hien-thi}" class="btn btn-warning btn-sm">Thể Loại</a>
-        <a th:href="@{/pgg/hien-thi}" class="btn btn-warning btn-sm">Phiếu giảm giá</a></div>
-    </div>
-    <form class="row g-3 mb-3" method="get" th:action="@{/thong-ke/doanh-thu}">
-        <div class="col-auto">
-            <input type="number" name="year" th:value="${year}" class="form-control form-control-sm" placeholder="Năm">
-        </div>
-        <div class="col-auto">
-            <input type="number" name="month" th:value="${month}" class="form-control form-control-sm" placeholder="Tháng (tuỳ chọn)">
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary btn-sm">Xem thống kê</button>
-        </div>
-        <div class="col-auto">
-            <a th:href="@{/thong-ke/doanh-thu/export(year=${year}, month=${month})}" class="btn btn-success btn-sm">Xuất PDF</a>
-        </div>
-    </form>
+    <div class="mb-4">
+        <a th:href="@{/thong-ke/doanh-thu}" class="btn btn-warning btn-sm">Doanh thu</a>
+        <a th:href="@{/thong-ke/top-san-pham}" class="btn btn-warning btn-sm">Top sản phẩm</a>
+        <a th:href="@{/thong-ke/top-khach-hang}" class="btn btn-warning btn-sm">Top khách hàng</a>
 
-    <table class="table table-bordered text-center">
-        <thead class="table-dark">
-        <tr>
-            <th>#</th>
-            <th>Ngày</th>
-            <th>Số đơn hàng</th>
-            <th>Tổng tiền</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="dto, stat : ${list}">
-            <td th:text="${stat.index + 1}">1</td>
-            <td th:text="${dto.ngayLap}">2025-07-01</td>
-            <td th:text="${dto.soHoaDon}">10</td>
-            <td th:text="${#numbers.formatDecimal(dto.tongTien, 0, 'COMMA', 2, 'POINT')} + ' đ'">100,000 đ</td>
-        </tr>
-        </tbody>
-    </table>
+    </div>
+<form class="row g-3 mb-3" method="get" th:action="@{/thong-ke/doanh-thu}">
+    <div class="col-auto">
+        <input type="number" name="year" th:value="${year}" class="form-control form-control-sm" placeholder="Năm">
+    </div>
+    <div class="col-auto">
+        <input type="number" name="month" th:value="${month}" class="form-control form-control-sm" placeholder="Tháng (tuỳ chọn)">
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary btn-sm">Xem thống kê</button>
+    </div>
+    <div class="col-auto">
+        <a th:href="${month != null} ?
+    @{/thong-ke/doanh-thu/export(year=${year}, month=${month})} :
+    @{/thong-ke/doanh-thu/export(year=${year})}"
+           class="btn btn-success btn-sm">Xuất PDF</a>
+
+    </div>
+
+</form>
+
+<table class="table table-bordered text-center">
+    <thead class="table-dark">
+    <tr>
+        <th>#</th>
+        <th>Ngày</th>
+        <th>Số đơn hàng</th>
+        <th>Tổng tiền</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="dto, stat : ${list}">
+        <td th:text="${stat.index + 1}">1</td>
+        <td th:text="${dto.ngayLap}">2025-07-01</td>
+        <td th:text="${dto.soHoaDon}">10</td>
+        <td th:text="${#numbers.formatDecimal(dto.tongTien, 0, 'COMMA', 2, 'POINT')} + ' đ'">100,000 đ</td>
+    </tr>
+    </tbody>
+</table>
 </div>
+

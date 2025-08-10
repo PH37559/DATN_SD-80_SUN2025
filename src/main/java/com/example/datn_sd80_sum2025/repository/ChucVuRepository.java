@@ -60,4 +60,3 @@ public interface ChucVuRepository extends JpaRepository<ChucVu, Integer> {
                               @Param("id") Integer id);
 
 }
-

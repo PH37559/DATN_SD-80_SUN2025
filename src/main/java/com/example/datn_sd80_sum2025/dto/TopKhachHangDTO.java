@@ -1,19 +1,22 @@
 package com.example.datn_sd80_sum2025.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class TopKhachHangDTO {
     private String hoTen;
     private String email;
-    private int tongSoHoaDon;
-    private BigDecimal tongChiTieu;
+    private Long soLuongHoaDon;
+    private BigDecimal tongTien;
+
+    public TopKhachHangDTO(String hoTen, String email, Long soLuongHoaDon, BigDecimal tongTien) {
+        this.hoTen = hoTen;
+        this.email = email;
+        this.soLuongHoaDon = soLuongHoaDon;
+        this.tongTien = tongTien;
+    }
 }

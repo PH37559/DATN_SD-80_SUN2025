@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/khach-hang/customer/index :: dynamic(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách đơn hàng</title>
+</head>
+<body>
+<main class="container mt-4">
+    <div class="mx-auto" style="max-width: 1560px; padding: 20px">
+        <div class="row">
+            <!-- Tabs thống kê trạng thái -->
+            <div class="bg-white rounded shadow-sm p-3 mb-4">
+                <div class="d-flex justify-content-between text-center fw-bold">
+                    <div class="flex-fill" style="cursor:pointer;"
+                         onclick="window.location.href='/home/orders'"
+                         th:classappend="${currentStatus == null} ? 'text-danger border-bottom border-danger' : ''">
+                        <div th:text="${countAll}" class="fs-5">0</div>
+                        <div th:classappend="${currentStatus == null} ? 'text-danger' : 'text-muted'">Tất cả</div>
+                    </div>
+                    <div class="flex-fill" style="cursor:pointer;"
+                         onclick="window.location.href='/home/orders?status=0'"
+                         th:classappend="${currentStatus == 0} ? 'text-danger border-bottom border-danger' : ''">
+                        <div th:text="${countStatus0}" class="fs-5">0</div>
+                        <div th:classappend="${currentStatus == 0} ? 'text-danger' : 'text-muted'">Chờ xác nhận</div>
+                    </div>
+                    <div class="flex-fill" style="cursor:pointer;"
+                         onclick="window.location.href='/home/orders?status=2'"
+                         th:classappend="${currentStatus == 2} ? 'text-danger border-bottom border-danger' : ''">
+                        <div th:text="${countStatus2}" class="fs-5">0</div>
+                        <div th:classappend="${currentStatus == 2} ? 'text-danger' : 'text-muted'">Đang giao</div>
+                    </div>
+                    <div class="flex-fill" style="cursor:pointer;"
+                         onclick="window.location.href='/home/orders?status=1'"
+                         th:classappend="${currentStatus == 1} ? 'text-danger border-bottom border-danger' : ''">
+                        <div th:text="${countStatus1}" class="fs-5">0</div>
+                        <div th:classappend="${currentStatus == 1} ? 'text-danger' : 'text-muted'">Hoàn thành</div>
+                    </div>
+                    <div class="flex-fill" style="cursor:pointer;"
+                         onclick="window.location.href='/home/orders?status=3'"
+                         th:class="${currentStatus == 3} ? 'text-danger border-bottom border-danger' : ''">
+                        <div th:text="${countStatus3}" class="fs-5">0</div>
+                        <div th:classappend="${currentStatus == 3} ? 'text-danger' : 'text-muted'">Bị hủy</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thẻ đơn hàng -->
+            <div th:each="item : ${listHD}" class="bg-white rounded shadow-sm p-3 mb-4">
+                <!-- Header đơn -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a th:href="@{'/home/orders/detail/' + ${item.id}}" class="fw-bold text-decoration-none text-primary"
+                       th:text="'#' + ${item.id}"></a>
+                    <span th:switch="${item.trangThai}">
+                            <span th:case="0" class="badge bg-warning text-dark">Chờ xác nhận</span>
+                            <span th:case="1" class="badge bg-success">Hoàn thành</span>
+                            <span th:case="2" class="badge bg-info text-dark">Đang giao</span>
+                            <span th:case="3" class="badge bg-danger">Bị hủy</span>
+                        </span>
+                    <div class="text-muted small"
+                         th:text="${#temporals.format(item.ngayLap, 'dd/MM/yyyy')}"></div>
+                </div>
+
+                <!-- Sản phẩm trong đơn -->
+                <div th:each="hdct : ${chiTietMap[item.id]}" class="d-flex align-items-center border-top pt-3">
+                    <img th:src="@{'/images/' + ${hdct.sach.hinhAnh}}" class="border me-3" style="width: 80px;"/>
+                    <div>
+                        <h6 class="mb-1" th:text="${hdct.sach.tenSach}"></h6>
+                        <small class="text-muted" th:text="${hdct.soLuong + ' sản phẩm'}"></small>
+                    </div>
+                </div>
+
+                <!-- Footer đơn -->
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <div>
+                        <strong th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(item.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
+                    </div>
+                    <div>
+                        <form th:if="${item.trangThai == 0}" th:id="'cancelForm-' + ${item.id}"
+                              th:action="@{'/home/orders/cancel/' + ${item.id}}" method="post" style="display:inline;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    th:attr="data-bs-target='#confirmCancelModal-' + ${item.id}" data-bs-toggle="modal">
+                                Hủy đơn
+                            </button>
+                            <div class="modal fade" th:id="'confirmCancelModal-' + ${item.id}" tabindex="-1"
+                                 aria-labelledby="cancelModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy đơn</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Bạn có chắc chắn muốn hủy đơn hàng này không?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Không</button>
+                                            <button type="button" class="btn btn-danger"
+                                                    th:attr="onclick='document.getElementById(\'cancelForm-' + ${item.id} + '\').submit()'">
+                                                Có
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <a th:href="@{'/home/checkout?selectedIds=' + ${sachIdsMap[item.id]}}"
+                           class="btn btn-danger btn-sm">Mua lại</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

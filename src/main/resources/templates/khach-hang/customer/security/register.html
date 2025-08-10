@@ -1,0 +1,77 @@
+<div id="registerForm" style="display: none;" xmlns:th="http://www.thymeleaf.org"
+     th:object="${khachHang}">
+    <form th:action="@{/home/register}" method="post">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+                <input type="text" th:field="*{hoTen}" class="form-control" placeholder="Nhập họ tên">
+                <span class="text-danger small d-block" style="min-height: 1.5rem"
+                      th:text="${#fields.hasErrors('hoTen')} ? ${#fields.errors('hoTen')[0]} : ''"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label d-block">Giới tính <span class="text-danger">*</span></label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" th:field="*{gioiTinh}" th:value="true"
+                           id="nam">
+                    <label class="form-check-label" for="nam">Nam</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" th:field="*{gioiTinh}" th:value="false"
+                           id="nu">
+                    <label class="form-check-label" for="nu">Nữ</label>
+                </div>
+                <span class="text-danger small d-block" style="min-height: 1.5rem"
+                      th:text="${#fields.hasErrors('gioiTinh')} ? ${#fields.errors('gioiTinh')[0]} : ''"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Ngày sinh <span class="text-danger">*</span></label>
+                <input type="date" th:field="*{ngaySinh}" class="form-control">
+                <span class="text-danger small d-block" style="min-height: 1.5rem"
+                      th:text="${#fields.hasErrors('ngaySinh')} ? ${#fields.errors('ngaySinh')[0]} : ''"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="text" th:field="*{email}" class="form-control" placeholder="Nhập email">
+                <span class="text-danger small d-block" style="min-height: 1.5rem"
+                      th:text="${#fields.hasErrors('email')} ? ${#fields.errors('email')[0]} : ''"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                <input type="text" th:field="*{sdt}" class="form-control" placeholder="Nhập số điện thoại">
+                <span class="text-danger small d-block" style="min-height: 1.5rem"
+                      th:text="${#fields.hasErrors('sdt')} ? ${#fields.errors('sdt')[0]} : ''"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phương thức nhận OTP</label>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary flex-fill">Tin nhắn SMS</button>
+                    <button type="button" class="btn btn-outline-secondary flex-fill" disabled>Zalo ZNS</button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="otp" class="form-label">Mã xác nhận OTP</label>
+                <input type="text" class="form-control" id="otp" name="otp" placeholder="6 ký tự">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Tên tài khoản</label>
+                <input type="text" th:field="*{tenTaiKhoan}" class="form-control"
+                       placeholder="Nhập tên tài khoản">
+                <span class="text-danger small d-block" style="min-height: 1.5rem"
+                      th:text="${#fields.hasErrors('tenTaiKhoan')} ? ${#fields.errors('tenTaiKhoan')[0]} : ''"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Mật khẩu</label>
+                <div class="input-group">
+                    <input type="password" th:field="*{matKhau}" class="form-control" id="matKhau"
+                           placeholder="Nhập mật khẩu">
+                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('matKhau')">
+                        Hiện
+                    </button>
+                </div>
+                <span class="text-danger small d-block" style="min-height: 1.5rem"
+                      th:text="${#fields.hasErrors('matKhau')} ? ${#fields.errors('matKhau')[0]} : ''"></span>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-danger w-100">Đăng ký</button>
+    </form>
+</div>

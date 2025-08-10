@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/khach-hang/customer/index :: dynamic(~{::main})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán</title>
+</head>
+<body>
+<main class="">
+    <div class="mx-auto" style="max-width: 1560px;">
+        <!-- Địa chỉ giao hàng -->
+        <form th:action="@{/home/checkout}" method="post">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="fw-bold">ĐỊA CHỈ GIAO HÀNG</h5>
+                </div>
+                <div class="card-body p-4 mb-4">
+                    <div class="row g-3" th:object="${diaChi}">
+                        <div class="col-md-6">
+                            <label class="form-label">Họ tên người nhận <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{hoTen}" class="form-control" placeholder="Nhập họ tên">
+                            <span class="text-danger small d-block" style="min-height: 1.5rem"
+                                  th:text="${#fields.hasErrors('hoTen')} ? ${#fields.errors('hoTen')[0]} : ''"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{sdt}" class="form-control" placeholder="Nhập số điện thoại">
+                            <span class="text-danger small d-block" style="min-height: 1.5rem"
+                                  th:text="${#fields.hasErrors('sdt')} ? ${#fields.errors('sdt')[0]} : ''"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{thanhPho}" id="city"
+                                    th:attr="data-selected=${diaChi.thanhPho}">
+                                <option value="">Chọn tỉnh/thành phố</option>
+                            </select>
+                            <span class="text-danger small d-block" style="min-height: 1.5rem"
+                                  th:text="${#fields.hasErrors('thanhPho')} ? ${#fields.errors('thanhPho')[0]} : ''"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{quanHuyen}" id="district"
+                                    th:attr="data-selected=${diaChi.quanHuyen}">
+                                <option value="">Chọn quận/huyện</option>
+                            </select>
+                            <span class="text-danger small d-block" style="min-height: 1.5rem"
+                                  th:text="${#fields.hasErrors('quanHuyen')} ? ${#fields.errors('quanHuyen')[0]} : ''"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Phường/Xã <span class="text-danger">*</span></label>
+                            <select class="form-select" th:field="*{phuongXa}" id="ward"
+                                    th:attr="data-selected=${diaChi.phuongXa}">
+                                <option value="">Chọn phường/xã</option>
+                            </select>
+                            <span class="text-danger small d-block" style="min-height: 1.5rem"
+                                  th:text="${#fields.hasErrors('phuongXa')} ? ${#fields.errors('phuongXa')[0]} : ''"></span>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{diaChiChiTiet}" class="form-control"
+                                   placeholder="Số nhà, tên đường...">
+                            <span class="text-danger small d-block" style="min-height: 1.5rem"
+                                  th:text="${#fields.hasErrors('diaChiChiTiet')} ? ${#fields.errors('diaChiChiTiet')[0]} : ''"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phương thức vận chuyển -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="fw-bold">PHƯƠNG THỨC VẬN CHUYỂN</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="shipping" checked>
+                        <label class="form-check-label">
+                            Giao hàng tiêu chuẩn: <strong></strong> <br>
+                            <small class="text-muted">Dự kiến giao: <span></span></small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phương thức thanh toán -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="fw-bold">PHƯƠNG THỨC THANH TOÁN</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="zalopay" value="Zalopay">
+                        <label class="form-check-label" for="zalopay">Ví ZaloPay</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="Tiền mặt" checked>
+                        <label class="form-check-label" for="cod">Thanh toán khi nhận hàng</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kiểm tra lại đơn hàng -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="fw-bold" mb-3>KIỂM TRA LẠI ĐƠN HÀNG</h5>
+                </div>
+                <div class="card-body row align-items-center mb-3"
+                     th:each="item: ${listGHCT}">
+                    <div class="col-md-2 text-center">
+                        <img th:src="@{'/images/' + ${item.sach.hinhAnh}}" alt="Sách" class="img-fluid"
+                             style="max-height: 100px;">
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-0" th:text="${item.sach.tenSach}"></p>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <p class="mb-0"
+                           th:text="${#numbers.formatDecimal(item.donGia, 0, 'POINT', 0, 'COMMA')} + ' đ'"></p>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <p class="mb-0" th:text="${item.soLuong}"></p>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <p class="mb-0"
+                           th:text="${#numbers.formatDecimal(item.donGia * item.soLuong, 0, 'POINT', 0, 'COMMA')} + ' đ'"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tổng kết đơn -->
+            <div class="sticky-bottom card p-4">
+                <div class="row">
+                    <div class="col-md-4 mt-3" th:object="${hoaDon}">
+                        <div class="mb-1">
+                            <span>Thành tiền: </span>
+                            <strong id="thanhTienText" >0 đ</strong>
+                            <input type="hidden" th:field="*{thanhTien}" id="thanhTienHidden"/>
+                        </div>
+                        <div class="mb-1">
+                            <span>Phí vận chuyển (Giao hàng tiêu chuẩn): </span>
+                            <strong id="phiShipText" th:field="*{phiShip}"></strong>
+                            <input type="hidden" th:field="*{phiShip}" id="phiShipHidden"/>
+                        </div>
+                        <div class="mb-1">
+                            <span>Dự kiến giao hàng: </span>
+                            <strong id="thoiGianGiaoHangText"></strong>
+                        </div>
+                        <div class="mb-1">
+                            <span>Phương thức thanh toán:  </span>
+                            <strong id="phuongThucHienThi" th:field="*{phuongThucThanhToan}">Chưa chọn</strong>
+                            <input type="hidden" th:field="*{phuongThucThanhToan}" id="phuongThucHidden"/>
+                        </div>
+                        <div class="fw-bold mb-3">
+                            <h5><span>Tổng số tiền: </span>
+                                <strong class="text-warning" id="tongCongText">0 đ</strong>
+                                <input type="hidden" th:field="*{tongTien}" id="tongTienHidden"/>
+
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end" style="background-color: white">
+                    <button class="btn btn-danger btn-lg">Xác nhận thanh toán</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script th:inline="javascript">
+        function formatCurrency(value) {
+            return value.toLocaleString('vi-VN') + ' đ';
+        }
+
+        function addDaysToToday(days) {
+            const today = new Date();
+            today.setDate(today.getDate() + days);
+            const day = today.toLocaleDateString('vi-VN', {weekday: 'long'});
+            const date = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+            return `${day} - ${date}`;
+        }
+
+        function updateThongTinDonHang() {
+            let thanhTien = 0;
+
+            // Tính thành tiền từ từng dòng sản phẩm
+            document.querySelectorAll('.card-body.row.align-items-center.mb-3').forEach(row => {
+                const donGia = parseInt(row.querySelectorAll("p")[2]?.textContent.replace(/[^\d]/g, "") || 0);
+                const soLuong = parseInt(row.querySelectorAll("p")[1]?.textContent.replace(/[^\d]/g, "") || 0);
+                thanhTien += donGia * soLuong;
+            });
+
+            // Xác định phí ship và thời gian giao dựa trên thành phố
+            const city = document.getElementById("city")?.value?.trim().toLowerCase() || "";
+            let phiShip = 32000;
+            let thoiGian = 5;
+
+            if (city.includes("hà nội") || city.includes("hồ chí minh")) {
+                phiShip = 20000;
+                thoiGian = 3;
+            }
+
+            console.log(city)
+
+            // Cập nhật giao diện
+            document.getElementById("thanhTienText").innerText = formatCurrency(thanhTien);
+            document.getElementById("phiShipText").innerText = formatCurrency(phiShip);
+            document.getElementById("tongCongText").innerText = formatCurrency(thanhTien + phiShip);
+            document.getElementById("thoiGianGiaoHangText").innerText = `${addDaysToToday(thoiGian)}`;
+
+            document.getElementById('thanhTienHidden').value = thanhTien;
+            document.getElementById('phiShipHidden').value = phiShip;
+            document.getElementById('tongTienHidden').value = thanhTien;
+            document.getElementById('phuongThucHidden').value = document.querySelector('input[name="paymentMethod"]:checked');
+
+            // Cập nhật dòng giao hàng tiêu chuẩn
+            const giaoHangLabel = document.querySelector(".form-check-label strong");
+            if (giaoHangLabel) {
+                giaoHangLabel.innerText = formatCurrency(phiShip);
+            }
+
+            const giaoHangNgay = document.querySelector(".form-check-label small");
+            if (giaoHangNgay) {
+                giaoHangNgay.innerText = `Dự kiến giao: ${addDaysToToday(thoiGian)}`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const citySelect = document.getElementById("city");
+            const selectedCity = citySelect.getAttribute("data-selected");
+
+            if (selectedCity) {
+                for (let option of citySelect.options) {
+                    if (option.value.trim().toLowerCase() === selectedCity.trim().toLowerCase()) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            }
+
+            updateThongTinDonHang();
+            document.getElementById("city")?.addEventListener("change", updateThongTinDonHang);
+            console.log(document.getElementById("city"))
+        });
+
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
+            input.addEventListener('change', function () {
+                document.getElementById("phuongThucHienThi").innerText = this.value;
+            });
+        });
+
+    </script>
+
+</main>
+</body>
+</html>

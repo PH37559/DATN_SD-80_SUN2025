@@ -4,10 +4,14 @@ import com.example.datn_sd80_sum2025.dto.TopSanPhamDTO;
 import com.example.datn_sd80_sum2025.entity.HoaDon;
 import com.example.datn_sd80_sum2025.entity.HoaDonChiTiet;
 import com.example.datn_sd80_sum2025.entity.Sach;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 @Repository
@@ -26,6 +30,27 @@ public interface HoaDonChiTietRepository extends JpaRepository<HoaDonChiTiet, In
 //            "GROUP BY s.tenSach " +
 //            "ORDER BY SUM(ct.soLuong) DESC")
 //    List<TopSanPhamDTO> thongKeTopSanPham(@Param("year") int year, @Param("month") Integer month);
+
+    //top san pham
+    @Query("""
+    SELECT new com.example.datn_sd80_sum2025.dto.TopSanPhamDTO(
+        s.tenSach, SUM(hdct.soLuong), SUM(hdct.thanhTien)
+    )
+    FROM HoaDonChiTiet hdct
+    JOIN hdct.sach s
+    JOIN hdct.hoaDon hd
+    WHERE (:year IS NULL OR YEAR(hd.ngayLap) = :year)
+      AND (:month IS NULL OR MONTH(hd.ngayLap) = :month)
+    GROUP BY s.tenSach
+    ORDER BY SUM(hdct.soLuong) DESC
+""")
+    Page<TopSanPhamDTO> thongKeTopSanPhamTheoThoiGian(
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            Pageable pageable
+    );
+
+
 }
 
 
