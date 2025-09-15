@@ -12,6 +12,7 @@ import com.example.datn_sd80_sum2025.entity.HoaDon;
 import com.example.datn_sd80_sum2025.entity.HoaDonChiTiet;
 import com.example.datn_sd80_sum2025.entity.KhachHang;
 import com.example.datn_sd80_sum2025.entity.Sach;
+import com.example.datn_sd80_sum2025.entity.TheLoai;
 import com.example.datn_sd80_sum2025.repository.SachRepository;
 import com.example.datn_sd80_sum2025.service.DiaChiChiTietService;
 import com.example.datn_sd80_sum2025.service.DiaChiNhanHangService;
@@ -39,6 +40,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -108,6 +110,13 @@ public class MainController {
             tongSach = gioHangChiTietService.countItemsInCart(gioHang.getId());
             model.addAttribute("cartItemCount", tongSach);
         }
+        List<Sach> allBooks = sachService.getAll();
+        List<Sach> list = allBooks.stream()
+                .filter(s -> s.getTheLoai() != null
+                        && s.getTheLoai().getId().equals(sach.getTheLoai().getId())
+                        && !s.getId().equals(id))
+                .toList();
+        model.addAttribute("list", list);
         model.addAttribute("sach", sach);
         return "khach-hang/customer/san-pham/detail";
     }
@@ -216,18 +225,30 @@ public class MainController {
         model.addAttribute("countStatus1", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 1));
         model.addAttribute("countStatus2", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 2));
         model.addAttribute("countStatus3", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 3));
+        model.addAttribute("countStatus4", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 4));
 
         return "khach-hang/customer/don-hang/list";
+    }
+
+    @GetMapping("/find-order")
+    public String showFormFindOrder(Model model){
+        List<Sach> allBooks = sachService.getAll();
+        List<Sach> list = allBooks.size() > 15 ? allBooks.subList(0, 15) : allBooks;
+        model.addAttribute("list", list);
+        return "khach-hang/customer/don-hang/find_order";
     }
 
     @GetMapping("/orders/detail/{id}")
     public String showOrderDetail(
             @PathVariable Integer id,
             Model model
-    ){
+    ) {
         HoaDon hd = hoaDonService.getById(id);
+        if (hd == null) {
+            model.addAttribute("error", "Không tìm thấy đơn hàng!");
+            return "khach-hang/customer/don-hang/find_order";
+        }
         List<HoaDonChiTiet> listHDCT = hoaDonChiTietService.getByHoaDonId(id);
-        System.out.print("HDCT: "+ listHDCT.get(0).getHoaDon().getDiaChiNhanHang().getHoTen());
         model.addAttribute("hoaDon", hd);
         model.addAttribute("listHDCT", listHDCT);
         return "khach-hang/customer/don-hang/detail";
@@ -269,46 +290,30 @@ public class MainController {
                 ? Arrays.stream(quantitiesStr.split(",")).map(Integer::parseInt).collect(Collectors.toList())
                 : new ArrayList<>();
 
-        KhachHang khachHang = (KhachHang) session.getAttribute("khachHang");
-        if (khachHang != null) {
-            GioHang gioHang = gioHangService.getByIdKhachHang(khachHang.getId());
-            List<GioHangChiTiet> listGHCT = new ArrayList<>();
+        KhachHang kh = (KhachHang) session.getAttribute("khachHang");
+        GioHang gioHang;
 
-            if (!quantities.isEmpty() && quantities.size() == selectedIds.size()) {
-                for (int i = 0; i < selectedIds.size(); i++) {
-                    Sach sach = sachService.getById(selectedIds.get(i));
-                    if (sach == null) continue;
+        if (kh != null) {
+            gioHang = gioHangService.getByIdKhachHang(kh.getId());
 
-                    GioHangChiTiet temp = new GioHangChiTiet();
-                    temp.setSach(sach);
-                    temp.setSoLuong(quantities.get(i));
-                    temp.setDonGia(sach.getGiaBan());
-                    listGHCT.add(temp);
-                }
-            }else {
-                listGHCT = gioHangChiTietService.getByGioHangId(gioHang.getId())
-                        .stream()
-                        .filter(item -> selectedIds.contains(item.getSach().getId()))
-                        .collect(Collectors.toList());
-            }
+            List<DiaChiNhanHang> listDiaChi = diaChiNhanHangService.getByIdKhachHang(kh.getId());
+            model.addAttribute("diaChi", listDiaChi.isEmpty() ? new DiaChiNhanHangCreate() : listDiaChi.get(0));
+        } else {
+            gioHang = (GioHang) session.getAttribute("gioHangAnDanh");
+            if (gioHang == null) return "redirect:/cart";
 
-            session.setAttribute("selectedGHCT", listGHCT);
-
-            model.addAttribute("gioHang", gioHang);
-            model.addAttribute("listGHCT", listGHCT);
-            model.addAttribute("thanhTienText", listGHCT.stream()
-                    .map(item -> item.getDonGia().multiply(BigDecimal.valueOf(item.getSoLuong())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add));
-
-            // Lấy địa chỉ nếu có
-            List<DiaChiNhanHang> listDiaChi = diaChiNhanHangService.getByIdKhachHang(khachHang.getId());
-            if (!listDiaChi.isEmpty()) {
-                model.addAttribute("diaChi", listDiaChi.get(0));
-            } else {
-                model.addAttribute("diaChi", new DiaChiNhanHangCreate());
-            }
-            model.addAttribute("hoaDon", new HoaDon());
+            model.addAttribute("diaChi", new DiaChiNhanHangCreate());
         }
+
+        List<GioHangChiTiet> listGHCT = buildGHCT(gioHang, selectedIds, quantities);
+
+        session.setAttribute("selectedGHCT", listGHCT);
+        model.addAttribute("gioHang", gioHang);
+        model.addAttribute("listGHCT", listGHCT);
+        model.addAttribute("thanhTienText", listGHCT.stream()
+                .map(item -> item.getDonGia().multiply(BigDecimal.valueOf(item.getSoLuong())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        model.addAttribute("hoaDon", new HoaDon());
 
         return "khach-hang/customer/don-hang/checkout";
     }
@@ -318,37 +323,38 @@ public class MainController {
             @ModelAttribute("diaChi") @Valid DiaChiNhanHangCreate diaChi,
             BindingResult dcErrors,
             @ModelAttribute("hoaDon") HoaDon hoaDon,
-            @ModelAttribute("hoaDonChiTiet") HoaDonChiTiet hoaDonChiTiet,
             HttpSession session,
-            Model model
-    ) {
+            Model model) {
         KhachHang kh = (KhachHang) session.getAttribute("khachHang");
 
-        //Địa chỉ
+        // Địa chỉ
         diaChi.setTrangThaiDCCT(1);
         if (dcErrors.hasErrors()) {
-            System.out.println("Có lỗi validate địa chỉ:");
-            dcErrors.getAllErrors().forEach(e -> System.out.println(e.getDefaultMessage()));
-            model.addAttribute("listGHCT", session.getAttribute("selectedGHCT")); // để hiện lại
+            model.addAttribute("listGHCT", session.getAttribute("selectedGHCT"));
             return "khach-hang/customer/don-hang/checkout";
         }
-        DiaChiChiTiet dcct = diaChiNhanHangService.store(kh.getId(), diaChi);
+        DiaChiNhanHang dcnh = (kh != null)
+                ? diaChiNhanHangService.store(kh.getId(), diaChi).getDiaChiNhanHang()
+                : diaChiNhanHangService.storeDCNH(diaChi);
 
-        //List GHCT lấy từ session
+        // GHCT từ session
         List<GioHangChiTiet> listGHCT = (List<GioHangChiTiet>) session.getAttribute("selectedGHCT");
-        System.out.print("GHCT" + listGHCT);
         if (listGHCT == null || listGHCT.isEmpty()) {
             return "redirect:/cart";
         }
 
-        //Tạo hóa đơn
-        hoaDon.setKhachHang(kh);
-        hoaDon.setNgayLap(LocalDate.now());
-        hoaDon.setDiaChiNhanHang(dcct.getDiaChiNhanHang());
-        hoaDon.setTrangThai(0); //chờ xác nhận
+        // Hóa đơn
+        if (kh != null) hoaDon.setKhachHang(kh);
+        hoaDon.setNgayLap(LocalDateTime.now());
+        hoaDon.setDiaChiNhanHang(dcnh);
+        if ("Zalopay".equalsIgnoreCase(hoaDon.getPhuongThucThanhToan())) {
+            hoaDon.setTrangThai(0);
+        } else {
+            hoaDon.setTrangThai(1);
+        }
         HoaDon hoaDonSaved = hoaDonService.save(hoaDon);
 
-        // Tạo hóa đơn chi tiết
+        // Hóa đơn chi tiết + Cập nhật số lượng sách
         for (GioHangChiTiet item : listGHCT) {
             HoaDonChiTiet hdct = new HoaDonChiTiet();
             hdct.setHoaDon(hoaDonSaved);
@@ -360,19 +366,51 @@ public class MainController {
             hoaDonChiTietService.save(hdct);
 
             Sach sach = item.getSach();
-            int soLuongCon = sach.getSoLuong() - item.getSoLuong();
-            if(soLuongCon<0) soLuongCon =0;
+            int soLuongCon = Math.max(sach.getSoLuong() - item.getSoLuong(), 0);
             sach.setSoLuong(soLuongCon);
             sachService.save(sach);
         }
 
-        // Xóa GHCT đã mua khỏi DB
+        // Xóa GHCT đã mua
         gioHangChiTietService.deleteAll(listGHCT);
-
-        // Xóa khỏi session
         session.removeAttribute("selectedGHCT");
 
-        return "redirect:/home/orders";
+        // Nếu thanh toán qua ZaloPay → tạo request thanh toán
+        if ("zalopay".equalsIgnoreCase(hoaDon.getPhuongThucThanhToan())) {
+            return "redirect:/payment/create/"+hoaDon.getId() ;
+        }
+
+        // Thanh toán tiền mặt
+        return "redirect:/home/sach";
+    }
+
+
+    private List<GioHangChiTiet> buildGHCT(GioHang gioHang, List<Integer> selectedIds, List<Integer> quantities) {
+        List<GioHangChiTiet> listGHCT = new ArrayList<>();
+
+        // Ưu tiên tạo mới từ quantities
+        if (!quantities.isEmpty() && quantities.size() == selectedIds.size()) {
+            for (int i = 0; i < selectedIds.size(); i++) {
+                Sach sach = sachService.getById(selectedIds.get(i));
+                if (sach == null) continue;
+
+                GioHangChiTiet temp = new GioHangChiTiet();
+                temp.setSach(sach);
+                temp.setSoLuong(quantities.get(i));
+                temp.setDonGia(sach.getGiaBan());
+                listGHCT.add(temp);
+            }
+        }
+
+        // Nếu không có quantities hợp lệ -> lấy từ DB theo giỏ hàng
+        if (listGHCT.isEmpty()) {
+            listGHCT = gioHangChiTietService.getByGioHangId(gioHang.getId())
+                    .stream()
+                    .filter(item -> selectedIds.contains(item.getSach().getId()))
+                    .collect(Collectors.toList());
+        }
+
+        return listGHCT;
     }
 
 

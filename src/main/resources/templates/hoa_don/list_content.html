@@ -1,37 +1,204 @@
-<div th:fragment="content">
+<div th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
     <h3 class="mb-4">Danh sách hóa đơn</h3>
+    <div class="row mb-3 gx-2 align-items-center">
+        <div class="col-auto">
+            <div class="d-flex gap-2">
+                <a th:href="@{/trang-chu/hien-thi}" class="btn btn-warning btn-sm">+ Thêm mới</a>
+            </div>
+        </div>
+        <!-- Cột chứa form lọc -->
+        <div class="col">
+            <form th:action="@{/hoa-don/hien-thi}" method="get"
+                  class="row gx-2 align-items-center w-100 justify-content-end">
+                <!-- Ô tìm kiếm -->
+                <div class="col-md-4">
+                    <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm"
+                           placeholder="Tìm theo tên khách hàng, email hoặc số điện thoại">
+                </div>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Khách hàng</th>
-            <th>Ngày lập</th>
-            <th>Tổng tiền</th>
-            <th>Phương thức TT</th>
-            <th>Trạng thái</th>
-            <th>Chi tiết</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="hd : ${listHoaDon}">
-            <td th:text="${hd.id}">1</td>
-            <td th:text="${hd.khachHang.hoTen}">Nguyễn Văn A</td>
-            <td th:text="${hd.ngayLap}">2025-06-30</td>
-            <td th:text="${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 2, 'POINT')} + ' đ'">200,000 đ</td>
-            <td th:text="${hd.phuongThucThanhToan}">Tiền mặt</td>
-            <td>
+                <!-- Ô kích hoạt modal bộ lọc -->
+                <div class="col-md-2">
+                    <input type="text" class="form-control form-control-sm" placeholder="Bộ lọc khác" readonly
+                           data-bs-toggle="offcanvas" data-bs-target="#boLocModal">
+                </div>
+
+                <!-- Nút tìm kiếm -->
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Tìm kiếm</button>
+                </div>
+
+                <!-- Modal Bộ lọc khác -->
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="boLocModal">
+                    <div class="offcanvas-header border-bottom">
+                        <h5 class="offcanvas-title">Bộ lọc</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <!-- Ngày lập hóa đơn -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày lập</label>
+                            <input type="date" name="ngayLapFrom" class="form-control form-control-sm mb-2"
+                                   th:value="${ngayLapFrom}">
+                            <input type="date" name="ngayLapTo" class="form-control form-control-sm"
+                                   th:value="${ngayLapTo}">
+                        </div>
+                        <!-- Lọc giá trị hóa đơn -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Giá trị hóa đơn</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceRange" value="1"
+                                       th:checked="${priceRange == '1'}">
+                                <label class="form-check-label">Dưới 100.000</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceRange" value="2"
+                                       th:checked="${priceRange == '2'}">
+                                <label class="form-check-label">Từ 100.000 đến 500.000</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceRange" value="2"
+                                       th:checked="${priceRange == '3'}">
+                                <label class="form-check-label">Từ 500.000 đến 1.000.000</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceRange" value="3"
+                                       th:checked="${priceRange == '4'}">
+                                <label class="form-check-label">Trên 1.000.000</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="priceRange" value=""
+                                       th:checked="${priceRange == null or priceRange == ''}">
+                                <label class="form-check-label">Tất cả</label>
+                            </div>
+                        </div>
+                        <!-- Lọc phương thức thanh toán -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phương thức thanh toán</label>
+                            <select name="phuongThucThanhToan" class="form-select form-select-sm">
+                                <option value="" th:selected="${phuongThucThanhToan == null}">-- Tất cả phương thức
+                                    thanh toán --
+                                </option>
+                                <option value="Tiền mặt" th:selected="${phuongThucThanhToan == 'Tiền mặt'}">Tiền mặt
+                                </option>
+                                <option value="Zalopay" th:selected="${phuongThucThanhToan == 'Zalopay'}">Zalopay
+                                </option>
+                            </select>
+                        </div>
+                        <!-- Lọc trạng thái -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Trạng thái hóa đơn</label>
+                            <select name="trangThai" class="form-select form-select-sm">
+                                <option value="" th:selected="${trangThai == null}">-- Tất cả trạng thái --</option>
+                                <option value="0" th:selected="${trangThai == 0}">Chờ thanh toán</option>
+                                <option value="1" th:selected="${trangThai == 1}">Chờ xác nhận</option>
+                                <option value="2" th:selected="${trangThai == 2}">Đang giao</option>
+                                <option value="3" th:selected="${trangThai == 3}">Hoàn thành</option>
+                                <option value="4" th:selected="${trangThai == 4}">Bị hủy</option>
+                            </select>
+                        </div>
+                        <!-- Nút -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-primary btn-sm">Lọc</button>
+                            <a href="/hoa-don/hien-thi" class="btn btn-outline-danger btn-sm">Xóa hết bộ lọc</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center" style="font-size: 16px;">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Khách hàng</th>
+                <th>Ngày lập</th>
+                <th>Tổng tiền</th>
+                <th>Phương thức TT</th>
+                <th>Trạng thái</th>
+                <th>Chi tiết</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="hd : ${listHoaDon}">
+                <td th:text="${hd.id}">1</td>
+                <td th:text="${hd.khachHang.hoTen}">Nguyễn Văn A</td>
+                <td th:text="${hd.ngayLap}">2025-06-30</td>
+                <td th:text="${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 2, 'POINT')} + ' đ'">200,000 đ</td>
+                <td th:text="${hd.phuongThucThanhToan}">Tiền mặt</td>
+                <td>
                 <span th:switch="${hd.trangThai}">
-                    <span th:case="0" class="badge text-bg-warning">Chờ</span>
-                    <span th:case="1" class="badge text-bg-success">Hoàn thành</span>
-                    <span th:case="2" class="badge text-bg-danger">Huỷ</span>
-                    <span th:case="*">Không xác định</span>
+                    <span th:case="0" class="badge bg-secondary">Chờ thanh toán</span>
+                    <span th:case="1" class="badge bg-warning text-dark">Chờ xác nhận</span>
+                    <span th:case="2" class="badge bg-primary">Đang giao</span>
+                    <span th:case="3" class="badge bg-success">Hoàn thành</span>
+                    <span th:case="4" class="badge bg-danger">Bị huỷ</span>
                 </span>
-            </td>
-            <td>
-                <a th:href="@{/hoa-don/detail/{id}(id=${hd.id})}" class="btn btn-primary btn-sm">Xem</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+                </td>
+                <td>
+                    <a th:href="@{/hoa-don/detail/{id}(id=${hd.id})}" class="btn btn-primary btn-sm">Xem</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Phân trang -->
+    <nav aria-label="Page navigation" th:if="${listHoaDon != null and !listHoaDon.isEmpty()}">
+        <ul class="pagination justify-content-center">
+
+            <!-- Nút Trước -->
+            <li class="page-item" th:classappend="${currentPage != null and currentPage == 0} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/hoa-don/hien-thi(
+                page=${i},
+                size=${size},
+                keyword=${keyword},
+                trangThai=${trangThai},
+                phuongThucThanhToan=${phuongThucThanhToan},
+                ngayLapFrom=${ngayLapFrom},
+                ngayLapTo=${ngayLapTo},
+                priceRange =${priceRange}
+                )}">
+                    Trước
+                </a>
+            </li>
+
+            <!-- Các số trang -->
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(0, totalPage - 1)}"
+                th:classappend="${currentPage != null and i == currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/hoa-don/hien-thi(
+                    page=${i},
+                    size=${size},
+                    keyword=${keyword},
+                    trangThai=${trangThai},
+                    phuongThucThanhToan=${phuongThucThanhToan},
+                    ngayLapFrom=${ngayLapFrom},
+                    ngayLapTo=${ngayLapTo},
+                    priceRange =${priceRange}
+                )}"
+                   th:text="${i + 1}">
+                </a>
+            </li>
+
+            <!-- Nút Tiếp -->
+            <li class="page-item"
+                th:classappend="${currentPage != null and currentPage + 1 >= totalPage} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/hoa-don/hien-thi(
+                    page=${currentPage != null and currentPage + 1 < totalPage ? currentPage + 1 : currentPage},
+                    size=${size},
+                    keyword=${keyword},
+                    trangThai=${trangThai},
+                    phuongThucThanhToan=${phuongThucThanhToan},
+                    ngayLapFrom=${ngayLapFrom},
+                    ngayLapTo=${ngayLapTo},
+                    priceRange =${priceRange}
+                )}">
+                    Tiếp
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>

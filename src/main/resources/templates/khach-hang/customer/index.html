@@ -131,9 +131,11 @@
     </div>
 
     <div class="menu-icons d-flex align-items-center gap-4">
-        <div class="icon-item">
-            <i class="bi bi-bell"></i>
-            <span>Thông báo</span>
+        <div class="icon-item" th:if="${session.khachHang == null}">
+            <a href="/home/find-order" class="d-flex flex-column align-items-center text-decoration-none">
+                <i class="bi bi-search"></i>
+                <span>Tìm đơn hàng</span>
+            </a>
         </div>
         <div class="icon-item text-center position-relative">
             <a href="/cart" class="d-flex flex-column align-items-center text-decoration-none">
@@ -314,6 +316,58 @@
         </div>
     </div>
 </div>
+<footer class="bg-white text-dark pt-4 mt-5 border-top">
+    <div class="container bg-white rounded" style="max-width: 1560px; padding: 20px">
+        <div class="row">
+            <div class="col-3 mb-4">
+                <h6 class="fw-bold">LIÊN HỆ</h6>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-geo-alt"></i> Đường Trịnh Văn Bô, Phương Canh, Nam Từ Liêm, Hà Nội</li>
+                    <li><i class="bi bi-envelope"></i> cskh@beebook.vn</li>
+                    <li><i class="bi bi-telephone"></i> 1900 123 456</li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="#"><i class="bi bi-facebook fs-4"></i></a>
+                    <a href="#"><i class="bi bi-instagram fs-4"></i></a>
+                    <a href="#"><i class="bi bi-twitter fs-4"></i></a>
+                    <a href="#"><i class="bi bi-youtube fs-4"></i></a>
+                </div>
+            </div>
+            <div class="col-3 mb-4">
+                <h6 class="fw-bold">DỊCH VỤ</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-decoration-none text-dark">Điều khoản sử dụng</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Chính sách bảo mật thông tin</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Chính sách thanh toán</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Giới thiệu</a></li>
+                </ul>
+            </div>
+            <div class="col-3 mb-4">
+                <h6 class="fw-bold">HỖ TRỢ</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-decoration-none text-dark">Chính sách đổi - trả</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Chính sách bảo hành</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Chính sách vận chuyển</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Chính sách khách sỉ</a></li>
+                </ul>
+            </div>
+            <div class="col-3 mb-4">
+                <h6 class="fw-bold">TÀI KHOẢN CỦA TÔI</h6>
+                <ul class="list-unstyled">
+                    <li><a href="/home/login" class="text-decoration-none text-dark">Đăng nhập/Tạo mới</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Thay đổi địa chỉ</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Chi tiết tài khoản</a></li>
+                    <li><a href="#" class="text-decoration-none text-dark">Lịch sử mua hàng</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center py-3 mt-3 border-top">
+            <small>&#169; 2025 BeeBook. All right reserved.</small>
+        </div>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>

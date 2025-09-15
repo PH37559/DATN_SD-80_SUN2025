@@ -18,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -131,7 +132,7 @@ public class TrangChuController {
 
 
     @PostMapping("/don-hang/tao")
-    public String taoDonHang(@RequestParam("ngayTao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTao,
+    public String taoDonHang(@RequestParam("ngayTao") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTao,
                              @RequestParam("khachHangId") Integer khachHangId,
                              @RequestParam("nhanVienId") Integer nhanVienId,
                              @RequestParam("phuongThucTT") String phuongThucTT,

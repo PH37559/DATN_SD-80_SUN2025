@@ -42,6 +42,8 @@ public class DiaChiNhanHangServiceImpl implements DiaChiNhanHangService {
     @Override
     public DiaChiChiTiet store(Integer idKH, DiaChiNhanHangCreate dcnh) {
         DiaChiNhanHang diaChi = diaChiNhanHangRepository.findByFullAddress(
+                dcnh.getHoTen(),
+                dcnh.getSdt(),
                 dcnh.getThanhPho(),
                 dcnh.getQuanHuyen(),
                 dcnh.getPhuongXa(),
@@ -67,6 +69,24 @@ public class DiaChiNhanHangServiceImpl implements DiaChiNhanHangService {
             chiTiet.setGhiChu(dcnh.getGhiChu());
         }
             return diaChiChiTietRepository.save(chiTiet);
+    }
+
+    @Override
+    public DiaChiNhanHang storeDCNH(DiaChiNhanHangCreate dcnh) {
+        DiaChiNhanHang diaChi = diaChiNhanHangRepository.findByFullAddress(
+                dcnh.getHoTen(),
+                dcnh.getSdt(),
+                dcnh.getThanhPho(),
+                dcnh.getQuanHuyen(),
+                dcnh.getPhuongXa(),
+                dcnh.getDiaChiChiTiet()).orElse(null);
+
+        if(diaChi == null){
+            diaChi = new DiaChiNhanHang();
+            BeanUtils.copyProperties(dcnh, diaChi);
+            return diaChiNhanHangRepository.save(diaChi);
+        }
+        return diaChi;
     }
 
     @Override

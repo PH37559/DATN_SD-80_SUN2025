@@ -18,6 +18,8 @@ public interface DiaChiNhanHangService {
 
     DiaChiChiTiet store(Integer idKH, DiaChiNhanHangCreate dcnh);
 
+    DiaChiNhanHang storeDCNH (DiaChiNhanHangCreate dcnh);
+
     void update(Integer idKH, Integer idDC, DiaChiNhanHangUpdate dcnh);
 
     List<DiaChiNhanHang> getByIdKhachHang (Integer idKhachHang);

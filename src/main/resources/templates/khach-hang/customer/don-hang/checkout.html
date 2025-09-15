@@ -89,7 +89,7 @@
                 </div>
                 <div class="card-body">
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="paymentMethod" id="zalopay" value="Zalopay">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="zalopay" value="ZALOPAY">
                         <label class="form-check-label" for="zalopay">Ví ZaloPay</label>
                     </div>
                     <div class="form-check">
@@ -209,7 +209,7 @@
             document.getElementById('thanhTienHidden').value = thanhTien;
             document.getElementById('phiShipHidden').value = phiShip;
             document.getElementById('tongTienHidden').value = thanhTien;
-            document.getElementById('phuongThucHidden').value = document.querySelector('input[name="paymentMethod"]:checked');
+            document.getElementById('phuongThucHidden').value = document.querySelector('input[name="paymentMethod"]:checked')?.value || '';
 
             // Cập nhật dòng giao hàng tiêu chuẩn
             const giaoHangLabel = document.querySelector(".form-check-label strong");
@@ -238,13 +238,12 @@
 
             updateThongTinDonHang();
             document.getElementById("city")?.addEventListener("change", updateThongTinDonHang);
-            console.log(document.getElementById("city"))
         });
 
         document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
             input.addEventListener('change', function () {
                 document.getElementById("phuongThucHienThi").innerText = this.value;
-            });
+                document.getElementById("phuongThucHidden").value = this.value;            });
         });
 
     </script>

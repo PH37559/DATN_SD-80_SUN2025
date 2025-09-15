@@ -52,7 +52,8 @@
                             <button class="btn-minus" type="button" th:attr="data-id=${item.sach.id}"
                                     style="border: none; background: none; font-size: 20px;">-
                             </button>
-                            <input type="text" class="mx-2 quantity-input" th:attr="data-id=${item.sach.id}"
+                            <input type="text" class="mx-2 quantity-input"
+                                   th:attr="data-id=${item.sach.id}, data-max=${item.sach.soLuong}, data-min=1"
                                    th:value="${item.soLuong}"
                                    style="width: 40px; text-align: center; border: none; outline: none;">
                             <button class="btn-plus" type="button" th:attr="data-id=${item.sach.id}"
@@ -91,9 +92,9 @@
                     </div>
 
                     <form id="formCheckout" action="/home/checkout" method="get">
-<!--                        <div th:each="item:${listGHCT}">-->
-                            <input type="hidden" id="selectedIdsInput" name="selectedIds" value="">
-<!--                        </div>-->
+                        <!--                        <div th:each="item:${listGHCT}">-->
+                        <input type="hidden" id="selectedIdsInput" name="selectedIds" value="">
+                        <!--                        </div>-->
                         <button type="submit" class="btn btn-danger w-100" id="btnThanhToan" disabled
                                 th:disabled="${#lists.isEmpty(listGHCT)}">THANH TOÁN
                         </button>
@@ -109,25 +110,84 @@
         document.addEventListener("DOMContentLoaded", function () {
             const idGioHang = document.getElementById("idGioHang")?.value || 0;
 
-            // Tăng giảm số lượng
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('input', function () {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
+
+            // Thay đổi số lượng bằng cách nhập tay
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function () {
+                    const id = this.getAttribute('data-id');
+                    const max = parseInt(this.getAttribute('data-max'));
+                    const min = parseInt(this.getAttribute('data-min')) || 1;
+                    let value = parseInt(this.value);
+
+                    if (isNaN(value) || value < min) {
+                        showToast('Số lượng phải lớn hơn 0');
+                        this.value = min;
+                        updateQuantity(id, min);
+                    } else if (value > max) {
+                        showToast('Vượt quá số lượng còn lại trong kho');
+                        this.value = max;
+                        updateQuantity(id, max);
+                    } else {
+                        updateQuantity(id, value);
+                    }
+                    updatePlusButtonState(id);
+                });
+            });
+
+            // Giảm số lượng
             document.querySelectorAll('.btn-minus').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const id = this.getAttribute('data-id');
                     const input = document.querySelector(`.quantity-input[data-id='${id}']`);
-                    const value = parseInt(input.value);
-                    if (value > 1) {
-                        updateQuantity(id, value - 1);
+                    let value = parseInt(input.value);
+                    const min = parseInt(input.getAttribute('data-min')) || 1;
+                    if (value > min) {
+                        value--;
+                        input.value = value;
+                        updateQuantity(id, value);
+                        updatePlusButtonState(id);
                     }
                 });
             });
 
+            //Tăng số lượng
             document.querySelectorAll('.btn-plus').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const id = this.getAttribute('data-id');
                     const input = document.querySelector(`.quantity-input[data-id='${id}']`);
-                    const value = parseInt(input.value);
-                    updateQuantity(id, value + 1);
+                    const max = parseInt(input.getAttribute('data-max'));
+                    let value = parseInt(input.value);
+
+                    if (value < max) {
+                        value++;
+                        input.value = value;
+                        updateQuantity(id, value);
+                        updatePlusButtonState(id);
+                    }
                 });
+            });
+
+            // Disable nút + nếu đạt giới hạn số lượng tồn
+            function updatePlusButtonState(id) {
+                const input = document.querySelector(`.quantity-input[data-id='${id}']`);
+                const btnPlus = document.querySelector(`.btn-plus[data-id='${id}']`);
+                const max = parseInt(input.getAttribute('data-max'));
+                const current = parseInt(input.value);
+
+                if (btnPlus) {
+                    btnPlus.disabled = current >= max;
+                }
+            }
+
+            // Cập nhật trạng thái các nút + ban đầu
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                const id = input.getAttribute('data-id');
+                updatePlusButtonState(id);
             });
 
             // Xoá sản phẩm
@@ -140,7 +200,7 @@
                             .then(res => res.json())
                             .then(data => {
                                 showToast(data.message);
-                                setTimeout(() => location.reload(), 1000);
+                                setTimeout(() => location.reload(), 2000);
                                 updateCartCount(data.cartItemCount);
                             }).catch(err => alert('Xoá thất bại'));
                     }
@@ -154,24 +214,37 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            location.reload();
+                            updatePlusButtonState(id);
+                            updateTongTienAndButton();
                             updateCartCount(data.cartItemCount);
                         } else {
                             showToast(data.message);
+                            const input = document.querySelector(`.quantity-input[data-id='${id}']`);
+                            if (input) input.value = newQty - 1;
                         }
                     }).catch(err => showToast('Cập nhật thất bại'));
             }
 
             //Hàm show thông báo
             function showToast(message) {
-                const toastEl = document.getElementById('toastSuccess');
+                const toastElement = document.getElementById('toastSuccess');
                 const toastBody = document.getElementById('toastBody');
                 toastBody.textContent = message;
-                const toast = new bootstrap.Toast(toastEl);
+                const toast = new bootstrap.Toast(toastElement);
                 toast.show();
+
+                setTimeout(() => {
+                    toast.hide();
+                }, 2000);
             }
 
-            //Hàm cập nhật số lượng
+            // Cập nhật trạng thái nút + ban đầu
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                const id = input.getAttribute('data-id');
+                updatePlusButtonState(id);
+            });
+
+            //Hàm cập nhật số lượng trong giỏ
             function updateCartCount(count) {
                 const cartCountEl = document.getElementById("cartItemCount");
                 if (cartCountEl) {

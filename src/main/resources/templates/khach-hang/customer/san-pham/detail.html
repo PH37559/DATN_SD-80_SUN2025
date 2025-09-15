@@ -9,18 +9,43 @@
 <main th:object="${sach}" class="container mt-4">
     <div class="row g-4">
         <div class="col-md-5">
-            <div class="border rounded p-3 bg-white d-flex flex-column align-items-center">
+            <div class="border rounded p-3 mb-3 bg-white d-flex flex-column align-items-center">
                 <img th:src="@{'/images/' + *{hinhAnh}}"
                      class="img-fluid mb-4"
                      style="object-fit: contain; max-height: 450px; width: 100%;"
                      alt="Ảnh sản phẩm">
             </div>
+            <div class="border rounded p-3 bg-white d-flex flex-column align-items-center">
+                <div class="w-100 mt-2">
+                    <h5 class="fw-bold mb-5">Chính sách ưu đãi của Fahasa</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-truck text-danger"></i>
+                            <strong>Thời gian giao hàng:</strong> Giao nhanh và uy tín
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-truck text-danger"></i>
+                            <strong>Chính sách vận chuyển:</strong> Hỗ trợ nhiều đơn vị giao hàng
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-truck text-danger"></i>
+                            <strong>Chính sách bảo hành:</strong> Đảm bảo chất lượng sách khi sản phẩm lỗi
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-arrow-repeat text-danger"></i>
+                            <strong>Chính sách đổi trả:</strong> Đổi trả miễn phí toàn quốc
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-people text-danger"></i>
+                            <strong>Chính sách khách sỉ:</strong> Ưu đãi khi mua số lượng lớn
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-
         <div class="col-md-7 d-flex flex-column justify-content-between">
             <div class="bg-white p-4 border rounded mb-3">
                 <h2 class="fw-bold mb-3" th:text="*{tenSach}">Tên Sách</h2>
-
                 <div class="mb-2">
                     <span>Nhà xuất bản:</span>
                     <strong th:text="*{nxb.nhaXuatBan}"></strong>
@@ -35,13 +60,12 @@
                             th:classappend="*{soLuong > 0 ? 'text-success' : 'text-danger'}">
                     </strong>
                 </div>
-                <div class="mb-3">
+                <div class="">
                     <span class="text-danger fs-3 fw-bold"
                           th:text="*{#numbers.formatDecimal(giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
                     </span>
                 </div>
             </div>
-
             <div class="bg-white p-4 border rounded mb-3">
                 <table class="table table-sm table-borderless mb-3">
                     <tbody>
@@ -108,11 +132,14 @@
                         <th>Số lượng</th>
                         <td>
                             <div style="display: inline-flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; padding: 5px 10px;">
-                                <button class="btn-minus" style="border: none; background: none; font-size: 20px;">−
+                                <button class="btn-minus" type="button" th:attr="data-id=*{id}"
+                                        style="border: none; background: none; font-size: 20px;">-
                                 </button>
-                                <input id="quantity" value="1" min="1"
+                                <input type="text" class="mx-2 quantity-input" value="1"
+                                       th:attr="data-id=*{id}, data-max=*{soLuong}, data-min=1"
                                        style="width: 40px; text-align: center; border: none; outline: none;">
-                                <button class="btn-plus" style="border: none; background: none; font-size: 20px;">+
+                                <button class="btn-plus" type="button" th:attr="data-id=*{id}"
+                                        style="border: none; background: none; font-size: 20px;">+
                                 </button>
                             </div>
                         </td>
@@ -129,10 +156,12 @@
                     </a>
                     <!-- Toast thông báo -->
                     <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
-                        <div id="toastSuccess" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                        <div id="toastSuccess" class="toast align-items-center text-white bg-success border-0"
+                             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
                             <div class="d-flex">
                                 <div class="toast-body" id="toastBody">Đã thêm vào giỏ hàng!</div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                        data-bs-dismiss="toast" aria-label="Close"></button>
                             </div>
                         </div>
                     </div>
@@ -147,82 +176,176 @@
                     </form>
                 </div>
             </div>
-
             <div class="bg-white p-4 border rounded" mt-3>
                 <h5 class="fw-bold mb-3">Thông tin chi tiết</h5>
-                <table class="table table-sm custom-border-bottom table-custom-spacing mb-2">
+                <table class="table table-sm mb-1" style="border-collapse: collapse;">
                     <tbody>
                     <tr>
-                        <th style="width: 150px;">Tác giả</th>
-                        <td th:text="*{tacGia}"></td>
+                        <th style="width: 150px; border-bottom: none;">Tác giả</th>
+                        <td th:text="*{tacGia}" style="border-bottom: none;"></td>
                     </tr>
                     <tr>
-                        <th>Nhà xuất bản</th>
-                        <td th:text="*{nxb.nhaXuatBan}"></td>
+                        <th style="border-bottom: none;">Nhà xuất bản</th>
+                        <td th:text="*{nxb.nhaXuatBan}" style="border-bottom: none;"></td>
                     </tr>
                     <tr>
-                        <th>Năm xuất bản</th>
-                        <td th:text="*{namXuatBan}"></td>
+                        <th style="border-bottom: none;">Năm xuất bản</th>
+                        <td th:text="*{namXuatBan}" style="border-bottom: none;"></td>
                     </tr>
                     <tr>
-                        <th>Thể loại</th>
-                        <td th:text="*{theLoai.tenTheLoai}"></td>
+                        <th style="border-bottom: none;">Thể loại</th>
+                        <td th:text="*{theLoai.tenTheLoai}" style="border-bottom: none;"></td>
                     </tr>
                     <tr>
-                        <th>Ngôn ngữ</th>
-                        <td th:text="*{ngonNgu.tenNgonNgu}"></td>
+                        <th style="border-bottom: none;">Ngôn ngữ</th>
+                        <td th:text="*{ngonNgu.tenNgonNgu}" style="border-bottom: none;"></td>
                     </tr>
                     <tr>
-                        <th>Số lượng</th>
-                        <td th:text="*{soLuong} + ' quyển'"></td>
+                        <th style="border-bottom: none;">Số lượng</th>
+                        <td th:text="*{soLuong} + ' quyển'" style="border-bottom: none;"></td>
                     </tr>
                     <tr>
-                        <th>Mô tả</th>
-                        <td th:text="*{moTa}"></td>
+                        <th style="border-bottom: none;">Mô tả</th>
+                        <td th:text="*{moTa}" style="border-bottom: none;"></td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
+    <div class="card shadow-sm mx-auto mt-3" style="max-width: 1560px; padding: 20px;">
+        <div class="card-header bg-white border-bottom mb-3">
+            <h4 class="mb-0 text-danger"><i class="bi bi-book"></i> Sách cùng thể loại</h4>
+        </div>
+        <div class="card-body p-0">
+            <div class="d-flex flex-wrap gap-3 justify-content-start">
+                <div class="product-card border rounded bg-white overflow-hidden"
+                     style="width: 290px; height: 480px; padding: 12px;"
+                     th:each="s : ${list}">
+                    <div class="product-image-wrapper mb-3" style="height: 400px; overflow: hidden;">
+                        <a th:href="@{'/home/san-pham-chi-tiet/' + ${s.id}}">
+                            <img th:src="@{'/images/' + ${s.hinhAnh}}"
+                                 alt="Ảnh sản phẩm"
+                                 class="w-100"
+                                 style="height: 100%; object-fit: cover;">
+                        </a>
+                    </div>
+                    <div class="d-flex flex-column justify-content-between" style="height: 100px;">
+                        <div class="product-title fs-5 fw-semibold text-truncate" th:text="${s.tenSach}">Tên
+                            sách
+                        </div>
+                        <div class="product-price text-danger fw-bold fs-5"
+                             th:text="${#numbers.formatDecimal(s.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                            726.000 đ
+                        </div>
+                    </div>
+                </div>
 
+            </div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function () {
-            // Handle tăng/giảm số lượng
-            document.querySelector(".btn-minus")?.addEventListener("click", function () {
-                const input = document.getElementById('quantity');
-                const value = parseInt(input.value);
-                if (value > 1) {
-                    input.value = value - 1;
-                    document.getElementById('soLuongInput').value = input.value;
-                }
+
+            // Chỉ cho phép nhập số
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('input', function () {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
             });
 
-            document.querySelector(".btn-plus")?.addEventListener("click", function () {
-                const input = document.getElementById('quantity');
-                input.value = parseInt(input.value) + 1;
-                document.getElementById('soLuongInput').value = input.value;
+            // Thay đổi số lượng bằng cách nhập tay
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function () {
+                    const id = this.getAttribute('data-id');
+                    const max = parseInt(this.getAttribute('data-max'));
+                    const min = parseInt(this.getAttribute('data-min')) || 1;
+                    let value = parseInt(this.value);
+
+                    if (isNaN(value) || value < min) {
+                        showToast('Số lượng phải lớn hơn 0');
+                        this.value = min;
+                        updateQuantity(id, min);
+                    } else if (value > max) {
+                        showToast('Vượt quá số lượng còn lại trong kho');
+                        this.value = max;
+                        updateQuantity(id, max);
+                    } else {
+                        updateQuantity(id, value);
+                    }
+                    updatePlusButtonState(id);
+                });
+            });
+
+            // Giảm số lượng
+            document.querySelectorAll('.btn-minus').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const input = document.querySelector(`.quantity-input[data-id='${id}']`);
+                    let value = parseInt(input.value);
+                    const min = parseInt(input.getAttribute('data-min')) || 1;
+                    if (value > min) {
+                        value--;
+                        input.value = value;
+                        updateQuantity(id, value);
+                        updatePlusButtonState(id);
+                    }
+                });
+            });
+
+            //Tăng số lượng
+            document.querySelectorAll('.btn-plus').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const input = document.querySelector(`.quantity-input[data-id='${id}']`);
+                    const max = parseInt(input.getAttribute('data-max'));
+                    let value = parseInt(input.value);
+
+                    if (value < max) {
+                        value++;
+                        input.value = value;
+                        updateQuantity(id, value);
+                        updatePlusButtonState(id);
+                    }
+                });
+            });
+
+            // Disable nút + nếu đạt giới hạn số lượng tồn
+            function updatePlusButtonState(id) {
+                const input = document.querySelector(`.quantity-input[data-id='${id}']`);
+                const btnPlus = document.querySelector(`.btn-plus[data-id='${id}']`);
+                const max = parseInt(input.getAttribute('data-max'));
+                const current = parseInt(input.value);
+
+                if (btnPlus) {
+                    btnPlus.disabled = current >= max;
+                }
+            }
+
+            // Cập nhật trạng thái các nút + ban đầu
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                const id = input.getAttribute('data-id');
+                updatePlusButtonState(id);
             });
 
             document.querySelector("form#formMuaNgay").addEventListener("submit", function () {
-                const soLuong = document.getElementById("quantity").value;
+                const soLuong = document.querySelector('.quantity-input').value;
                 document.getElementById("hiddenQuantityInput").value = soLuong;
             });
 
             //Thêm sản phẩm vào giỏ
             document.querySelector(".btn-add-to-cart")?.addEventListener("click", function () {
                 const idSach = this.getAttribute("data-id");
-                const soLuong = document.getElementById("quantity").value;
+                const soLuong = document.querySelector('.quantity-input').value;
 
-                const params = new URLSearchParams({ idSach: idSach, soLuong: soLuong });
+                const params = new URLSearchParams({idSach: idSach, soLuong: soLuong});
 
                 fetch(`/cart/add?${params}`, {method: 'POST'})
                     .then(res => res.json())
                     .then(data => {
                         if (data.status === "success") {
                             showToast("Đã thêm vào giỏ hàng!");
-                            setTimeout(() => location.reload(), 1000);
                             updateCartCount(data.cartItemCount);
                         } else {
                             showToast(data.message || "Thêm vào giỏ thất bại");
@@ -235,12 +358,15 @@
 
             //Hàm show toast
             function showToast(message) {
+                const toastElement = document.getElementById("toastSuccess");
                 const toastBody = document.getElementById("toastBody");
                 toastBody.textContent = message;
-
-                const toastElement = document.getElementById("toastSuccess");
                 const toast = new bootstrap.Toast(toastElement);
                 toast.show();
+
+                setTimeout(() => {
+                    toast.hide();
+                }, 2000);
             }
 
             //Hàm cập nhật lại số lượng sản phẩm trong giỏ

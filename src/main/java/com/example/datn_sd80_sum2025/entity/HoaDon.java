@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -33,7 +34,7 @@ public class HoaDon {
     private PhieuGiamGia phieuGiamGia;
 
     @Column(name = "ngay_lap", nullable = false)
-    private LocalDate ngayLap;
+    private LocalDateTime ngayLap;
 
     @Column(name = "phuong_thuc_thanh_toan", nullable = false)
     private String phuongThucThanhToan;

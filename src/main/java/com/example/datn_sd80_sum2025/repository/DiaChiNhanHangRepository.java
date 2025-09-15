@@ -23,12 +23,16 @@ public interface DiaChiNhanHangRepository extends JpaRepository<DiaChiNhanHang, 
 
     @Query(value = """
                 SELECT * FROM dia_chi_nhan_hang
-                WHERE thanh_pho = :thanhPho 
+                WHERE ho_ten = :hoTen
+                AND sdt = :sdt
+                AND thanh_pho = :thanhPho 
                 AND quan_huyen = :quanHuyen 
                 AND phuong_xa = :phuongXa 
                 AND dia_chi_chi_tiet = :diaChiChiTiet
             """, nativeQuery = true)
     Optional<DiaChiNhanHang> findByFullAddress(
+            @Param("hoTen") String hoTen,
+            @Param("sdt") String sdt,
             @Param("thanhPho") String thanhPho,
             @Param("quanHuyen") String quanHuyen,
             @Param("phuongXa") String phuongXa,
