@@ -69,4 +69,21 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
             Pageable pageable
     );
 
+    @Query(value = """
+    SELECT DISTINCT hd.* 
+    FROM hoa_don hd
+    JOIN hoa_don_chi_tiet ct ON hd.id = ct.id_hoa_don
+    JOIN sach s ON ct.id_sach = s.id
+    WHERE hd.id_khach_hang = :idKhachHang
+    AND (:status IS NULL OR hd.trang_thai = :status)
+    AND (
+        :keyword IS NULL 
+        OR CAST(hd.id AS NVARCHAR) LIKE CONCAT('%', :keyword, '%')
+        OR LOWER(s.ten_sach) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    )
+    """, nativeQuery = true)
+    List<HoaDon> searchOrders(@Param("idKhachHang") Integer idKhachHang,
+                              @Param("status") Integer status,
+                              @Param("keyword") String keyword);
+
 }

@@ -21,6 +21,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -48,11 +51,12 @@ public class ZaloPayService {
     private HoaDonChiTietService hoaDonChiTietService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     /**
-     * Tạo thanh toán trên ZaloPay
+     * Tạo payment trên ZaloPay, có thể truyền callbackUrl (ngrok hoặc production)
      */
-    public String createPayment(HoaDon hoaDon, String paymentMethod) throws JsonProcessingException {
+    public String createPayment(HoaDon hoaDon, String paymentMethod, String callbackUrl) throws JsonProcessingException {
         String appTransId = generateAppTransId(hoaDon.getId());
 
         Map<String, Object> embedData = Map.of(
@@ -72,14 +76,10 @@ public class ZaloPayService {
         String embedDataStr = objectMapper.writeValueAsString(embedData);
         String itemStr = objectMapper.writeValueAsString(items);
         long amount = hoaDon.getTongTien().longValue();
-        String appUser = (hoaDon.getKhachHang() != null)
-                ? hoaDon.getKhachHang().getId().toString()
-                : "guest";
+        String appUser = (hoaDon.getKhachHang() != null) ? hoaDon.getKhachHang().getId().toString() : "guest";
         long appTime = System.currentTimeMillis();
 
-        String data = appId + "|" + appTransId + "|" + appUser + "|" + amount + "|"
-                + appTime + "|" + embedDataStr + "|" + itemStr;
-
+        String data = appId + "|" + appTransId + "|" + appUser + "|" + amount + "|" + appTime + "|" + embedDataStr + "|" + itemStr;
         String mac = HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, key1, data);
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -94,23 +94,30 @@ public class ZaloPayService {
         body.add("mac", mac);
         body.add("payment_method", paymentMethod);
 
+        // Thêm callbackUrl nếu có
+        if (callbackUrl != null && !callbackUrl.isEmpty()) {
+            body.add("callback_url", callbackUrl);
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-        log.debug("ZaloPay createPayment request: {}", body);
+        log.info("ZaloPay createPayment request body: {}", body);
 
         String rawResponse = restTemplate.postForObject(createEndpoint, request, String.class);
-        log.debug("ZaloPay raw response: {}", rawResponse);
+        log.info("ZaloPay raw response: {}", rawResponse);
 
         Map<String, Object> respMap = objectMapper.readValue(rawResponse, Map.class);
         if (respMap != null && respMap.containsKey("order_url")) {
+            scheduleCancel(hoaDon.getId(), appTransId, 15);
             return (String) respMap.get("order_url");
+        } else {
+            log.error("ZaloPay trả về response không có order_url: {}", rawResponse);
+            throw new RuntimeException("ZaloPay error response: " + rawResponse);
         }
-
-        throw new RuntimeException("ZaloPay error response: " + rawResponse);
     }
 
     private String generateAppTransId(Integer hoaDonId) {
@@ -118,13 +125,10 @@ public class ZaloPayService {
         return LocalDate.now().format(formatter) + "_" + hoaDonId + "_" + System.currentTimeMillis();
     }
 
-    /**
-     * Kiểm tra trạng thái thanh toán qua API query
-     */
     public void checkPaymentStatus(Integer idHoaDon, String appTransId) {
         try {
-            String data = appId + "|" + appTransId + "|" + key2;
-            String mac = HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, key2, data);
+            String data = appId + "|" + appTransId + "|" + key1;
+            String mac = HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, key1, data);
 
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("app_id", appId);
@@ -138,29 +142,24 @@ public class ZaloPayService {
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
             String rawResponse = restTemplate.postForObject(statusEndpoint, request, String.class);
-            log.debug("ZaloPay checkPaymentStatus raw response: {}", rawResponse);
+            log.info("ZaloPay checkPaymentStatus raw response: {}", rawResponse);
 
             Map<String, Object> respMap = objectMapper.readValue(rawResponse, Map.class);
 
-            if (respMap != null && (Integer) respMap.get("return_code") == 1) {
-                int status = (int) respMap.get("return_code");
-                if (status == 1) {
-                    hoaDonService.updateStatus(idHoaDon, 1); // thành công
-                }
+            if (respMap != null && respMap.get("return_code") != null && ((Number) respMap.get("return_code")).intValue() == 1) {
+                hoaDonService.updateStatus(idHoaDon, 1);
             }
         } catch (Exception e) {
             log.error("Lỗi khi checkPaymentStatus cho hóa đơn #{}: {}", idHoaDon, e.getMessage(), e);
         }
     }
 
-    /**
-     * Xác thực callback từ ZaloPay
-     */
     public boolean verifyCallback(Map<String, Object> payload) {
         try {
+            if (payload.get("data") == null || payload.get("mac") == null) return false;
+
             String data = payload.get("data").toString();
             String reqMac = payload.get("mac").toString();
-
             String mac = HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, key2, data);
             return mac.equals(reqMac);
         } catch (Exception e) {
@@ -168,7 +167,28 @@ public class ZaloPayService {
             return false;
         }
     }
+
+    public void scheduleCancel(Integer idHoaDon, String appTransId, int minutes) {
+        long delay = TimeUnit.MINUTES.toMillis(minutes);
+        scheduler.schedule(() -> {
+            try {
+                HoaDon hoaDon = hoaDonService.getById(idHoaDon);
+                if (hoaDon != null && hoaDon.getTrangThai() == 0) {
+                    log.info("Timeout kiểm tra trạng thái HĐ #{}", idHoaDon);
+                    checkPaymentStatus(idHoaDon, appTransId);
+                    hoaDon = hoaDonService.getById(idHoaDon);
+                    if (hoaDon.getTrangThai() == 0) {
+                        hoaDonService.updateStatus(idHoaDon, 4); // Hủy
+                        log.warn("Hủy hóa đơn #{} vì quá hạn thanh toán", idHoaDon);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Lỗi xử lý timeout HĐ #{}: {}", idHoaDon, e.getMessage(), e);
+            }
+        }, delay, TimeUnit.MILLISECONDS);
+    }
 }
+
 
 
 

@@ -6,10 +6,41 @@
     <title>Danh sách đơn hàng</title>
 </head>
 <body>
-<main class="mt-4">
+<main class="">
     <div class="mx-auto" style="max-width: 1560px; padding: 20px">
         <div class="row">
             <div class="col-md-12">
+                <!--Thanh tìm kiếm-->
+                <div class="bg-white rounded shadow-sm p-3 mb-4">
+                    <form class="row g-3 align-items-center" method="get" action="/home/orders">
+                        <!-- Ô nhập mã đơn / tên sản phẩm -->
+                        <div class="col-6">
+                            <input type="text" class="form-control" name="keyword"
+                                   placeholder="Nhập mã đơn hoặc tên sản phẩm"
+                                   th:value="${keyword}">
+                        </div>
+
+                        <!-- Tìm theo trạng thái -->
+                        <div class="col-3">
+                            <select class="form-select" name="searchStatus">
+                                <option th:value="null" th:selected="${selectedStatus  == null}">-- Tất cả trạng thái
+                                    --
+                                </option>
+                                <option th:value="0" th:selected="${selectedStatus  == 0}">Chờ thanh toán</option>
+                                <option th:value="1" th:selected="${selectedStatus  == 1}">Chờ xác nhận</option>
+                                <option th:value="2" th:selected="${selectedStatus  == 2}">Đang giao</option>
+                                <option th:value="3" th:selected="${selectedStatus  == 3}">Hoàn thành</option>
+                                <option th:value="4" th:selected="${selectedStatus  == 4}">Đã hủy</option>
+                            </select>
+                        </div>
+
+                        <!-- Nút tìm kiếm -->
+                        <div class="col-3 text-end">
+                            <button type="submit" class="btn btn-primary w-50">Tìm kiếm</button>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- Tabs thống kê trạng thái -->
                 <div class="bg-white rounded shadow-sm p-3 mb-4">
                     <div class="d-flex justify-content-between text-center fw-bold">
@@ -26,7 +57,8 @@
                              onclick="window.location.href='/home/orders?status=0'"
                              th:classappend="${currentStatus == 0} ? 'text-danger border-bottom border-danger' : ''">
                             <div th:text="${countStatus0}" class="fs-5">0</div>
-                            <div th:classappend="${currentStatus == 0} ? 'text-danger' : 'text-muted'">Chờ thanh toán</div>
+                            <div th:classappend="${currentStatus == 0} ? 'text-danger' : 'text-muted'">Chờ thanh toán
+                            </div>
                         </div>
 
                         <!-- 1 - Chờ xác nhận -->
@@ -34,7 +66,8 @@
                              onclick="window.location.href='/home/orders?status=1'"
                              th:classappend="${currentStatus == 1} ? 'text-danger border-bottom border-danger' : ''">
                             <div th:text="${countStatus1}" class="fs-5">0</div>
-                            <div th:classappend="${currentStatus == 1} ? 'text-danger' : 'text-muted'">Chờ xác nhận</div>
+                            <div th:classappend="${currentStatus == 1} ? 'text-danger' : 'text-muted'">Chờ xác nhận
+                            </div>
                         </div>
 
                         <!-- 2 - Đang giao -->
@@ -67,16 +100,36 @@
                 <div th:each="item : ${listHD}" class="bg-white rounded shadow-sm p-3 mb-4">
                     <!-- Header đơn -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <a th:href="@{'/home/orders/detail/' + ${item.id}}"
-                           class="fw-bold text-decoration-none text-primary"
-                           th:text="'#' + ${item.id}"></a>
-                        <span th:switch="${item.trangThai}">
-                            <span th:case="0" class="badge bg-secondary">Chờ thanh toán</span>
-                            <span th:case="1" class="badge bg-warning text-dark">Chờ xác nhận</span>
-                            <span th:case="2" class="badge bg-primary">Đang giao</span>
-                            <span th:case="3" class="badge bg-success">Hoàn thành</span>
-                            <span th:case="4" class="badge bg-danger">Bị hủy</span>
-                        </span>
+                        <div class="d-flex align-items-center">
+                            <a th:href="@{'/home/orders/detail/' + ${item.id}}"
+                               class="fw-bold text-decoration-none text-primary"
+                               th:text="'#' + ${item.id}"></a>
+                            <span th:switch="${item.trangThai}" class="ms-5">
+                                <span th:case="0" class="badge bg-secondary me-5">Chờ thanh toán</span>
+                                <span th:case="1" class="badge bg-warning text-dark me-5">Chờ xác nhận</span>
+                                <span th:case="2" class="badge bg-primary me-5">Đang giao</span>
+                                <span th:case="3" class="badge bg-success me-5">Hoàn thành</span>
+                                <span th:case="4" class="badge bg-danger me-5">Bị hủy</span>
+                            </span>
+
+                            <!-- Đồng hồ đếm ngược -->
+                            <div th:if="${item.trangThai == 0}" class="mt-1 text-danger small"
+                                 th:id="'countdown-container-' + ${item.id}">
+                                Vui lòng thanh toán đơn hàng trong vòng:
+                                <span th:id="'countdown-' + ${item.id}">--:--</span>
+                            </div>
+
+                            <!-- Toast -->
+                            <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1055;"></div>
+                            <div id="toastTemplate" class="toast align-items-center text-white bg-danger border-0" role="alert"
+                                 aria-live="assertive" aria-atomic="true" style="display:none; min-width: 250px; white-space: nowrap;">
+                                <div class="d-flex">
+                                    <div class="toast-body" id="toastMessage"></div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                            aria-label="Close"></button>
+                                </div>
+                            </div>
+                        </div>
                         <div class="text-muted small"
                              th:text="${#temporals.format(item.ngayLap, 'dd/MM/yyyy')}"></div>
                     </div>
@@ -96,6 +149,16 @@
                             <strong th:text="'Tổng tiền: ' + ${#numbers.formatDecimal(item.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></strong>
                         </div>
                         <div>
+                            <!-- Nút thanh toán-->
+                            <button th:if="${item.trangThai == 0}" class="btn btn-danger btn-sm"
+                                    th:onclick="'location.href=\'/checkout/' + *{id} + '\''">
+                                Thanh toán
+                            </button>
+                            <!-- Nút mua lại-->
+                            <a th:if="${item.trangThai == 3 or item.trangThai == 4}"
+                               th:href="@{'/home/checkout?selectedIds=' + ${sachIdsMap[item.id]}
+            + '&quantities=' + ${#strings.arrayJoin(chiTietMap[item.id].![soLuong], ',')}}"
+                               class="btn btn-danger btn-sm">Mua lại</a>
                             <form th:if="${item.trangThai == 0 or item.trangThai == 1}"
                                   th:id="'cancelForm-' + ${item.id}"
                                   th:action="@{'/home/orders/cancel/' + ${item.id}}" method="post"
@@ -130,14 +193,71 @@
                                     </div>
                                 </div>
                             </form>
-                            <a th:href="@{'/home/checkout?selectedIds=' + ${sachIdsMap[item.id]}}"
-                               class="btn btn-danger btn-sm">Mua lại</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const csrfMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+            const csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.getAttribute('content') : '';
+
+            var orders = /*[[${jsOrders}]]*/ [];
+
+            orders.forEach(order => {
+                const countdownEl = document.getElementById("countdown-" + order.id);
+                if(!countdownEl) return;
+
+                const timer = setInterval(() => {
+                    const now = new Date().getTime();
+                    let diff = order.expireMillis - now;
+
+                    if(diff <= 0){
+                        countdownEl.innerText = "00:00";
+
+                        // POST auto-cancel
+                        fetch('/home/orders/auto-cancel/' + order.id, {
+                            method: 'POST',
+                            headers: { [csrfHeader]: csrfToken }
+                        })
+                            .then(res => res.text())
+                            .then(data => {
+                                // Cập nhật badge
+                                const badge = countdownEl.closest('.d-flex').querySelector('.badge');
+                                if(badge){
+                                    badge.className = "badge bg-danger me-2";
+                                    badge.innerText = "Bị hủy";
+                                }
+                                // Ẩn countdown
+                                countdownEl.parentElement.style.display = 'none';
+
+                                // Hiển thị toast
+                                const toastTemplate = document.getElementById("toastTemplate");
+                                const toastContainer = document.getElementById("toastContainer");
+                                const newToast = toastTemplate.cloneNode(true);
+                                newToast.style.display = "block";
+                                newToast.id = "";
+                                newToast.querySelector("#toastMessage").innerText = "Đơn #" + order.id + " đã bị hủy do quá thời gian thanh toán!";
+                                toastContainer.appendChild(newToast);
+                                new bootstrap.Toast(newToast, { delay: 5000 }).show();
+                            });
+
+                        clearInterval(timer);
+                        return;
+                    }
+
+                    const minutes = Math.floor(diff / 1000 / 60);
+                    const seconds = Math.floor((diff / 1000) % 60);
+                    countdownEl.innerText = String(minutes).padStart(2,'0') + ":" + String(seconds).padStart(2,'0');
+                }, 1000);
+            });
+        });
+
+    </script>
 </main>
 
 </body>

@@ -40,5 +40,7 @@ public interface HoaDonService {
                         String priceRange,
                         Pageable pageable);
 
+    List<HoaDon> searchOrders(Integer idKhachHang, Integer status, String keyword);
+
 
 }

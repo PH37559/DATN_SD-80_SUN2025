@@ -62,6 +62,10 @@ public class GioHangController {
             listGHCT = new ArrayList<>();
         }
 
+        List<Sach> allBooks = sachService.getAll();
+        List<Sach> list = allBooks.size() > 15 ? allBooks.subList(0, 15) : allBooks;
+        model.addAttribute("list", list);
+
         session.setAttribute("listGHCT", listGHCT);
         model.addAttribute("gioHang", gioHang);
         model.addAttribute("listGHCT", listGHCT);

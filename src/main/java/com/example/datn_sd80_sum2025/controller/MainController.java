@@ -22,11 +22,14 @@ import com.example.datn_sd80_sum2025.service.HoaDonChiTietService;
 import com.example.datn_sd80_sum2025.service.HoaDonService;
 import com.example.datn_sd80_sum2025.service.KhachHangService;
 import com.example.datn_sd80_sum2025.service.sanpham.SachService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,13 +39,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -189,19 +196,42 @@ public class MainController {
     @GetMapping("/orders")
     public String showOrder(
             @RequestParam(value = "status", required = false) Integer trangThai,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer searchStatus,
             Model model,
-            HttpSession session
+            HttpSession session,
+            HttpServletRequest request
     ) {
         KhachHang kh = (KhachHang) session.getAttribute("khachHang");
-        List<HoaDon> listHD;
-        int soDon = 0;
 
-        if (trangThai == null) {
-            listHD = hoaDonService.getByIdKH(kh.getId());
-            soDon = listHD.size();
-        } else {
+        List<HoaDon> allOrders = hoaDonService.getByIdKH(kh.getId());
+        model.addAttribute("countAll", allOrders.size());
+
+        List<HoaDon> listHD;
+        if (trangThai != null) {
             listHD = hoaDonService.getByIdKHAndTrangThai(kh.getId(), trangThai);
+        } else {
+            listHD = hoaDonService.searchOrders(kh.getId(), searchStatus, keyword);
         }
+
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        if (token != null) {
+            model.addAttribute("_csrf", token);
+        }
+
+        Map<Integer, Long> expireMap = new HashMap<>();
+        for (HoaDon hd : listHD) {
+            if (hd.getTrangThai() == 0) {
+                long expireMillis = hd.getNgayLap()
+                        .plusMinutes(15)
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli();
+                expireMap.put(hd.getId(), expireMillis);
+            }
+        }
+        model.addAttribute("expireMap", expireMap);
+
         Map<Integer, List<HoaDonChiTiet>> chiTietMap = new HashMap<>();
         Map<Integer, String> sachIdsMap = new HashMap<>();
 
@@ -215,12 +245,26 @@ public class MainController {
             sachIdsMap.put(hd.getId(), ids);
         }
 
+        // Controller: chuẩn bị danh sách orders chờ thanh toán cho JS
+        List<Map<String,Object>> jsOrders = listHD.stream()
+                .filter(hd -> hd.getTrangThai() == 0)
+                .map(hd -> {
+                    Map<String,Object> m = new HashMap<>();
+                    m.put("id", hd.getId());
+                    m.put("expireMillis", expireMap.get(hd.getId()));
+                    return m;
+                }).collect(Collectors.toList());
+
+        model.addAttribute("jsOrders", jsOrders);
+
+
         model.addAttribute("listHD", listHD);
+        model.addAttribute("selectedStatus", searchStatus);
+        model.addAttribute("keyword", keyword);
         model.addAttribute("chiTietMap", chiTietMap);
         model.addAttribute("sachIdsMap", sachIdsMap);
         model.addAttribute("currentStatus", trangThai);
 
-        model.addAttribute("countAll", soDon);
         model.addAttribute("countStatus0", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 0));
         model.addAttribute("countStatus1", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 1));
         model.addAttribute("countStatus2", hoaDonService.countByIdKHAndTrangThai(kh.getId(), 2));
@@ -230,17 +274,10 @@ public class MainController {
         return "khach-hang/customer/don-hang/list";
     }
 
-    @GetMapping("/find-order")
-    public String showFormFindOrder(Model model){
-        List<Sach> allBooks = sachService.getAll();
-        List<Sach> list = allBooks.size() > 15 ? allBooks.subList(0, 15) : allBooks;
-        model.addAttribute("list", list);
-        return "khach-hang/customer/don-hang/find_order";
-    }
-
     @GetMapping("/orders/detail/{id}")
     public String showOrderDetail(
             @PathVariable Integer id,
+            HttpServletRequest request,
             Model model
     ) {
         HoaDon hd = hoaDonService.getById(id);
@@ -249,9 +286,34 @@ public class MainController {
             return "khach-hang/customer/don-hang/find_order";
         }
         List<HoaDonChiTiet> listHDCT = hoaDonChiTietService.getByHoaDonId(id);
+
+        CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
+        if (token != null) {
+            model.addAttribute("_csrf", token);
+        }
+
+        if ("Zalopay".equalsIgnoreCase(hd.getPhuongThucThanhToan()) && hd.getTrangThai() == 0) {
+            long expireMillis = hd.getNgayLap()
+                    .plusMinutes(15)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli();
+            model.addAttribute("expireMillis", expireMillis);
+        } else {
+            model.addAttribute("expireMillis", 0); // luôn có giá trị
+        }
+
         model.addAttribute("hoaDon", hd);
         model.addAttribute("listHDCT", listHDCT);
         return "khach-hang/customer/don-hang/detail";
+    }
+
+    @GetMapping("/find-order")
+    public String showFormFindOrder(Model model){
+        List<Sach> allBooks = sachService.getAll();
+        List<Sach> list = allBooks.size() > 15 ? allBooks.subList(0, 15) : allBooks;
+        model.addAttribute("list", list);
+        return "khach-hang/customer/don-hang/find_order";
     }
 
     @PostMapping("/orders/cancel/{id}")
@@ -269,6 +331,17 @@ public class MainController {
             sachService.save(sach);
         }
         return "redirect:/home/orders";
+    }
+
+    @PostMapping("/orders/auto-cancel/{id}")
+    @ResponseBody
+    public ResponseEntity<String> autoCancelOrder(@PathVariable Integer id) {
+        HoaDon hd = hoaDonService.getById(id);
+        if (hd == null || hd.getTrangThai() != 0) {
+            return ResponseEntity.badRequest().body("Không thể hủy đơn");
+        }
+        hoaDonService.updateStatus(id, 4);
+        return ResponseEntity.ok("Đã hủy đơn");
     }
 
     @GetMapping("/checkout")
@@ -381,7 +454,7 @@ public class MainController {
         }
 
         // Thanh toán tiền mặt
-        return "redirect:/home/sach";
+        return "redirect:/home/orders/detail/"+hoaDon.getId();
     }
 
 

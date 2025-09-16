@@ -41,17 +41,6 @@
                 <span class="text-danger small d-block" style="min-height: 1.5rem"
                       th:text="${#fields.hasErrors('sdt')} ? ${#fields.errors('sdt')[0]} : ''"></span>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Phương thức nhận OTP</label>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-primary flex-fill">Tin nhắn SMS</button>
-                    <button type="button" class="btn btn-outline-secondary flex-fill" disabled>Zalo ZNS</button>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="otp" class="form-label">Mã xác nhận OTP</label>
-                <input type="text" class="form-control" id="otp" name="otp" placeholder="6 ký tự">
-            </div>
             <div class="col-md-6">
                 <label class="form-label">Tên tài khoản</label>
                 <input type="text" th:field="*{tenTaiKhoan}" class="form-control"

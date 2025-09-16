@@ -3,13 +3,13 @@
       th:replace="~{/khach-hang/customer/index :: dynamic(~{::main})}">
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách đơn hàng</title>
+    <title>Đơn hàng</title>
 </head>
 <body>
-<main class="mt-4">
+<main class="">
     <div class="mx-auto" style="max-width: 1560px; padding: 20px">
-        <div class="row">
-            <div class="col-md-12" th:object="${hoaDon}">
+        <div class="row" th:object="${hoaDon}">
+            <div class="col-md-12">
                 <div class="bg-white rounded shadow-sm p-3 mb-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -26,8 +26,26 @@
                             <small>Ngày mua: <b th:text="*{#temporals.format(ngayLap, 'dd/MM/yyyy')}"></b></small>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between mt-3" th:object="${hoaDon}">
-                        <!-- Bước Chờ thanh toán (chỉ ZaloPay mới có) -->
+                    <!-- Countdown cho Zalopay -->
+                    <div th:if="*{trangThai == 0 and phuongThucThanhToan.equalsIgnoreCase('Zalopay')}"
+                         class="alert alert-warning mt-3 text-center" id="countdownBox">
+                        Vui lòng hoàn tất thanh toán trong vòng: <b id="countdown">--:--</b>
+                    </div>
+                    <!-- Toast hủy đơn sau khi hết thời gian thanh toán -->
+                    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+                        <div id="paymentExpireToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body" style="white-space: nowrap;">
+                                    Đơn hàng đã bị hủy do quá thời gian thanh toán!
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <!-- Chờ thanh toán -->
                         <div class="flex-fill text-center"
                              th:if="*{phuongThucThanhToan.equalsIgnoreCase('Zalopay')}"
                              th:classappend="*{(trangThai >= 0 && trangThai <=3)} ? ' fw-bold text-primary' :
@@ -97,50 +115,7 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="text-end mt-3">
-                            <form th:if="*{trangThai == 0 or trangThai == 1}"
-                                  th:id="'cancelForm-' + *{id}"
-                                  th:action="@{'/home/orders/cancel/' + *{id}}" method="post"
-                                  style="display:inline;">
 
-                                <!-- Nút mở modal xác nhận -->
-                                <button type="button" class="btn btn-outline-secondary btn-sm"
-                                        th:attr="data-bs-target='#confirmCancelModal-' + *{id}"
-                                        data-bs-toggle="modal">
-                                    Hủy đơn
-                                </button>
-
-                                <!-- Modal xác nhận -->
-                                <div class="modal fade" th:id="'confirmCancelModal-' + *{id}" tabindex="-1"
-                                     aria-labelledby="cancelModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy đơn</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Đóng"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                Bạn có chắc chắn muốn hủy đơn hàng này không?
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Không
-                                                </button>
-                                                <button type="button" class="btn btn-danger"
-                                                        th:attr="onclick='document.getElementById(\'cancelForm-' + *{id} + '\').submit()'">
-                                                    Có
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                            <button class="btn btn-danger btn-sm"
-                                    th:onclick="'location.href=\'/checkout/' + *{id} + '\''">
-                                Mua lại
-                            </button>
-                        </div>
                     </div>
                 </div>
                 <div class="card bg-white rounded shadow-sm p-3 mb-4">
@@ -156,20 +131,125 @@
                         </thead>
                         <tbody>
                         <tr th:each="hdct : ${listHDCT}">
-                            <td>
-                                <img th:src="@{'/images/' + ${hdct.sach.hinhAnh}}" width="50" class="me-2">
+                            <td class="align-middle text-start">
+                                <img th:src="@{'/images/' + ${hdct.sach.hinhAnh}}"
+                                     class="me-2 border rounded"
+                                     style="height: 60px; width: auto; object-fit: contain;">
                                 <span th:text="${hdct.sach.tenSach}"></span>
                             </td>
-                            <td class="text-center" th:text="${#numbers.formatDecimal(hdct.sach.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-                            <td class="text-center" th:text="${hdct.soLuong}"></td>
-                            <td class="text-center" th:text="${#numbers.formatDecimal(hdct.soLuong * hdct.sach.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                            <td class="align-middle text-center"
+                                th:text="${#numbers.formatDecimal(hdct.sach.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                            <td class="align-middle text-center" th:text="${hdct.soLuong}"></td>
+                            <td class="align-middle text-center"
+                                th:text="${#numbers.formatDecimal(hdct.soLuong * hdct.sach.giaBan, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
                         </tr>
                         </tbody>
                     </table>
+                    <div class="text-end mt-3">
+                        <!-- Nút thanh toán -->
+                        <button th:if="*{trangThai == 0}"
+                                class="btn btn-danger btn-sm"
+                                th:onclick="|location.href='/payment/create/${id}'|">
+                            Thanh toán
+                        </button>
+                        <!-- Nút mua lại-->
+                        <button th:if="*{trangThai == 3 or trangThai == 4}"
+                                class="btn btn-danger btn-sm">Mua lại
+                        </button>
+                        <!-- Nút hủy đơn-->
+                        <form th:if="*{trangThai == 0 or trangThai == 1}"
+                              th:id="'cancelForm-' + *{id}"
+                              th:action="@{'/home/orders/cancel/' + *{id}}" method="post"
+                              style="display:inline;">
+
+                            <!-- Nút mở modal xác nhận -->
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    th:attr="data-bs-target='#confirmCancelModal-' + *{id}"
+                                    data-bs-toggle="modal">
+                                Hủy đơn
+                            </button>
+
+                            <!-- Modal xác nhận -->
+                            <div class="modal fade" th:id="'confirmCancelModal-' + *{id}" tabindex="-1"
+                                 aria-labelledby="cancelModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy đơn</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Đóng"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Bạn có chắc chắn muốn hủy đơn hàng này không?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Không
+                                            </button>
+                                            <button type="button" class="btn btn-danger"
+                                                    th:attr="onclick='document.getElementById(\'cancelForm-' + *{id} + '\').submit()'">
+                                                Có
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const csrfMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+            const csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.getAttribute('content') : '';
+
+            const countdownEl = document.getElementById("countdown");
+            const expireMillis = /*[[${expireMillis}]]*/ 0;
+            const orderId = /*[[${hoaDon.id}]]*/ 0;
+
+            const toastEl = document.getElementById('paymentExpireToast');
+            const toast = new bootstrap.Toast(toastEl);
+
+            if (countdownEl && expireMillis > 0) {
+                function updateCountdown() {
+                    const now = new Date().getTime();
+                    let diff = expireMillis - now;
+
+                    if (diff <= 0) {
+                        countdownEl.innerText = "00:00";
+
+                        // Tự động hủy đơn
+                        fetch('/home/orders/auto-cancel/' + orderId, {
+                            method: 'POST',
+                            headers: {
+                                [csrfHeader]: csrfToken
+                            }
+                        }).then(res => {
+                            if (res.ok) {
+                                toast.show();
+                                setTimeout(() => location.reload(), 3000);
+                            }
+                        });
+
+                        clearInterval(timer);
+                        return;
+                    }
+
+                    const minutes = Math.floor(diff / 1000 / 60);
+                    const seconds = Math.floor((diff / 1000) % 60);
+                    countdownEl.innerText = String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+                }
+
+                updateCountdown();
+                const timer = setInterval(updateCountdown, 1000);
+            }
+        });
+    </script>
 </main>
 </body>
 </html>

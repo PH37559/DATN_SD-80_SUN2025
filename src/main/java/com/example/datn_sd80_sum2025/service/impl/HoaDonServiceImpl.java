@@ -120,6 +120,10 @@ public class HoaDonServiceImpl implements HoaDonService {
         );
     }
 
+    @Override
+    public List<HoaDon> searchOrders(Integer idKhachHang, Integer status, String keyword) {
+        return hoaDonRepository.searchOrders(idKhachHang, status, keyword);
+    }
 
     private Integer toMMdd(LocalDate date) {
         return (date == null) ? null : date.getMonthValue() * 100 + date.getDayOfMonth();
