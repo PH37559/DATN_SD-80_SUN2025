@@ -21,13 +21,16 @@
                     </p>
                     <p><strong>Trạng thái: </strong>
                         <span th:switch="${hoaDon.trangThai}">
-                    <span th:case="0" class="badge bg-secondary">Chờ thanh toán</span>
-                    <span th:case="1" class="badge bg-warning text-dark">Chờ xác nhận</span>
-                    <span th:case="2" class="badge bg-primary">Đang giao</span>
-                    <span th:case="3" class="badge bg-success">Hoàn thành</span>
-                    <span th:case="4" class="badge bg-danger">Bị huỷ</span>
-                    <span th:case="*" class="badge bg-dark">Không xác định</span>
-                </span>
+                            <span th:case="0" class="badge bg-secondary">Chờ thanh toán</span>
+                            <span th:case="1" class="badge bg-warning text-dark">Chờ xác nhận</span>
+                            <span th:case="2" class="badge bg-primary">Đang giao</span>
+                            <span th:case="3" class="badge bg-success">Hoàn thành</span>
+                            <span th:case="4" class="badge bg-danger">Bị huỷ</span>
+                            <span th:case="*" class="badge bg-dark">Không xác định</span>
+                        </span>
+                        <span th:if="${hoaDon.trangThai == 0}" class="ms-2">
+                            <span id="countdown" th:data-time="${ngayLapMillis}">--:--</span>
+                        </span>
                     </p>
                 </div>
             </div>
@@ -58,13 +61,31 @@
     <div class="mt-3">
         <a href="/hoa-don/hien-thi" class="btn btn-secondary">Quay lại</a>
 
-        <!-- Hiển thị nút khi trạng thái = 1 -->
-        <div th:if="${hoaDon.trangThai == 1}" class="d-inline-block ms-2">
-            <button class="btn btn-success" onclick="showConfirm('confirm')">Xác nhận đơn</button>
-            <button class="btn btn-danger ms-2" onclick="showConfirm('cancel')">Hủy đơn</button>
+        <!-- Hiển thị nút khi trạng thái = 1 hoặc 2 -->
+        <div th:if="${hoaDon.trangThai == 1 or hoaDon.trangThai == 2}" class="d-inline-block ms-2">
+            <button th:if="${hoaDon.trangThai == 1}" class="btn btn-success" onclick="showConfirm('confirm')">Xác nhận đơn</button>
+            <button th:if="${hoaDon.trangThai == 1}" class="btn btn-danger ms-2" onclick="showConfirm('cancel')">Hủy đơn</button>
+            <button th:if="${hoaDon.trangThai == 2}" class="btn btn-primary" onclick="showConfirm('complete')">Hoàn thành đơn</button>
         </div>
     </div>
 
+    <!-- Modal thông báo quyền -->
+    <div class="modal fade" id="accessDeniedModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Thông báo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn không có quyền thực hiện hành động này!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal confirm -->
     <div class="modal fade" id="confirmModal" tabindex="-1">
@@ -96,13 +117,50 @@
     </div>
 
     <script th:inline="javascript">
+        /*<![CDATA[*/
+        //Đồng hồ đếm ngược cho thanh toán = zalopay
+        let countdownEl = document.getElementById("countdown");
+        if(countdownEl){
+            let ngayLapMillis = parseInt(countdownEl.getAttribute("data-time"));
+            let countDownTime = ngayLapMillis + 15*60*1000;
+
+            let countdownInterval = setInterval(function() {
+                let now = new Date().getTime();
+                let distance = countDownTime - now;
+
+                if(distance <= 0){
+                    clearInterval(countdownInterval);
+                    countdownEl.innerText = "Đã hết hạn thanh toán";
+
+                    const id = /*[[${hoaDon.id}]]*/ 0;
+                    fetch(`/hoa-don/auto-cancel/${id}`, { method: 'POST' })
+                        .then(res => {
+                            if(res.ok) showToast('Đơn hàng đã bị hủy do quá hạn thanh toán!', true);
+                            else showToast('Có lỗi khi hủy đơn tự động!', true);
+                            setTimeout(() => location.reload(), 1500);
+                        });
+                } else {
+                    let minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
+                    let seconds = Math.floor((distance % (1000*60)) / 1000);
+                    countdownEl.innerText = minutes.toString().padStart(2,'0') + ":" + seconds.toString().padStart(2,'0');
+                }
+            }, 1000);
+        }
+
+        //Các nút xác nhận, hủy, hoàn thành đơn
         let currentAction = null;
 
         function showConfirm(action) {
             currentAction = action;
-            const msg = action === 'confirm'
-                ? 'Bạn có chắc chắn muốn xác nhận đơn hàng này?'
-                : 'Bạn có chắc chắn muốn hủy đơn hàng này?';
+            let msg = '';
+            if (action === 'confirm') {
+                msg = 'Bạn có chắc chắn muốn xác nhận đơn hàng này?';
+            } else if (action === 'cancel') {
+                msg = 'Bạn có chắc chắn muốn hủy đơn hàng này?';
+            } else if (action === 'complete') {
+                msg = 'Bạn có chắc chắn muốn hoàn thành đơn hàng này?';
+            }
+
             document.getElementById("confirmMessage").innerText = msg;
             const modal = new bootstrap.Modal(document.getElementById("confirmModal"));
             modal.show();
@@ -115,17 +173,24 @@
 
         function updateOrderStatus(action) {
             const id = /*[[${hoaDon.id}]]*/ 0;
-            const url = action === 'confirm'
-                ? `/hoa-don/confirm/${id}`
-                : `/hoa-don/cancel/${id}`;
+            let url = '';
+            if (action === 'confirm') url = `/hoa-don/confirm/${id}`;
+            else if (action === 'cancel') url = `/hoa-don/cancel/${id}`;
+            else if (action === 'complete') url = `/hoa-don/complete/${id}`;
 
-            fetch(url, {method: 'POST'})
+            fetch(url, { method: 'POST' })
                 .then(res => {
                     if (res.ok) {
-                        showToast(action === 'confirm'
-                            ? 'Đơn hàng đã được xác nhận!'
-                            : 'Đơn hàng đã bị hủy!');
+                        let message = '';
+                        if (action === 'confirm') message = 'Đơn hàng đã được xác nhận!';
+                        else if (action === 'cancel') message = 'Đơn hàng đã bị hủy!';
+                        else if (action === 'complete') message = 'Đơn hàng đã hoàn thành!';
+                        showToast(message);
                         setTimeout(() => location.reload(), 1500);
+                    } else if (res.status === 403) {
+                        // Mở modal thông báo quyền
+                        const modal = new bootstrap.Modal(document.getElementById('accessDeniedModal'));
+                        modal.show();
                     } else {
                         showToast('Có lỗi xảy ra!', true);
                     }
@@ -140,6 +205,7 @@
             const toast = new bootstrap.Toast(toastEl);
             toast.show();
         }
+        /* ]]> */
     </script>
 </div>
 

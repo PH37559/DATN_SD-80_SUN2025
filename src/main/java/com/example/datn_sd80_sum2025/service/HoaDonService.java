@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface HoaDonService {
     List<HoaDon> getAll();
@@ -42,5 +43,6 @@ public interface HoaDonService {
 
     List<HoaDon> searchOrders(Integer idKhachHang, Integer status, String keyword);
 
+    HoaDon findByIdAndPhone(Integer idHoaDon, String sdt);
 
 }

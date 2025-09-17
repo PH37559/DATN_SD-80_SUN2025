@@ -53,6 +53,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -186,7 +187,6 @@ public class MainController {
         return "redirect:/home/sach";
     }
 
-
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
@@ -203,6 +203,10 @@ public class MainController {
             HttpServletRequest request
     ) {
         KhachHang kh = (KhachHang) session.getAttribute("khachHang");
+
+        if (kh == null) {
+            return "redirect:/home/login";
+        }
 
         List<HoaDon> allOrders = hoaDonService.getByIdKH(kh.getId());
         model.addAttribute("countAll", allOrders.size());
@@ -281,10 +285,7 @@ public class MainController {
             Model model
     ) {
         HoaDon hd = hoaDonService.getById(id);
-        if (hd == null) {
-            model.addAttribute("error", "Không tìm thấy đơn hàng!");
-            return "khach-hang/customer/don-hang/find_order";
-        }
+
         List<HoaDonChiTiet> listHDCT = hoaDonChiTietService.getByHoaDonId(id);
 
         CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
@@ -300,7 +301,7 @@ public class MainController {
                     .toEpochMilli();
             model.addAttribute("expireMillis", expireMillis);
         } else {
-            model.addAttribute("expireMillis", 0); // luôn có giá trị
+            model.addAttribute("expireMillis", 0);
         }
 
         model.addAttribute("hoaDon", hd);
@@ -313,7 +314,24 @@ public class MainController {
         List<Sach> allBooks = sachService.getAll();
         List<Sach> list = allBooks.size() > 15 ? allBooks.subList(0, 15) : allBooks;
         model.addAttribute("list", list);
-        return "khach-hang/customer/don-hang/find_order";
+        return "khach-hang/customer/don-hang/find_order"; }
+
+    @PostMapping("/find-order")
+    public String findOrder(
+            @RequestParam("id") Integer id,
+            @RequestParam("sdt") String sdt,
+            Model model) {
+        HoaDon hd = hoaDonService.findByIdAndPhone(id, sdt);
+
+        if (hd == null) {
+            model.addAttribute("error", "Không tìm thấy đơn hàng với thông tin đã nhập!");
+            List<Sach> allBooks = sachService.getAll();
+            List<Sach> list = allBooks.size() > 15 ? allBooks.subList(0, 15) : allBooks;
+            model.addAttribute("list", list);
+            return "khach-hang/customer/don-hang/find_order";
+        }
+
+        return "redirect:/home/orders/detail/" + id;
     }
 
     @PostMapping("/orders/cancel/{id}")
@@ -330,7 +348,7 @@ public class MainController {
             sach.setSoLuong(sach.getSoLuong() + soLuongMua);
             sachService.save(sach);
         }
-        return "redirect:/home/orders";
+        return "redirect:/home/orders/detail/"+ id;
     }
 
     @PostMapping("/orders/auto-cancel/{id}")
@@ -342,6 +360,17 @@ public class MainController {
         }
         hoaDonService.updateStatus(id, 4);
         return ResponseEntity.ok("Đã hủy đơn");
+    }
+
+    @PostMapping("/orders/received/{id}")
+    public String confirmReceived(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            hoaDonService.updateStatus(id, 3);
+            redirectAttributes.addFlashAttribute("successMessage", "Xác nhận đã nhận hàng thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra, vui lòng thử lại.");
+        }
+        return "redirect:/home/orders/detail/"+id;
     }
 
     @GetMapping("/checkout")

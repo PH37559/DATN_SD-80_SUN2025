@@ -46,7 +46,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests()
                 .requestMatchers("/thong-ke/**", "/nhan-vien/**", "/chuc-vu/**").hasRole("ADMIN")
-                .requestMatchers("/hoa-don/delete/**", "/pgg/delete/**", "/khach-hang/delete/**",
+                .requestMatchers("/hoa-don/delete/**", "/hoa-don/cancel/**", "/pgg/delete/**", "/khach-hang/delete/**",
                         "/san-pham/delete/**", "/ngon-ngu/delete/**", "/nxb/delete/**", "/the-loai/delete/**").hasRole("ADMIN")
                 .requestMatchers
                         ("/trang-chu/**", "/hoa-don/**", "/pgg/**", "/khach-hang/**",

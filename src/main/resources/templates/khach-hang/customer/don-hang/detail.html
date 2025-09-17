@@ -10,6 +10,10 @@
     <div class="mx-auto" style="max-width: 1560px; padding: 20px">
         <div class="row" th:object="${hoaDon}">
             <div class="col-md-12">
+                <a th:href="${session.khachHang != null} ? '/home/orders' : '/home/find-order'"
+                   class="btn btn-secondary btn-sm mb-3">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
                 <div class="bg-white rounded shadow-sm p-3 mb-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -42,7 +46,6 @@
                             </div>
                         </div>
                     </div>
-
 
                     <div class="d-flex justify-content-between mt-3">
                         <!-- Chờ thanh toán -->
@@ -152,10 +155,52 @@
                                 th:onclick="|location.href='/payment/create/${id}'|">
                             Thanh toán
                         </button>
-                        <!-- Nút mua lại-->
-                        <button th:if="*{trangThai == 3 or trangThai == 4}"
-                                class="btn btn-danger btn-sm">Mua lại
-                        </button>
+                        <!-- Nút đã nhận hàng -->
+                        <form th:if="*{trangThai == 2}"
+                              th:id="'receivedForm-' + *{id}"
+                              th:action="@{'/home/orders/received/' + *{id}}" method="post"
+                              style="display:inline;">
+                            <!-- Nút mở modal xác nhận -->
+                            <button type="button" class="btn btn-success btn-sm"
+                                    th:attr="data-bs-target='#confirmReceivedModal-' + *{id}"
+                                    data-bs-toggle="modal">
+                                Đã nhận hàng
+                            </button>
+                            <!-- Modal xác nhận -->
+                            <div class="modal fade" th:id="'confirmReceivedModal-' + *{id}" tabindex="-1"
+                                 aria-labelledby="receivedModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="receivedModalLabel">Xác nhận đã nhận hàng</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Đóng"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            Bạn đã nhận được đơn hàng này?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Chưa
+                                            </button>
+                                            <button type="button" class="btn btn-success"
+                                                    th:attr="onclick='document.getElementById(\'receivedForm-' + *{id} + '\').submit()'">
+                                                Đã nhận
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Nút mua lại -->
+                        <a th:if="${session.khachHang != null and (hoaDon.trangThai == 3 or hoaDon.trangThai == 4)}"
+                           th:href="@{'/home/checkout?selectedIds=' + ${#strings.arrayJoin(listHDCT.![sach.id], ',')}
+                            + '&quantities=' + ${#strings.arrayJoin(listHDCT.![soLuong], ',')}}"
+                           class="btn btn-danger btn-sm">
+                            Mua lại
+                        </a>
+
                         <!-- Nút hủy đơn-->
                         <form th:if="*{trangThai == 0 or trangThai == 1}"
                               th:id="'cancelForm-' + *{id}"
@@ -179,7 +224,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                     aria-label="Đóng"></button>
                                         </div>
-                                        <div class="modal-body">
+                                        <div class="modal-body text-start">
                                             Bạn có chắc chắn muốn hủy đơn hàng này không?
                                         </div>
                                         <div class="modal-footer">

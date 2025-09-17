@@ -32,7 +32,7 @@ public class PaymentController {
 
     @Autowired private ZaloPayService zaloPayService;
     @Autowired private HoaDonService hoaDonService;
-    private final String callbackUrl = "https://e158b6018cd8.ngrok-free.app/payment/callback";
+    private final String callbackUrl = "https://f10538b14724.ngrok-free.app/payment/callback";
 
 
     @GetMapping("/create/{idHoaDon}")

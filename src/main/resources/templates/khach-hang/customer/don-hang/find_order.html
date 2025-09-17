@@ -14,13 +14,21 @@
                 <div class="lookup-form">
                     <h3>TRA CỨU ĐƠN HÀNG</h3>
                     <p>Vui lòng cung cấp thông tin để tra cứu đơn hàng.</p>
-                    <form id="lookupForm" th:action="@{/home/orders/detail/__id__}" method="get">
+                    <form th:action="@{/home/find-order}" method="post">
                         <!-- Mã đơn -->
                         <div class="mb-3 text-start">
                             <label class="form-label fw-bold">Mã đơn</label>
-                            <input type="text" id="orderId" name="id" class="form-control" placeholder="Nhập mã đơn"
-                                   required>
+                            <input type="text" id="orderId" name="id" class="form-control" placeholder="Nhập mã đơn" required>
                         </div>
+                        <!-- SĐT -->
+                        <div class="mb-3 text-start">
+                            <label class="form-label fw-bold">Số điện thoại</label>
+                            <input type="text" id="sdt" name="sdt" class="form-control" placeholder="Nhập số điện thoại" required>
+                        </div>
+
+                        <!-- Thông báo lỗi -->
+                        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
                         <!-- Nút tra cứu -->
                         <button type="submit" class="btn btn-warning">TRA CỨU NGAY</button>
                     </form>

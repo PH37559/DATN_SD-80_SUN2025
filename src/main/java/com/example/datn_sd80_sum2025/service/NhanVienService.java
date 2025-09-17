@@ -6,6 +6,7 @@ import com.example.datn_sd80_sum2025.entity.NhanVien;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NhanVienService {
     Page<NhanVien> getAll(int page, int size);
@@ -29,4 +30,5 @@ public interface NhanVienService {
     boolean existsByTaiKhoan(String tenTaiKhoan, Integer id);
 
     NhanVien findByTenTaiKhoan(String tenTaiKhoan);
+
 }

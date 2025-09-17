@@ -154,11 +154,48 @@
                                     th:onclick="'location.href=\'/checkout/' + *{id} + '\''">
                                 Thanh toán
                             </button>
+
+                            <!-- Nút đã nhận -->
+                            <form th:if="${item.trangThai == 2}"
+                                  th:id="'receivedForm-' + ${item.id}"
+                                  th:action="@{'/home/orders/received/' + ${item.id}}" method="post"
+                                  style="display:inline;">
+                                <button type="button" class="btn btn-success btn-sm"
+                                        th:attr="data-bs-target='#confirmReceivedModal-' + ${item.id}"
+                                        data-bs-toggle="modal">
+                                    Đã nhận hàng
+                                </button>
+                                <!-- Modal xác nhận -->
+                                <div class="modal fade" th:id="'confirmReceivedModal-' + ${item.id}" tabindex="-1"
+                                     aria-labelledby="receivedModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="receivedModalLabel">Xác nhận đã nhận hàng</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Bạn đã nhận được đơn hàng này?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chưa</button>
+                                                <button type="button" class="btn btn-success"
+                                                        th:attr="onclick='document.getElementById(\'receivedForm-' + ${item.id} + '\').submit()'">
+                                                    Đã nhận
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
                             <!-- Nút mua lại-->
                             <a th:if="${item.trangThai == 3 or item.trangThai == 4}"
                                th:href="@{'/home/checkout?selectedIds=' + ${sachIdsMap[item.id]}
-            + '&quantities=' + ${#strings.arrayJoin(chiTietMap[item.id].![soLuong], ',')}}"
+                                + '&quantities=' + ${#strings.arrayJoin(chiTietMap[item.id].![soLuong], ',')}}"
                                class="btn btn-danger btn-sm">Mua lại</a>
+
+                            <!-- Nút hủy đơn-->
                             <form th:if="${item.trangThai == 0 or item.trangThai == 1}"
                                   th:id="'cancelForm-' + ${item.id}"
                                   th:action="@{'/home/orders/cancel/' + ${item.id}}" method="post"

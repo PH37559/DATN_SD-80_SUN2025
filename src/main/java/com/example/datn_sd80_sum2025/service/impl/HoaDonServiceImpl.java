@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 
@@ -123,6 +124,11 @@ public class HoaDonServiceImpl implements HoaDonService {
     @Override
     public List<HoaDon> searchOrders(Integer idKhachHang, Integer status, String keyword) {
         return hoaDonRepository.searchOrders(idKhachHang, status, keyword);
+    }
+
+    @Override
+    public HoaDon findByIdAndPhone(Integer idHoaDon, String sdt) {
+        return hoaDonRepository.findByIdAndPhone(idHoaDon, sdt).orElse(null);
     }
 
     private Integer toMMdd(LocalDate date) {

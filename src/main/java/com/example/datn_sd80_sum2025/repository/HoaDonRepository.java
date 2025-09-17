@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
@@ -85,5 +86,13 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     List<HoaDon> searchOrders(@Param("idKhachHang") Integer idKhachHang,
                               @Param("status") Integer status,
                               @Param("keyword") String keyword);
+
+    @Query(value = """
+            SELECT hd.* FROM hoa_don hd 
+            JOIN dia_chi_nhan_hang dc ON hd.id_dia_chi = dc.id
+            WHERE hd.id = :idHoaDon AND dc.sdt = :sdt
+            """, nativeQuery = true)
+    Optional<HoaDon> findByIdAndPhone(@Param("idHoaDon") Integer idHoaDon,
+                                      @Param("sdt") String sdt);
 
 }
