@@ -76,7 +76,8 @@ public class SachController {
 
     // Lưu sách mới
     @PostMapping("/save")
-    public String save(@ModelAttribute("sach") Sach sach, Model model) {
+    public String save(@ModelAttribute("sach") Sach sach, Model model
+                      ) throws IOException{
         Map<String, String> errors = new HashMap<>();
 
         if (sach.getMaSach() == null || sach.getMaSach().trim().isEmpty()) {
@@ -175,6 +176,7 @@ public class SachController {
         }
 
         // Không lỗi thì lưu
+        System.out.println("Tên ảnh nhận được: " + sach.getHinhAnh());
         sachService.save(sach);
         return "redirect:/sach/hien-thi";
     }

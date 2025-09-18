@@ -24,6 +24,7 @@
                 <th>ISBN</th>
                 <th>Mã sách</th>
                 <th>Tên sách</th>
+                <th>Hình ảnh</th>
                 <th>Năm xuất bản</th>
                 <th>Giá bán</th>
                 <th>Số lượng</th>
@@ -41,12 +42,11 @@
                 <td th:text="${sach.isbn}">8935325011894</td>
                 <td th:text="${sach.maSach}">MS01</td>
                 <td th:text="${sach.tenSach}">Tên sách mẫu</td>
-<!--                <td>-->
-<!--                    <img th:if="${sach.hinhAnh != null}"-->
-<!--                         th:src="@{'/uploads/' + ${sach.hinhAnh}}" width="100">-->
+                <td>
+                    <img th:src="@{'/images/' + ${sach.hinhAnh}}" width="80" height="100"/>
 
+                </td>
 
-<!--                </td>-->
 
                 <td th:text="${sach.namXuatBan}">2025</td>
                 <td th:text="${#numbers.formatDecimal(sach.giaBan, 0, 'COMMA', 2, 'POINT')} + ' đ'">200,000 đ</td>

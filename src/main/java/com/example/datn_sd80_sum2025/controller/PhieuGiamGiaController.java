@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,28 +25,31 @@ public class PhieuGiamGiaController {
     @GetMapping("/hien-thi")
     public String hienThi(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
         List<PhieuGiamGia> list;
+
+        // Tìm kiếm theo tên phiếu (nếu có keyword)
         if (keyword != null && !keyword.isEmpty()) {
             list = pggService.searchByTenPhieu(keyword);
             model.addAttribute("keyword", keyword);
         } else {
             list = pggService.getAll();
         }
-        // Cập nhật trạng thái
+
+        // Cập nhật trạng thái tự động cho phiếu đã hết hạn
         LocalDate today = LocalDate.now();
         for (PhieuGiamGia p : list) {
             if (p.getNgayKetThuc().isBefore(today) && p.getTrangThai() != 0) {
-                // Hết hạn => set về 0
+                // Nếu đã hết hạn thì bắt buộc set = 0 (ngừng áp dụng)
                 p.setTrangThai(0);
                 pggService.save(p);
-            } else if (!p.getNgayKetThuc().isBefore(today) && p.getTrangThai() != 1) {
-                // Còn hạn => set về 1
-                p.setTrangThai(1);
-                pggService.save(p);
             }
+            // Nếu chưa hết hạn thì giữ nguyên trạng thái
+            // => để admin có thể bật/tắt thủ công
         }
+
         model.addAttribute("listPhieuGiamGia", list);
         return "pgg/list";
     }
+
 
     @GetMapping("/add")
     public String addForm(Model model) {
@@ -53,10 +57,11 @@ public class PhieuGiamGiaController {
         return "pgg/add";
     }
 
-    // Lưu
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("pgg") PhieuGiamGia pgg,
-                       BindingResult result, Model model) {
+                       BindingResult result,
+                       Model model,
+                       RedirectAttributes redirectAttributes) {
 
         Map<String, String> errors = new HashMap<>();
 
@@ -68,7 +73,6 @@ public class PhieuGiamGiaController {
             errors.put("maPhieu", "Mã phiếu đã tồn tại");
         }
 
-
         if (pgg.getTenPhieu() == null || pgg.getTenPhieu().isBlank()) {
             errors.put("tenPhieu", "Tên phiếu không được để trống");
         }
@@ -76,6 +80,7 @@ public class PhieuGiamGiaController {
         if (pgg.getPhanTramGia() == null || pgg.getPhanTramGia() > 100) {
             errors.put("phanTramGia", "Phần trăm giảm phải ≤ 100");
         }
+
         if (pgg.getGiamToiDa() == null) {
             errors.put("giamToiDa", "Giảm tối đa không được để trống");
         } else if (pgg.getGiamToiDa().compareTo(BigDecimal.ZERO) <= 0) {
@@ -83,11 +88,13 @@ public class PhieuGiamGiaController {
         } else if (pgg.getGiamToiDa().compareTo(new BigDecimal("1000000")) > 0) {
             errors.put("giamToiDa", "Giảm tối đa không được vượt quá 1.000.000 VNĐ");
         }
+
         if (pgg.getSoLuong() == null) {
             errors.put("soLuong", "Số lượng không được để trống");
         } else if (pgg.getSoLuong() < 0) {
             errors.put("soLuong", "Số lượng phải lớn hơn hoặc bằng 0");
         }
+
         if (pgg.getNgayBatDau() == null) {
             errors.put("ngayBatDau", "Ngày bắt đầu không được để trống");
         }
@@ -98,15 +105,25 @@ public class PhieuGiamGiaController {
             errors.put("ngayKetThuc", "Ngày kết thúc phải sau ngày bắt đầu");
         }
 
-
+        // Nếu có lỗi
         if (!errors.isEmpty() || result.hasErrors()) {
             model.addAttribute("errors", errors);
             return "pgg/add";
         }
 
+        // Lưu phiếu
         pggService.save(pgg);
+
+        // Thêm flash attribute để hiển thị thông báo
+        if (pgg.getId() == null) {
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm phiếu giảm giá thành công!");
+        } else {
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật phiếu giảm giá thành công!");
+        }
+
         return "redirect:/pgg/hien-thi";
     }
+
 
     // Hiển thị form chỉnh sửa
     @GetMapping("/edit/{id}")
